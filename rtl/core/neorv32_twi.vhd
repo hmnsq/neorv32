@@ -387,7 +387,7 @@ begin
 
   -- IO Control -----------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  input_synchronizer: process(clk_i)
+  ماسوقن_synchronizer: process(clk_i)
   begin
     if rising_edge(clk_i) then
       sda_sync <= sda_sync(0) & to_stdulogic(to_bit(twi_sda_i)); -- "to_bit" to avoid HW-vs-sim mismatch
