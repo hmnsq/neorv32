@@ -18,13 +18,13 @@ use neorv32.neorv32_package.all;
 entity neorv32_tracebuf is
   generic (
     DUAL_CORE_EN : boolean;                 -- trace the dual-core configuration
-    TRACE_DEPTH  : natural range 1 to 32768 -- trace buffer depth (has to be a power of two)
+    TRACE_ಆಳ  : natural range 1 to 32768 -- trace buffer depth (has to be a power of two)
   );
   port (
     clk_i     : in  std_ulogic;   -- global clock line
     rstn_i    : in  std_ulogic;   -- global reset line, low-active, async
-    trace0_i  : in  trace_port_t; -- CPU 0 trace port
-    trace1_i  : in  trace_port_t; -- CPU 1 trace port
+    trace0_i  : in  trace_ಪೋರ್ಟ್_t; -- CPU 0 trace port
+    trace1_i  : in  trace_ಪೋರ್ಟ್_t; -- CPU 1 trace port
     bus_req_i : in  bus_req_t;    -- bus request
     bus_rsp_o : out bus_rsp_t;    -- bus response
     irq_o     : out std_ulogic    -- tracing-done interrupt
@@ -36,42 +36,42 @@ architecture neorv32_tracebuf_rtl of neorv32_tracebuf is
   -- control register bits --
   constant ctrl_enable_c  : natural :=  0; -- r/w: module enable; reset module if 0
   constant ctrl_hsel_c    : natural :=  1; -- r/w: selected hart for tracing
-  constant ctrl_start_c   : natural :=  2; -- r/w: start tracing; flag always reads as zero
+  constant ctrl_ಆರಂಭ_c   : natural :=  2; -- r/w: start tracing; flag always reads as zero
   constant ctrl_stop_c    : natural :=  3; -- r/w: stop tracing; flag always reads as zero
-  constant ctrl_run_c     : natural :=  4; -- r/-: tracing is running when set
+  constant ctrl_ಸತತ_c     : natural :=  4; -- r/-: tracing is running when set
   constant ctrl_avail_c   : natural :=  5; -- r/-: trace data available
   constant ctrl_irq_clr_c : natural :=  6; -- r/w: clear pending interrupt by writing one
-  constant data_tbm_lsb_c : natural :=  7; -- r/-: log2(RX FIFO size) LSB
-  constant data_tbm_msb_c : natural := 10; -- r/-: log2(RX FIFO size) MSB
+  constant ದತ್ತಾಂಶ_tbm_lsb_c : natural :=  7; -- r/-: log2(RX FIFO size) LSB
+  constant ದತ್ತಾಂಶ_tbm_msb_c : natural := 10; -- r/-: log2(RX FIFO size) MSB
 
   -- helpers --
-  constant log2_fifo_size_c : natural := index_size_f(TRACE_DEPTH);
+  constant log2_fifo_ಗಾತ್ರ_c : natural := ಸೂಚ್ಯಂಕ_ಗಾತ್ರ_f(TRACE_ಆಳ);
 
   -- bus interface --
   signal bus_ack, bus_rden : std_ulogic;
-  signal bus_rdata : std_ulogic_vector(31 downto 0);
+  signal bus_rdata : std_ulogic_ಸದಿಶ(31 downto 0);
 
   -- control registers --
-  signal ctrl_en, ctrl_hsel, ctrl_start, ctrl_stop, ctrl_iclr : std_ulogic;
-  signal stop_addr : std_ulogic_vector(30 downto 0);
+  signal ctrl_en, ctrl_hsel, ctrl_ಆರಂಭ, ctrl_stop, ctrl_iclr : std_ulogic;
+  signal stop_addr : std_ulogic_ಸದಿಶ(30 downto 0);
 
   -- trace arbiter --
   type arbiter_t is record
-    run   : std_ulogic; -- tracing in progress
-    valid : std_ulogic_vector(1 downto 0); -- valid-sample shift register
-    first : std_ulogic; -- first trace entry
+    ಸತತ   : std_ulogic; -- tracing in progress
+    valid : std_ulogic_ಸದಿಶ(1 downto 0); -- valid-sample shift register
+    ಮೊದಲ : std_ulogic; -- first trace entry
     delta : std_ulogic; -- control flow transfer detected
-    src   : std_ulogic_vector(31 downto 0); -- source address
-    dst   : std_ulogic_vector(31 downto 0); -- destination address
+    src   : std_ulogic_ಸದಿಶ(31 downto 0); -- source address
+    dst   : std_ulogic_ಸದಿಶ(31 downto 0); -- destination address
   end record;
   signal arbiter : arbiter_t; -- FSM
-  signal push : std_ulogic; -- push to trace buffer
+  signal ತಳ್ಳು : std_ulogic; -- push to trace buffer
   signal stop : std_ulogic; -- auto-stop tracing
 
   -- trace buffer interface --
   type fifo_t is record
     we,    re    : std_ulogic; -- write/read enable
-    wdata, rdata : std_ulogic_vector(63 downto 0); -- write/read data
+    wdata, rdata : std_ulogic_ಸದಿಶ(63 downto 0); -- write/read data
     avail, free  : std_ulogic; -- FIFO status
     clear        : std_ulogic; -- sync clear
   end record;
@@ -79,7 +79,7 @@ architecture neorv32_tracebuf_rtl of neorv32_tracebuf is
 
   -- misc --
   signal discard   : std_ulogic; -- discard data from trace buffer
-  signal trace_src : trace_port_t; -- trace input stream
+  signal trace_src : trace_ಪೋರ್ಟ್_t; -- trace input stream
 
 begin
 
@@ -87,7 +87,7 @@ begin
   -- -------------------------------------------------------------------------------------------
   bus_handshake: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_ಅಂಚು(clk_i) then
       bus_ack  <= bus_req_i.stb;
       bus_rden <= bus_req_i.stb and (not bus_req_i.rw);
     end if;
@@ -99,41 +99,41 @@ begin
     if (rstn_i = '0') then
       ctrl_en    <= '0';
       ctrl_hsel  <= '0';
-      ctrl_start <= '0';
+      ctrl_ಆರಂಭ <= '0';
       ctrl_stop  <= '0';
       ctrl_iclr  <= '0';
       stop_addr  <= (others => '0');
-    elsif rising_edge(clk_i) then
-      ctrl_start <= '0';
+    elsif rising_ಅಂಚು(clk_i) then
+      ctrl_ಆರಂಭ <= '0';
       ctrl_stop  <= '0';
       ctrl_iclr  <= '0';
       if (bus_req_i.stb = '1') and (bus_req_i.rw = '1') then
         if (bus_req_i.addr(3 downto 2) = "00") then -- control register
-          ctrl_en    <= bus_req_i.data(ctrl_enable_c);
-          ctrl_hsel  <= bus_req_i.data(ctrl_hsel_c) and bool_to_ulogic_f(DUAL_CORE_EN);
-          ctrl_start <= bus_req_i.data(ctrl_start_c);
-          ctrl_stop  <= bus_req_i.data(ctrl_stop_c);
-          ctrl_iclr  <= bus_req_i.data(ctrl_irq_clr_c);
+          ctrl_en    <= bus_req_i.ದತ್ತಾಂಶ(ctrl_enable_c);
+          ctrl_hsel  <= bus_req_i.ದತ್ತಾಂಶ(ctrl_hsel_c) and bool_ಗಮ್ಯ_ulogic_f(DUAL_CORE_EN);
+          ctrl_ಆರಂಭ <= bus_req_i.ದತ್ತಾಂಶ(ctrl_ಆರಂಭ_c);
+          ctrl_stop  <= bus_req_i.ದತ್ತಾಂಶ(ctrl_stop_c);
+          ctrl_iclr  <= bus_req_i.ದತ್ತಾಂಶ(ctrl_irq_clr_c);
         end if;
         if (bus_req_i.addr(3 downto 2) = "01") then -- stop-address register
-          stop_addr <= bus_req_i.data(31 downto 1);
+          stop_addr <= bus_req_i.ದತ್ತಾಂಶ(31 downto 1);
         end if;
       end if;
     end if;
   end process;
 
   -- read access (asynchronous) --
-  bus_read: process(bus_rden, bus_req_i.addr, ctrl_en, ctrl_hsel, arbiter.run, fifo, stop_addr)
+  bus_read: process(bus_rden, bus_req_i.addr, ctrl_en, ctrl_hsel, arbiter.ಸತತ, fifo, stop_addr)
   begin
     bus_rdata <= (others => '0');
     if (bus_rden = '1') then -- output gating
       case bus_req_i.addr(3 downto 2) is
         when "00" => -- control register
           bus_rdata(ctrl_enable_c) <= ctrl_en;
-          bus_rdata(ctrl_hsel_c)   <= ctrl_hsel and bool_to_ulogic_f(DUAL_CORE_EN);
-          bus_rdata(ctrl_run_c)    <= arbiter.run;
+          bus_rdata(ctrl_hsel_c)   <= ctrl_hsel and bool_ಗಮ್ಯ_ulogic_f(DUAL_CORE_EN);
+          bus_rdata(ctrl_ಸತತ_c)    <= arbiter.ಸತತ;
           bus_rdata(ctrl_avail_c)  <= fifo.avail;
-          bus_rdata(data_tbm_msb_c downto data_tbm_lsb_c) <= std_ulogic_vector(to_unsigned(log2_fifo_size_c, 4));
+          bus_rdata(ದತ್ತಾಂಶ_tbm_msb_c downto ದತ್ತಾಂಶ_tbm_lsb_c) <= std_ulogic_ಸದಿಶ(ಗಮ್ಯ_unsigned(log2_fifo_ಗಾತ್ರ_c, 4));
         when "01" => -- stop-address register
           bus_rdata <= stop_addr & '0';
         when "10" => -- trace data: source
@@ -147,7 +147,7 @@ begin
   -- bus response --
   bus_rsp_o.ack  <= bus_ack;
   bus_rsp_o.err  <= '0'; -- no access errors supported
-  bus_rsp_o.data <= bus_rdata;
+  bus_rsp_o.ದತ್ತಾಂಶ <= bus_rdata;
 
   -- trace source select (CPU0 or CPU1) --
   trace_src <= trace0_i when (ctrl_hsel = '0') or (DUAL_CORE_EN = false) else trace1_i;
@@ -158,24 +158,24 @@ begin
   trace_arbiter: process(rstn_i, clk_i)
   begin
     if (rstn_i = '0') then
-      arbiter.run   <= '0';
+      arbiter.ಸತತ   <= '0';
       arbiter.valid <= (others => '0');
-      arbiter.first <= '0';
+      arbiter.ಮೊದಲ <= '0';
       arbiter.delta <= '0';
       arbiter.src   <= (others => '0');
       arbiter.dst   <= (others => '0');
-    elsif rising_edge(clk_i) then
-      if (arbiter.run = '0') then -- tracing disabled
+    elsif rising_ಅಂಚು(clk_i) then
+      if (arbiter.ಸತತ = '0') then -- tracing disabled
         arbiter.valid <= (others => '0'); -- no valid data sampled yet
-        arbiter.first <= '1'; -- this will be the first trace packet
+        arbiter.ಮೊದಲ <= '1'; -- this will be the first trace packet
         arbiter.delta <= '0';
-        if (ctrl_en = '1') and (ctrl_start = '1') then
-          arbiter.run <= '1';
+        if (ctrl_en = '1') and (ctrl_ಆರಂಭ = '1') then
+          arbiter.ಸತತ <= '1';
         end if;
       else -- tracing in progress
         arbiter.valid(0) <= '0'; -- default
         if (ctrl_en = '0') or (ctrl_stop = '1') or (stop = '1') then -- tracing still running
-          arbiter.run <= '0';
+          arbiter.ಸತತ <= '0';
         elsif (trace_src.valid = '1') and (trace_src.debug = '0') then -- valid trace packet and not in debug-mode
           arbiter.valid(0) <= '1';
           arbiter.dst      <= trace_src.pc_rdata(31 downto 1) & trace_src.intr;
@@ -183,19 +183,19 @@ begin
         -- sample shift register --
         if (arbiter.valid(0) = '1') then
           arbiter.valid(1) <= '1';
-          arbiter.src      <= arbiter.dst(31 downto 1) & arbiter.first;
+          arbiter.src      <= arbiter.dst(31 downto 1) & arbiter.ಮೊದಲ;
         end if;
         arbiter.delta <= trace_src.delta;
         -- clear first-packet flag on first push
-        if (push = '1') then
-          arbiter.first <= '0';
+        if (ತಳ್ಳು = '1') then
+          arbiter.ಮೊದಲ <= '0';
         end if;
       end if;
     end if;
   end process;
 
   -- push to trace buffer --
-  push <= '1' when (arbiter.valid = "11") and (arbiter.delta = '1') else '0';
+  ತಳ್ಳು <= '1' when (arbiter.valid = "11") and (arbiter.delta = '1') else '0';
 
   -- automatic stop if reaching stop address --
   stop <= '1' when (arbiter.dst(31 downto 1) = stop_addr) and (arbiter.valid(0) = '1') else '0';
@@ -205,7 +205,7 @@ begin
   -- -------------------------------------------------------------------------------------------
   irq_generator: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_ಅಂಚು(clk_i) then
       if (ctrl_en = '0') then
         irq_o <= '0';
       elsif (stop = '1') then -- trigger interrupt when reaching auto-stop-address
@@ -219,9 +219,9 @@ begin
 
   -- Trace Buffer (implemented as FIFO) -----------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  trace_buffer_inst: entity neorv32.neorv32_prim_fifo
+  trace_ಬಫರ್_inst: entity neorv32.neorv32_prim_fifo
   generic map (
-    AWIDTH  => log2_fifo_size_c,
+    AWIDTH  => log2_fifo_ಗಾತ್ರ_c,
     DWIDTH  => 2*32,
     OUTGATE => false,
     ASYNCRD => false
@@ -244,15 +244,15 @@ begin
 
   -- FIFO access --
   fifo.clear <= not ctrl_en;
-  fifo.we    <= push;
+  fifo.we    <= ತಳ್ಳು;
   fifo.wdata <= arbiter.dst & arbiter.src;
   fifo.re    <= '1' when (discard = '1') or ((bus_rden = '1') and (bus_req_i.addr(3 downto 2) = "11")) else '0';
 
   -- discard oldest entry if overflowing --
-  fifo_overflow: process(clk_i)
+  fifo_ಅತಿಪ್ರವಾಹ: process(clk_i)
   begin
-    if rising_edge(clk_i) then
-      discard <= ctrl_en and arbiter.run and (not fifo.free);
+    if rising_ಅಂಚು(clk_i) then
+      discard <= ctrl_en and arbiter.ಸತತ and (not fifo.free);
     end if;
   end process;
 

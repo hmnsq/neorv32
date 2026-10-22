@@ -25,7 +25,7 @@ entity neorv32_twd is
     rstn_i    : in  std_ulogic;                    -- global reset line, low-active, async
     bus_req_i : in  bus_req_t;                     -- bus request
     bus_rsp_o : out bus_rsp_t;                     -- bus response
-    clkgen_i  : in  std_ulogic_vector(7 downto 0); -- prescaled clock enables
+    clkgen_i  : in  std_ulogic_ಸದಿಶ(7 downto 0); -- prescaled clock enables
     twd_sda_i : in  std_ulogic;                    -- serial data line input
     twd_sda_o : out std_ulogic;                    -- serial data line output
     twd_scl_i : in  std_ulogic;                    -- serial clock line input
@@ -43,30 +43,30 @@ architecture neorv32_twd_rtl of neorv32_twd is
   constant ctrl_addr0_c        : natural :=  4; -- r/w: device address, bit 0 (LSB)
   constant ctrl_addr6_c        : natural := 10; -- r/w: device address, bit 6 (MSB)
   constant ctrl_irq_rx_avail_c : natural := 11; -- r/w: IRQ if RX FIFO not empty
-  constant ctrl_irq_rx_full_c  : natural := 12; -- r/w: IRQ if RX FIFO full
-  constant ctrl_irq_tx_empty_c : natural := 13; -- r/w: IRQ if TX FIFO empty
+  constant ctrl_irq_rx_ತುಂಬಿದ_c  : natural := 12; -- r/w: IRQ if RX FIFO full
+  constant ctrl_irq_tx_ಖಾಲಿಗಳು_c : natural := 13; -- r/w: IRQ if TX FIFO empty
   constant ctrl_irq_tx_nfull_c : natural := 14; -- r/w: IRQ if TX FIFO not full
   constant ctrl_irq_com_beg_c  : natural := 15; -- r/w: IRQ if begin of communication
-  constant ctrl_irq_com_end_c  : natural := 16; -- r/w: IRQ if end of communication
+  constant ctrl_irq_com_ಕೊನೆ_c  : natural := 16; -- r/w: IRQ if end of communication
   constant ctrl_rx_size0_c     : natural := 17; -- r/-: log2(RX_FIFO size), bit 0 (LSB)
   constant ctrl_rx_size3_c     : natural := 20; -- r/-: log2(RX_FIFO size), bit 3 (MSB)
   constant ctrl_tx_size0_c     : natural := 21; -- r/-: log2(TX_FIFO size), bit 0 (LSB)
   constant ctrl_tx_size3_c     : natural := 24; -- r/-: log2(TX_FIFO size), bit 3 (MSB)
   constant ctrl_rx_avail_c     : natural := 25; -- r/-: RX FIFO data available
-  constant ctrl_rx_full_c      : natural := 26; -- r/-: RX FIFO full
-  constant ctrl_tx_empty_c     : natural := 27; -- r/-: TX FIFO empty
-  constant ctrl_tx_full_c      : natural := 28; -- r/-: TX FIFO full
+  constant ctrl_rx_ತುಂಬಿದ_c      : natural := 26; -- r/-: RX FIFO full
+  constant ctrl_tx_ಖಾಲಿಗಳು_c     : natural := 27; -- r/-: TX FIFO empty
+  constant ctrl_tx_ತುಂಬಿದ_c      : natural := 28; -- r/-: TX FIFO full
   constant ctrl_com_beg_c      : natural := 29; -- r/c: communication started, clear by writing 1
-  constant ctrl_com_end_c      : natural := 30; -- r/c: communication ended, clear by writing 1
+  constant ctrl_com_ಕೊನೆ_c      : natural := 30; -- r/c: communication ended, clear by writing 1
   constant ctrl_com_c          : natural := 31; -- r/-: active communication
 
   -- configuration constants --
-  constant rx_size_c : natural := index_size_f(TWD_RX_FIFO);
-  constant tx_size_c : natural := index_size_f(TWD_TX_FIFO);
+  constant rx_ಗಾತ್ರ_c : natural := ಸೂಚ್ಯಂಕ_ಗಾತ್ರ_f(TWD_RX_FIFO);
+  constant tx_ಗಾತ್ರ_c : natural := ಸೂಚ್ಯಂಕ_ಗಾತ್ರ_f(TWD_TX_FIFO);
 
   -- bus interface --
   signal bus_ack, bus_rden : std_ulogic;
-  signal bus_rdata : std_ulogic_vector(31 downto 0);
+  signal bus_rdata : std_ulogic_ಸದಿಶ(31 downto 0);
 
   -- control register --
   type ctrl_t is record
@@ -74,25 +74,25 @@ architecture neorv32_twd_rtl of neorv32_twd is
     clr_rx       : std_ulogic;
     clr_tx       : std_ulogic;
     fsel         : std_ulogic;
-    device_addr  : std_ulogic_vector(6 downto 0);
+    device_addr  : std_ulogic_ಸದಿಶ(6 downto 0);
     irq_rx_avail : std_ulogic;
-    irq_rx_full  : std_ulogic;
-    irq_tx_empty : std_ulogic;
+    irq_rx_ತುಂಬಿದ  : std_ulogic;
+    irq_tx_ಖಾಲಿಗಳು : std_ulogic;
     irq_tx_nfull : std_ulogic;
     irq_com_beg  : std_ulogic;
-    irq_com_end  : std_ulogic;
+    irq_com_ಕೊನೆ  : std_ulogic;
   end record;
   signal ctrl : ctrl_t;
 
   -- bus sampling logic --
   signal smp_clk_en   : std_ulogic; -- sample clock
   signal smp_valid    : std_ulogic; -- valid sample
-  signal smp_sda_sreg : std_ulogic_vector(2 downto 0); -- SDA synchronizer
-  signal smp_scl_sreg : std_ulogic_vector(2 downto 0); -- SCL synchronizer
+  signal smp_sda_sreg : std_ulogic_ಸದಿಶ(2 downto 0); -- SDA synchronizer
+  signal smp_scl_sreg : std_ulogic_ಸದಿಶ(2 downto 0); -- SCL synchronizer
   signal smp_sda      : std_ulogic; -- current SDA state
   signal smp_scl_rise : std_ulogic; -- SCL rising edge
   signal smp_scl_fall : std_ulogic; -- SCL falling edge
-  signal smp_start    : std_ulogic; -- start condition
+  signal smp_ಆರಂಭ    : std_ulogic; -- start condition
   signal smp_stop     : std_ulogic; -- stop condition
 
   -- FIFO interface --
@@ -100,8 +100,8 @@ architecture neorv32_twd_rtl of neorv32_twd is
     clr   : std_ulogic; -- sync reset, high-active
     we    : std_ulogic; -- write enable
     re    : std_ulogic; -- read enable
-    wdata : std_ulogic_vector(7 downto 0); -- write data
-    rdata : std_ulogic_vector(7 downto 0); -- read data
+    wdata : std_ulogic_ಸದಿಶ(7 downto 0); -- write data
+    rdata : std_ulogic_ಸದಿಶ(7 downto 0); -- read data
     avail : std_ulogic; -- data available?
     free  : std_ulogic; -- free entry available?
   end record;
@@ -112,7 +112,7 @@ architecture neorv32_twd_rtl of neorv32_twd is
   type engine_t is record
     state : state_t; -- FSM state
     cnt   : unsigned(3 downto 0); -- bit counter
-    sreg  : std_ulogic_vector(7 downto 0); -- shift register
+    sreg  : std_ulogic_ಸದಿಶ(7 downto 0); -- shift register
     cmd   : std_ulogic; -- 0 = write, 1 = read
     sda   : std_ulogic; -- SDA line drive
     nack  : std_ulogic; -- (N)ACK: driven (write) or received (read) during the 9th clock
@@ -123,7 +123,7 @@ architecture neorv32_twd_rtl of neorv32_twd is
   signal engine : engine_t;
 
   -- communication state monitor --
-  signal com_beg, com_end : std_ulogic;
+  signal com_beg, com_ಕೊನೆ : std_ulogic;
 
 begin
 
@@ -131,7 +131,7 @@ begin
   -- -------------------------------------------------------------------------------------------
   bus_handshake: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_ಅಂಚು(clk_i) then
       bus_ack  <= bus_req_i.stb;
       bus_rden <= bus_req_i.stb and (not bus_req_i.rw);
     end if;
@@ -147,32 +147,32 @@ begin
       ctrl.fsel         <= '0';
       ctrl.device_addr  <= (others => '0');
       ctrl.irq_rx_avail <= '0';
-      ctrl.irq_rx_full  <= '0';
-      ctrl.irq_tx_empty <= '0';
+      ctrl.irq_rx_ತುಂಬಿದ  <= '0';
+      ctrl.irq_tx_ಖಾಲಿಗಳು <= '0';
       ctrl.irq_tx_nfull <= '0';
       ctrl.irq_com_beg  <= '0';
-      ctrl.irq_com_end  <= '0';
-    elsif rising_edge(clk_i) then
+      ctrl.irq_com_ಕೊನೆ  <= '0';
+    elsif rising_ಅಂಚು(clk_i) then
       ctrl.clr_rx <= '0'; -- auto clear
       ctrl.clr_tx <= '0'; -- auto clear
       if (bus_req_i.stb = '1') and (bus_req_i.rw = '1') and (bus_req_i.addr(2) = '0') then -- control register
-        ctrl.enable       <= bus_req_i.data(ctrl_en_c);
-        ctrl.clr_rx       <= bus_req_i.data(ctrl_clr_rx_c);
-        ctrl.clr_tx       <= bus_req_i.data(ctrl_clr_tx_c);
-        ctrl.fsel         <= bus_req_i.data(ctrl_fsel_c);
-        ctrl.device_addr  <= bus_req_i.data(ctrl_addr6_c downto ctrl_addr0_c);
-        ctrl.irq_rx_avail <= bus_req_i.data(ctrl_irq_rx_avail_c);
-        ctrl.irq_rx_full  <= bus_req_i.data(ctrl_irq_rx_full_c);
-        ctrl.irq_tx_empty <= bus_req_i.data(ctrl_irq_tx_empty_c);
-        ctrl.irq_tx_nfull <= bus_req_i.data(ctrl_irq_tx_nfull_c);
-        ctrl.irq_com_beg  <= bus_req_i.data(ctrl_irq_com_beg_c);
-        ctrl.irq_com_end  <= bus_req_i.data(ctrl_irq_com_end_c);
+        ctrl.enable       <= bus_req_i.ದತ್ತಾಂಶ(ctrl_en_c);
+        ctrl.clr_rx       <= bus_req_i.ದತ್ತಾಂಶ(ctrl_clr_rx_c);
+        ctrl.clr_tx       <= bus_req_i.ದತ್ತಾಂಶ(ctrl_clr_tx_c);
+        ctrl.fsel         <= bus_req_i.ದತ್ತಾಂಶ(ctrl_fsel_c);
+        ctrl.device_addr  <= bus_req_i.ದತ್ತಾಂಶ(ctrl_addr6_c downto ctrl_addr0_c);
+        ctrl.irq_rx_avail <= bus_req_i.ದತ್ತಾಂಶ(ctrl_irq_rx_avail_c);
+        ctrl.irq_rx_ತುಂಬಿದ  <= bus_req_i.ದತ್ತಾಂಶ(ctrl_irq_rx_ತುಂಬಿದ_c);
+        ctrl.irq_tx_ಖಾಲಿಗಳು <= bus_req_i.ದತ್ತಾಂಶ(ctrl_irq_tx_ಖಾಲಿಗಳು_c);
+        ctrl.irq_tx_nfull <= bus_req_i.ದತ್ತಾಂಶ(ctrl_irq_tx_nfull_c);
+        ctrl.irq_com_beg  <= bus_req_i.ದತ್ತಾಂಶ(ctrl_irq_com_beg_c);
+        ctrl.irq_com_ಕೊನೆ  <= bus_req_i.ದತ್ತಾಂಶ(ctrl_irq_com_ಕೊನೆ_c);
       end if;
     end if;
   end process;
 
   -- read access (asynchronous) --
-  bus_read: process(bus_rden, bus_req_i.addr, ctrl, rx_fifo, tx_fifo, com_beg, com_end, engine)
+  bus_read: process(bus_rden, bus_req_i.addr, ctrl, rx_fifo, tx_fifo, com_beg, com_ಕೊನೆ, engine)
   begin
     bus_rdata <= (others => '0');
     if (bus_rden = '1') then -- output gating
@@ -181,19 +181,19 @@ begin
         bus_rdata(ctrl_fsel_c)                            <= ctrl.fsel;
         bus_rdata(ctrl_addr6_c downto ctrl_addr0_c)       <= ctrl.device_addr;
         bus_rdata(ctrl_irq_rx_avail_c)                    <= ctrl.irq_rx_avail;
-        bus_rdata(ctrl_irq_rx_full_c)                     <= ctrl.irq_rx_full;
-        bus_rdata(ctrl_irq_tx_empty_c)                    <= ctrl.irq_tx_empty;
+        bus_rdata(ctrl_irq_rx_ತುಂಬಿದ_c)                     <= ctrl.irq_rx_ತುಂಬಿದ;
+        bus_rdata(ctrl_irq_tx_ಖಾಲಿಗಳು_c)                    <= ctrl.irq_tx_ಖಾಲಿಗಳು;
         bus_rdata(ctrl_irq_tx_nfull_c)                    <= ctrl.irq_tx_nfull;
         bus_rdata(ctrl_irq_com_beg_c)                     <= ctrl.irq_com_beg;
-        bus_rdata(ctrl_irq_com_end_c)                     <= ctrl.irq_com_end;
-        bus_rdata(ctrl_rx_size3_c downto ctrl_rx_size0_c) <= std_ulogic_vector(to_unsigned(rx_size_c, 4));
-        bus_rdata(ctrl_tx_size3_c downto ctrl_tx_size0_c) <= std_ulogic_vector(to_unsigned(tx_size_c, 4));
+        bus_rdata(ctrl_irq_com_ಕೊನೆ_c)                     <= ctrl.irq_com_ಕೊನೆ;
+        bus_rdata(ctrl_rx_size3_c downto ctrl_rx_size0_c) <= std_ulogic_ಸದಿಶ(ಗಮ್ಯ_unsigned(rx_ಗಾತ್ರ_c, 4));
+        bus_rdata(ctrl_tx_size3_c downto ctrl_tx_size0_c) <= std_ulogic_ಸದಿಶ(ಗಮ್ಯ_unsigned(tx_ಗಾತ್ರ_c, 4));
         bus_rdata(ctrl_rx_avail_c)                        <= rx_fifo.avail;
-        bus_rdata(ctrl_rx_full_c)                         <= not rx_fifo.free;
-        bus_rdata(ctrl_tx_empty_c)                        <= not tx_fifo.avail;
-        bus_rdata(ctrl_tx_full_c)                         <= not tx_fifo.free;
+        bus_rdata(ctrl_rx_ತುಂಬಿದ_c)                         <= not rx_fifo.free;
+        bus_rdata(ctrl_tx_ಖಾಲಿಗಳು_c)                        <= not tx_fifo.avail;
+        bus_rdata(ctrl_tx_ತುಂಬಿದ_c)                         <= not tx_fifo.free;
         bus_rdata(ctrl_com_beg_c)                         <= com_beg;
-        bus_rdata(ctrl_com_end_c)                         <= com_end;
+        bus_rdata(ctrl_com_ಕೊನೆ_c)                         <= com_ಕೊನೆ;
         bus_rdata(ctrl_com_c)                             <= engine.com;
       else -- RX data FIFO
         bus_rdata(7 downto 0) <= rx_fifo.rdata;
@@ -204,7 +204,7 @@ begin
   -- bus response --
   bus_rsp_o.ack  <= bus_ack;
   bus_rsp_o.err  <= '0'; -- no access errors supported
-  bus_rsp_o.data <= bus_rdata;
+  bus_rsp_o.ದತ್ತಾಂಶ <= bus_rdata;
 
 
   -- Data FIFOs -----------------------------------------------------------------------------
@@ -213,7 +213,7 @@ begin
   -- TX --
   tx_fifo_inst: entity neorv32.neorv32_prim_fifo
   generic map (
-    AWIDTH  => tx_size_c,
+    AWIDTH  => tx_ಗಾತ್ರ_c,
     DWIDTH  => 8,
     OUTGATE => false,
     ASYNCRD => false
@@ -235,14 +235,14 @@ begin
   );
 
   tx_fifo.clr   <= (not ctrl.enable) or ctrl.clr_tx;
-  tx_fifo.wdata <= bus_req_i.data(7 downto 0);
+  tx_fifo.wdata <= bus_req_i.ದತ್ತಾಂಶ(7 downto 0);
   tx_fifo.we    <= bus_req_i.stb and bus_req_i.rw and bus_req_i.addr(2);
   tx_fifo.re    <= engine.tx_re;
 
   -- RX --
   rx_fifo_inst: entity neorv32.neorv32_prim_fifo
   generic map (
-    AWIDTH  => rx_size_c,
+    AWIDTH  => rx_ಗಾತ್ರ_c,
     DWIDTH  => 8,
     OUTGATE => false,
     ASYNCRD => false
@@ -273,14 +273,14 @@ begin
   -- -------------------------------------------------------------------------------------------
   irq_gen: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_ಅಂಚು(clk_i) then
       irq_o <= ctrl.enable and (
                (ctrl.irq_rx_avail and      rx_fifo.avail)  or -- RX FIFO not empty
-               (ctrl.irq_rx_full  and (not rx_fifo.free))  or -- RX FIFO full
-               (ctrl.irq_tx_empty and (not tx_fifo.avail)) or -- TX FIFO empty
+               (ctrl.irq_rx_ತುಂಬಿದ  and (not rx_fifo.free))  or -- RX FIFO full
+               (ctrl.irq_tx_ಖಾಲಿಗಳು and (not tx_fifo.avail)) or -- TX FIFO empty
                (ctrl.irq_tx_nfull and      tx_fifo.free)   or -- TX FIFO not full
                (ctrl.irq_com_beg  and      com_beg)        or -- begin of communication
-               (ctrl.irq_com_end  and      com_end));         -- end of communication
+               (ctrl.irq_com_ಕೊನೆ  and      com_ಕೊನೆ));         -- end of communication
     end if;
   end process;
 
@@ -289,10 +289,10 @@ begin
   -- -------------------------------------------------------------------------------------------
   synchronizer: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_ಅಂಚು(clk_i) then
       -- input register --
-      smp_sda_sreg(0) <= to_stdulogic(to_bit(twd_sda_i)); -- "to_bit" to avoid hardware-vs-simulation mismatch
-      smp_scl_sreg(0) <= to_stdulogic(to_bit(twd_scl_i));
+      smp_sda_sreg(0) <= ಗಮ್ಯ_stdulogic(ಗಮ್ಯ_ಬಿಟ್(twd_sda_i)); -- "to_bit" to avoid hardware-vs-simulation mismatch
+      smp_scl_sreg(0) <= ಗಮ್ಯ_stdulogic(ಗಮ್ಯ_ಬಿಟ್(twd_scl_i));
       -- sample register --
       smp_valid <= ctrl.enable and smp_clk_en; -- valid sample
       if (smp_clk_en = '1') then
@@ -314,7 +314,7 @@ begin
   smp_sda      <= smp_sda_sreg(1);
   smp_scl_rise <= smp_valid and (not smp_scl_sreg(2)) and (    smp_scl_sreg(1));
   smp_scl_fall <= smp_valid and (    smp_scl_sreg(2)) and (not smp_scl_sreg(1));
-  smp_start    <= smp_valid and smp_scl_sreg(2) and smp_scl_sreg(1) and (    smp_sda_sreg(2)) and (not smp_sda_sreg(1));
+  smp_ಆರಂಭ    <= smp_valid and smp_scl_sreg(2) and smp_scl_sreg(1) and (    smp_sda_sreg(2)) and (not smp_sda_sreg(1));
   smp_stop     <= smp_valid and smp_scl_sreg(2) and smp_scl_sreg(1) and (not smp_sda_sreg(2)) and (    smp_sda_sreg(1));
 
 
@@ -332,7 +332,7 @@ begin
       engine.rx_we <= '0';
       engine.tx_re <= '0';
       engine.com   <= '0';
-    elsif rising_edge(clk_i) then
+    elsif rising_ಅಂಚು(clk_i) then
       engine.rx_we <= '0';
       engine.tx_re <= '0';
       case engine.state is
@@ -341,7 +341,7 @@ begin
         -- ------------------------------------------------------------
           engine.sda <= '1'; -- idle
           engine.com <= '0'; -- no active communication yet/anymore
-          if (ctrl.enable = '1') and (smp_start = '1') then
+          if (ctrl.enable = '1') and (smp_ಆರಂಭ = '1') then
             engine.state <= S_INIT;
           end if;
 
@@ -356,7 +356,7 @@ begin
         -- ------------------------------------------------------------
           if (ctrl.enable = '0') or (smp_stop = '1') then -- disabled or stop-condition received?
             engine.state <= S_IDLE;
-          elsif (smp_start = '1') then -- start-condition received?
+          elsif (smp_ಆರಂಭ = '1') then -- start-condition received?
             engine.state <= S_INIT;
           elsif (engine.cnt(3) = '1') and (smp_scl_fall = '1') then -- 8 bits received?
             if (ctrl.device_addr = engine.sreg(7 downto 1)) then -- address match?
@@ -398,7 +398,7 @@ begin
         -- ------------------------------------------------------------
           if (ctrl.enable = '0') or (smp_stop = '1') then -- disabled or stop-condition
             engine.state <= S_IDLE;
-          elsif (smp_start = '1') then -- start-condition
+          elsif (smp_ಆರಂಭ = '1') then -- start-condition
             engine.state <= S_INIT;
           elsif (engine.cnt(3) = '1') and (smp_scl_fall = '1') then -- 8 bits received?
             engine.state <= S_ACK;
@@ -426,7 +426,7 @@ begin
         -- ------------------------------------------------------------
           if (ctrl.enable = '0') or (smp_stop = '1') then -- disabled or stop-condition
             engine.state <= S_IDLE;
-          elsif (smp_start = '1') then -- start-condition
+          elsif (smp_ಆರಂಭ = '1') then -- start-condition
             engine.state <= S_INIT;
           else
             if (engine.cmd = '0') then -- WRITE: (N)ACK level was latched when entering the slot
@@ -454,7 +454,7 @@ begin
           engine.sda <= '1'; -- bus released so the host can generate STOP
           if (ctrl.enable = '0') or (smp_stop = '1') then -- disabled or stop-condition
             engine.state <= S_IDLE;
-          elsif (smp_start = '1') then -- start-condition
+          elsif (smp_ಆರಂಭ = '1') then -- start-condition
             engine.state <= S_INIT;
           end if;
 
@@ -474,24 +474,24 @@ begin
   -- -------------------------------------------------------------------------------------------
   com_state_monitor: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_ಅಂಚು(clk_i) then
       if (ctrl.enable = '0') then
         com_beg <= '0';
-        com_end <= '0';
+        com_ಕೊನೆ <= '0';
       else
         -- begin of communication --
         if (engine.state = S_RESP) and (smp_scl_fall = '1') then
           com_beg <= '1';
         elsif (bus_req_i.stb = '1') and (bus_req_i.rw = '1') and (bus_req_i.addr(2) = '0') and
-              (bus_req_i.data(ctrl_com_beg_c) = '1') then
+              (bus_req_i.ದತ್ತಾಂಶ(ctrl_com_beg_c) = '1') then
           com_beg <= '0';
         end if;
         -- end of communication --
         if (engine.state = S_IDLE) and (engine.com = '1') then
-          com_end <= '1';
+          com_ಕೊನೆ <= '1';
         elsif (bus_req_i.stb = '1') and (bus_req_i.rw = '1') and (bus_req_i.addr(2) = '0') and
-              (bus_req_i.data(ctrl_com_end_c) = '1') then
-          com_end <= '0';
+              (bus_req_i.ದತ್ತಾಂಶ(ctrl_com_ಕೊನೆ_c) = '1') then
+          com_ಕೊನೆ <= '0';
         end if;
       end if;
     end if;

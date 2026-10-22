@@ -22,14 +22,14 @@ entity neorv32_cpu_trace is
     rstn_i      : in  std_ulogic; -- global reset, low-active, async
     ctrl_i      : in  ctrl_bus_t; -- main control bus
     -- operands --
-    rs1_rdata_i : in  std_ulogic_vector(31 downto 0); -- rs1 read data
-    rs2_rdata_i : in  std_ulogic_vector(31 downto 0); -- rs2 read data
-    rd_wdata_i  : in  std_ulogic_vector(31 downto 0); -- rd write data
-    mem_ben_i   : in  std_ulogic_vector(3 downto 0);  -- memory byte-enable
-    mem_addr_i  : in  std_ulogic_vector(31 downto 0); -- memory address
-    mem_wdata_i : in  std_ulogic_vector(31 downto 0); -- memory write data
+    rs1_rdata_i : in  std_ulogic_ಸದಿಶ(31 downto 0); -- rs1 read data
+    rs2_rdata_i : in  std_ulogic_ಸದಿಶ(31 downto 0); -- rs2 read data
+    rd_wdata_i  : in  std_ulogic_ಸದಿಶ(31 downto 0); -- rd write data
+    mem_ben_i   : in  std_ulogic_ಸದಿಶ(3 downto 0);  -- memory byte-enable
+    mem_addr_i  : in  std_ulogic_ಸದಿಶ(31 downto 0); -- memory address
+    mem_wdata_i : in  std_ulogic_ಸದಿಶ(31 downto 0); -- memory write data
     -- trace port --
-    trace_o     : out trace_port_t -- execution trace port
+    trace_o     : out trace_ಪೋರ್ಟ್_t -- execution trace port
   );
 end entity;
 
@@ -38,16 +38,16 @@ architecture neorv32_cpu_trace_rtl of neorv32_cpu_trace is
   -- trace arbiter
   type arbiter_t is record
     state : std_ulogic; -- sampling phase
-    entry : std_ulogic; -- trap entry
+    ನಮೂದು : std_ulogic; -- trap entry
     delta : std_ulogic; -- control flow transfer
-    order : std_ulogic_vector(31 downto 0); -- instruction counter
+    ಕ್ರಮ : std_ulogic_ಸದಿಶ(31 downto 0); -- instruction counter
   end record;
   signal arbiter : arbiter_t;  -- FSM
-  signal done    : std_ulogic; -- execution of current instruction completed
+  signal ಮುಗಿದ    : std_ulogic; -- execution of current instruction completed
   signal valid   : std_ulogic; -- commit trace data
 
   -- trace packet buffer --
-  signal trace_buf : trace_port_t;
+  signal trace_buf : trace_ಪೋರ್ಟ್_t;
 
 begin
 
@@ -57,47 +57,47 @@ begin
   begin
     if (rstn_i = '0') then
       arbiter.state <= '0';
-      arbiter.entry <= '0';
+      arbiter.ನಮೂದು <= '0';
       arbiter.delta <= '0';
-      arbiter.order <= (others => '0');
-    elsif rising_edge(clk_i) then
+      arbiter.ಕ್ರಮ <= (others => '0');
+    elsif rising_ಅಂಚು(clk_i) then
       -- sampling control: start trace cycle when in EXECUTE state --
-      arbiter.state <= (arbiter.state or ctrl_i.cpu_exec) and (not done);
+      arbiter.state <= (arbiter.state or ctrl_i.cpu_exec) and (not ಮುಗಿದ);
       -- trap-entry detector: buffer trap entry until trace commit --
-      arbiter.entry <= (arbiter.entry or ctrl_i.cpu_trap) and (not valid);
+      arbiter.ನಮೂದು <= (arbiter.ನಮೂದು or ctrl_i.cpu_trap) and (not valid);
       -- delta detector: buffer delta trigger until we are back in EXECUTE stage --
       arbiter.delta <= (arbiter.delta or ctrl_i.cnt_event(cnt_event_delta_c)) and (not ctrl_i.cpu_exec);
       -- instruction counter --
       if (valid = '1') then
-        arbiter.order <= std_ulogic_vector(unsigned(arbiter.order) + 1);
+        arbiter.ಕ್ರಮ <= std_ulogic_ಸದಿಶ(unsigned(arbiter.ಕ್ರಮ) + 1);
       end if;
     end if;
   end process;
 
   -- commit trace state when back in DISPATCH stage (or when entering sleep mode) --
-  done  <= '1' when (ctrl_i.if_ready = '1') or (ctrl_i.cnt_event(cnt_event_cy_c) = '0') else '0';
-  valid <= arbiter.state and done;
+  ಮುಗಿದ  <= '1' when (ctrl_i.if_ready = '1') or (ctrl_i.cnt_event(cnt_event_cy_c) = '0') else '0';
+  valid <= arbiter.state and ಮುಗಿದ;
 
 
   -- Assemble Trace Packet ------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  trace_packet_buffer: process(rstn_i, clk_i)
+  trace_packet_ಬಫರ್: process(rstn_i, clk_i)
   begin
     if (rstn_i = '0') then
-      trace_buf <= trace_port_terminate_c;
-    elsif rising_edge(clk_i) then
+      trace_buf <= trace_ಪೋರ್ಟ್_terminate_c;
+    elsif rising_ಅಂಚು(clk_i) then
 
       -- trace data is valid --
       trace_buf.valid <= valid;
 
       -- instruction metadata --
-      trace_buf.order <= x"00000000" & arbiter.order;
+      trace_buf.ಕ್ರಮ <= x"00000000" & arbiter.ಕ್ರಮ;
       trace_buf.trap  <= ctrl_i.cpu_sync_exc;
       trace_buf.halt  <= not ctrl_i.cnt_event(cnt_event_cy_c);
-      trace_buf.intr  <= arbiter.entry;
+      trace_buf.intr  <= arbiter.ನಮೂದು;
       trace_buf.ixl   <= "01"; -- XLEN = 32-bit
       if (ctrl_i.cpu_exec = '1') then
-        trace_buf.mode  <= ctrl_i.cpu_priv & ctrl_i.cpu_priv;
+        trace_buf.ಬಹುಲಕ  <= ctrl_i.cpu_priv & ctrl_i.cpu_priv;
         trace_buf.debug <= ctrl_i.cpu_debug;
         trace_buf.cmd32 <= ctrl_i.ir_funct12 & ctrl_i.rf_rs1 & ctrl_i.ir_funct3 & ctrl_i.rf_rd & ctrl_i.ir_opcode;
       end if;
@@ -143,10 +143,10 @@ begin
       -- memory access --
       if (ctrl_i.lsu_req = '1') then
         if (ctrl_i.lsu_rd = '1') then
-          trace_buf.mem_rmask <= std_ulogic_vector(shift_right(unsigned(mem_ben_i),to_integer(unsigned(mem_addr_i(1 downto 0)))));
+          trace_buf.mem_rmask <= std_ulogic_ಸದಿಶ(ಸರಿಸು_ಬಲ(unsigned(mem_ben_i),ಗಮ್ಯ_integer(unsigned(mem_addr_i(1 downto 0)))));
         end if;
         if (ctrl_i.lsu_wr = '1') then
-          trace_buf.mem_wmask <= std_ulogic_vector(shift_right(unsigned(mem_ben_i),to_integer(unsigned(mem_addr_i(1 downto 0)))));
+          trace_buf.mem_wmask <= std_ulogic_ಸದಿಶ(ಸರಿಸು_ಬಲ(unsigned(mem_ben_i),ಗಮ್ಯ_integer(unsigned(mem_addr_i(1 downto 0)))));
         end if;
       elsif (trace_buf.valid = '1') then
         trace_buf.mem_rmask <= (others => '0');
@@ -195,7 +195,7 @@ entity neorv32_cpu_trace_simlog is
   port (
     clk_i   : in std_ulogic;  -- global clock line
     rstn_i  : in std_ulogic;  -- global reset line, low-active, async
-    trace_i : in trace_port_t -- CPU trace port
+    trace_i : in trace_ಪೋರ್ಟ್_t -- CPU trace port
   );
 end entity;
 
@@ -205,25 +205,25 @@ architecture neorv32_cpu_trace_simlog_rtl of neorv32_cpu_trace_simlog is
 -- RTL_SYNTHESIS OFF
 
   -- Check if vector matches binary pattern (skip elements compared with '-')
-  function match_f(input : std_ulogic_vector; pattern : std_ulogic_vector) return boolean is
-    variable match_v : boolean;
+  function ಹೊಂದಿಕೆ_f(ಒಳಹರಿವು : std_ulogic_ಸದಿಶ; ನಮೂನೆ : std_ulogic_ಸದಿಶ) return boolean is
+    variable ಹೊಂದಿಕೆ_v : boolean;
   begin
-    if (input'length /= pattern'length) then -- no match if different sizes
+    if (ಒಳಹರಿವು'length /= pattern'ಉದ್ದಳತೆ) then -- no match if different sizes
       return false;
     else
-      match_v := true;
-      for i in input'length-1 downto 0 loop
-        if (pattern(i) = '1') or (pattern(i) = '0') then -- valid pattern value, skip everything else
-          match_v := match_v and boolean(pattern(i) = input(i));
+      ಹೊಂದಿಕೆ_v := true;
+      for i in ಒಳಹರಿವು'ಉದ್ದಳತೆ-1 downto 0 loop
+        if (ನಮೂನೆ(i) = '1') or (ನಮೂನೆ(i) = '0') then -- valid pattern value, skip everything else
+          ಹೊಂದಿಕೆ_v := ಹೊಂದಿಕೆ_v and boolean(ನಮೂನೆ(i) = ಒಳಹರಿವು(i));
         end if;
       end loop;
-      return match_v;
+      return ಹೊಂದಿಕೆ_v;
     end if;
   end function;
 
   -- list of all currently supported instructions --
   type inst_touple_t is record
-    machine  : std_ulogic_vector(31 downto 0); -- instruction word
+    machine  : std_ulogic_ಸದಿಶ(31 downto 0); -- instruction word
     mnemonic : string(1 to 11); -- according assembly mnemonic
   end record;
   type inst_t is array (238 downto 0) of inst_touple_t;
@@ -470,10 +470,10 @@ architecture neorv32_cpu_trace_simlog_rtl of neorv32_cpu_trace_simlog is
   );
 
   -- decode instruction mnemonic --
-  function decode_mnemonic_f(inst : std_ulogic_vector(31 downto 0)) return string is
+  function decode_mnemonic_f(inst : std_ulogic_ಸದಿಶ(31 downto 0)) return string is
   begin
-    for i in 0 to inst_c'length-1 loop
-      if match_f(inst, inst_c(i).machine) then
+    for i in 0 to inst_c'ಉದ್ದಳತೆ-1 loop
+      if ಹೊಂದಿಕೆ_f(inst, inst_c(i).machine) then
         return inst_c(i).mnemonic;
       end if;
     end loop;
@@ -481,7 +481,7 @@ architecture neorv32_cpu_trace_simlog_rtl of neorv32_cpu_trace_simlog is
   end function;
 
   -- decode CSR name --
-  function decode_csr_f(addr : std_ulogic_vector(11 downto 0)) return string is
+  function decode_csr_f(addr : std_ulogic_ಸದಿಶ(11 downto 0)) return string is
   begin
     case addr is
       -- user floating-point CSRs --
@@ -635,8 +635,8 @@ architecture neorv32_cpu_trace_simlog_rtl of neorv32_cpu_trace_simlog is
       when csr_mhpmcounter30h_c => return "mhpmcounter30h";
       when csr_mhpmcounter31h_c => return "mhpmcounter31h";
       -- user counters/timers --
-      when csr_cycle_c          => return "cycle";
-      when csr_time_c           => return "time";
+      when csr_ಚಕ್ರ_c          => return "cycle";
+      when csr_ಸಮಯ_c           => return "time";
       when csr_instret_c        => return "instret";
       when csr_hpmcounter3_c    => return "hpmcounter3";
       when csr_hpmcounter4_c    => return "hpmcounter4";
@@ -708,40 +708,40 @@ architecture neorv32_cpu_trace_simlog_rtl of neorv32_cpu_trace_simlog is
       -- NEORV32-specific machine registers --
       when csr_mxisa_c          => return "mxisa";
       -- unknown; just print address --
-      when others               => return "0x" & to_hexstring_f(addr);
+      when others               => return "0x" & ಗಮ್ಯ_hexstring_f(addr);
     end case;
   end function;
 
   -- decode instruction operands --
-  function decode_operands_f(inst : std_ulogic_vector(31 downto 0)) return string is
-    variable is_v, ib_v, iu_v, ij_v, ii_v : std_ulogic_vector(31 downto 0);
+  function decode_operands_f(inst : std_ulogic_ಸದಿಶ(31 downto 0)) return string is
+    variable is_v, ib_v, iu_v, ij_v, ii_v : std_ulogic_ಸದಿಶ(31 downto 0);
     variable rs1_iv, rs2_iv, rd_iv, is_iv, ib_iv, iu_iv, ij_iv, ii_iv : integer;
   begin
     -- registers --
-    rs1_iv := to_integer(unsigned(inst(instr_rs1_msb_c downto instr_rs1_lsb_c)));
-    rs2_iv := to_integer(unsigned(inst(instr_rs2_msb_c downto instr_rs2_lsb_c)));
-    rd_iv  := to_integer(unsigned(inst(instr_rd_msb_c downto instr_rd_lsb_c)));
+    rs1_iv := ಗಮ್ಯ_integer(unsigned(inst(instr_rs1_msb_c downto instr_rs1_lsb_c)));
+    rs2_iv := ಗಮ್ಯ_integer(unsigned(inst(instr_rs2_msb_c downto instr_rs2_lsb_c)));
+    rd_iv  := ಗಮ್ಯ_integer(unsigned(inst(instr_rd_msb_c downto instr_rd_lsb_c)));
     -- immediates --
     is_v  := replicate_f(inst(31), 21) & inst(30 downto 25) & inst(11 downto 7);
     ib_v  := replicate_f(inst(31), 20) & inst(7) & inst(30 downto 25) & inst(11 downto 8) & '0';
     iu_v  := inst(31 downto 12) & x"000";
     ij_v  := replicate_f(inst(31), 12) & inst(19 downto 12) & inst(20) & inst(30 downto 21) & '0';
     ii_v  := replicate_f(inst(31), 21) & inst(30 downto 21) & inst(20);
-    is_iv := to_integer(signed(is_v));
-    ib_iv := to_integer(signed(ib_v));
-    iu_iv := to_integer(signed(iu_v));
-    ij_iv := to_integer(signed(ij_v));
-    ii_iv := to_integer(signed(ii_v));
+    is_iv := ಗಮ್ಯ_integer(signed(is_v));
+    ib_iv := ಗಮ್ಯ_integer(signed(ib_v));
+    iu_iv := ಗಮ್ಯ_integer(signed(iu_v));
+    ij_iv := ಗಮ್ಯ_integer(signed(ij_v));
+    ii_iv := ಗಮ್ಯ_integer(signed(ii_v));
     -- instruction types --
     case inst(instr_opcode_msb_c downto instr_opcode_lsb_c) is
       when opcode_alui_c   => return "x" & integer'image(rd_iv)  & ", x"  & integer'image(rs1_iv) & ", "  & integer'image(ii_iv);
       when opcode_alu_c    => return "x" & integer'image(rd_iv)  & ", x"  & integer'image(rs1_iv) & ", x" & integer'image(rs2_iv);
-      when opcode_lui_c    => return "x" & integer'image(rd_iv)  & ", 0x" & to_hexstring_f(iu_v);
-      when opcode_auipc_c  => return "x" & integer'image(rd_iv)  & ", 0x" & to_hexstring_f(iu_v);
+      when opcode_lui_c    => return "x" & integer'image(rd_iv)  & ", 0x" & ಗಮ್ಯ_hexstring_f(iu_v);
+      when opcode_auipc_c  => return "x" & integer'image(rd_iv)  & ", 0x" & ಗಮ್ಯ_hexstring_f(iu_v);
       when opcode_jal_c    => return "x" & integer'image(rd_iv)  & ", "   & integer'image(ij_iv);
       when opcode_jalr_c   => return "x" & integer'image(rd_iv)  & ", "   & integer'image(ii_iv)  & "(x"  & integer'image(rs1_iv) & ")";
       when opcode_branch_c => return "x" & integer'image(rs1_iv) & ", x"  & integer'image(rs2_iv) & ", "  & integer'image(ib_iv);
-      when opcode_load_c   => return "x" & integer'image(rd_iv)  & ", "   & integer'image(ii_iv)  & "(x"  & integer'image(rs1_iv) & ")";
+      when opcode_ತುಂಬು_c   => return "x" & integer'image(rd_iv)  & ", "   & integer'image(ii_iv)  & "(x"  & integer'image(rs1_iv) & ")";
       when opcode_store_c  => return "x" & integer'image(rs2_iv) & ", "   & integer'image(is_iv)  & "(x"  & integer'image(rs1_iv) & ")";
       when opcode_amo_c    =>
         if (inst(28 downto 27) = "10") then -- zalrsc LR
@@ -770,9 +770,9 @@ architecture neorv32_cpu_trace_simlog_rtl of neorv32_cpu_trace_simlog is
   end function;
 
   -- logging stuff --
-  signal cycle_cnt : std_ulogic_vector(31 downto 0);
+  signal ಚಕ್ರ_cnt : std_ulogic_ಸದಿಶ(31 downto 0);
   signal reset : std_ulogic;
-  signal header : std_ulogic;
+  signal ಶೀರ್ಷಿಕೆ : std_ulogic;
 
 -- RTL_SYNTHESIS ON
 -- pragma translate_on
@@ -786,93 +786,93 @@ begin
   sim_trace_gen:
   if is_simulation_c generate
     sim_trace: process(rstn_i, clk_i)
-      file     file_v : text open write_mode is LOG_FILE;
-      variable line_v : line;
+      file     file_v : ಪಠ್ಯ open write_ಬಹುಲಕ is LOG_FILE;
+      variable ಸಾಲು_v : ಸಾಲು;
     begin
       if (rstn_i = '0') then
-        cycle_cnt <= (others => '0');
+        ಚಕ್ರ_cnt <= (others => '0');
         reset     <= '1';
-        header    <= '0';
-      elsif rising_edge(clk_i) then
-        if (header = '0') then
-          header <= '1';
-          write(line_v, string'("-----------------------------------------------------------------------------------------------------------------------------------------------------------------"));
-          writeline(file_v, line_v);
-          write(line_v, string'("Index        Time         Address     Instr       P  Mnemonic    Operands                Registers                                        Memory       Events"));
-          writeline(file_v, line_v);
-          write(line_v, string'("-----------------------------------------------------------------------------------------------------------------------------------------------------------------"));
-          writeline(file_v, line_v);
+        ಶೀರ್ಷಿಕೆ    <= '0';
+      elsif rising_ಅಂಚು(clk_i) then
+        if (ಶೀರ್ಷಿಕೆ = '0') then
+          ಶೀರ್ಷಿಕೆ <= '1';
+          write(ಸಾಲು_v, string'("-----------------------------------------------------------------------------------------------------------------------------------------------------------------"));
+          writeline(file_v, ಸಾಲು_v);
+          write(ಸಾಲು_v, string'("Index        Time         Address     Instr       P  Mnemonic    Operands                Registers                                        Memory       Events"));
+          writeline(file_v, ಸಾಲು_v);
+          write(ಸಾಲು_v, string'("-----------------------------------------------------------------------------------------------------------------------------------------------------------------"));
+          writeline(file_v, ಸಾಲು_v);
         end if;
-        cycle_cnt <= std_ulogic_vector(unsigned(cycle_cnt) + 1);
+        ಚಕ್ರ_cnt <= std_ulogic_ಸದಿಶ(unsigned(ಚಕ್ರ_cnt) + 1);
         if (trace_i.valid = '1') then
           -- index --
-          write(line_v, integer'(to_integer(unsigned(trace_i.order(31 downto 0)))), left, 13);
+          write(ಸಾಲು_v, integer'(ಗಮ್ಯ_integer(unsigned(trace_i.ಕ್ರಮ(31 downto 0)))), ಎಡ, 13);
           -- timestamp --
-          write(line_v, integer'(to_integer(unsigned(cycle_cnt))), left, 13);
+          write(ಸಾಲು_v, integer'(ಗಮ್ಯ_integer(unsigned(ಚಕ್ರ_cnt))), ಎಡ, 13);
           -- instruction address --
-          write(line_v, string'("0x"));
-          write(line_v, string'(to_hexstring_f(trace_i.pc_rdata)));
-          write(line_v, string'("  "));
+          write(ಸಾಲು_v, string'("0x"));
+          write(ಸಾಲು_v, string'(ಗಮ್ಯ_hexstring_f(trace_i.pc_rdata)));
+          write(ಸಾಲು_v, string'("  "));
           -- instruction word --
-          write(line_v, string'("0x"));
+          write(ಸಾಲು_v, string'("0x"));
           if (trace_i.compr = '1') then -- compressed instruction
-            write(line_v, string'(to_hexstring_f(trace_i.insn(15 downto 0))), left, 10);
+            write(ಸಾಲು_v, string'(ಗಮ್ಯ_hexstring_f(trace_i.insn(15 downto 0))), ಎಡ, 10);
           else
-            write(line_v, string'(to_hexstring_f(trace_i.insn)), left, 10);
+            write(ಸಾಲು_v, string'(ಗಮ್ಯ_hexstring_f(trace_i.insn)), ಎಡ, 10);
           end if;
           -- privilege level --
           if (trace_i.debug = '1') then
-            write(line_v, string'("D"), left, 3);
-          elsif (trace_i.mode = "11") then
-            write(line_v, string'("M"), left, 3);
-          elsif (trace_i.mode = "00") then
-            write(line_v, string'("U"), left, 3);
+            write(ಸಾಲು_v, string'("D"), ಎಡ, 3);
+          elsif (trace_i.ಬಹುಲಕ = "11") then
+            write(ಸಾಲು_v, string'("M"), ಎಡ, 3);
+          elsif (trace_i.ಬಹುಲಕ = "00") then
+            write(ಸಾಲು_v, string'("U"), ಎಡ, 3);
           else
-            write(line_v, string'("?"), left, 3);
+            write(ಸಾಲು_v, string'("?"), ಎಡ, 3);
           end if;
           -- decoded instruction (mnemonic + operands) --
-          write(line_v, string'(decode_mnemonic_f(trace_i.insn)), left, 12);
-          write(line_v, string'(decode_operands_f(trace_i.cmd32)), left, 24);
+          write(ಸಾಲು_v, string'(decode_mnemonic_f(trace_i.insn)), ಎಡ, 12);
+          write(ಸಾಲು_v, string'(decode_operands_f(trace_i.cmd32)), ಎಡ, 24);
           -- registers --
           if (trace_i.rd_addr = "00000") then
-            write(line_v, string'(" "), left, 17);
+            write(ಸಾಲು_v, string'(" "), ಎಡ, 17);
           else
-            write(line_v, string'("x"));
-            write(line_v, integer'(to_integer(unsigned(trace_i.rd_addr))), left, 2);
-            write(line_v, string'("<=0x"));
-            write(line_v, string'(to_hexstring_f(trace_i.rd_wdata)));
-            write(line_v, string'(", "));
+            write(ಸಾಲು_v, string'("x"));
+            write(ಸಾಲು_v, integer'(ಗಮ್ಯ_integer(unsigned(trace_i.rd_addr))), ಎಡ, 2);
+            write(ಸಾಲು_v, string'("<=0x"));
+            write(ಸಾಲು_v, string'(ಗಮ್ಯ_hexstring_f(trace_i.rd_wdata)));
+            write(ಸಾಲು_v, string'(", "));
           end if;
-          write(line_v, string'("x"));
-          write(line_v, integer'(to_integer(unsigned(trace_i.rs1_addr))), left, 2);
-          write(line_v, string'("=0x"));
-          write(line_v, string'(to_hexstring_f(trace_i.rs1_rdata)));
-          write(line_v, string'(", x"));
-          write(line_v, integer'(to_integer(unsigned(trace_i.rs2_addr))), left, 2);
-          write(line_v, string'("=0x"));
-          write(line_v, string'(to_hexstring_f(trace_i.rs2_rdata)));
-          write(line_v, string'("  "));
+          write(ಸಾಲು_v, string'("x"));
+          write(ಸಾಲು_v, integer'(ಗಮ್ಯ_integer(unsigned(trace_i.rs1_addr))), ಎಡ, 2);
+          write(ಸಾಲು_v, string'("=0x"));
+          write(ಸಾಲು_v, string'(ಗಮ್ಯ_hexstring_f(trace_i.rs1_rdata)));
+          write(ಸಾಲು_v, string'(", x"));
+          write(ಸಾಲು_v, integer'(ಗಮ್ಯ_integer(unsigned(trace_i.rs2_addr))), ಎಡ, 2);
+          write(ಸಾಲು_v, string'("=0x"));
+          write(ಸಾಲು_v, string'(ಗಮ್ಯ_hexstring_f(trace_i.rs2_rdata)));
+          write(ಸಾಲು_v, string'("  "));
           -- memory access address --
           if (trace_i.mem_rmask /= "0000") or (trace_i.mem_wmask /= "0000") then
-            write(line_v, string'("@0x"));
-            write(line_v, string'(to_hexstring_f(trace_i.mem_addr)));
-            write(line_v, string'(" "));
+            write(ಸಾಲು_v, string'("@0x"));
+            write(ಸಾಲು_v, string'(ಗಮ್ಯ_hexstring_f(trace_i.mem_addr)));
+            write(ಸಾಲು_v, string'(" "));
           else
-            write(line_v, string'(" "), left, 12);
+            write(ಸಾಲು_v, string'(" "), ಎಡ, 12);
           end if;
           -- events --
           if (reset = '1') then -- hardware reset
-            write(line_v, string'(" RESET"));
+            write(ಸಾಲು_v, string'(" RESET"));
             reset <= '0';
           end if;
           if (trace_i.halt = '1') then -- entering sleep mode
-            write(line_v, string'(" SLEEP"));
+            write(ಸಾಲು_v, string'(" SLEEP"));
           end if;
           if (trace_i.intr = '1') then -- first instruction of trap handler
-            write(line_v, string'(" TRAP_ENTRY"));
+            write(ಸಾಲು_v, string'(" TRAP_ENTRY"));
           end if;
           -- flush line to file --
-          writeline(file_v, line_v);
+          writeline(file_v, ಸಾಲು_v);
         end if;
       end if;
     end process;

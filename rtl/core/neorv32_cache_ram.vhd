@@ -19,67 +19,67 @@ use neorv32.neorv32_package.all;
 
 entity neorv32_cache_ram is
   generic (
-    TAG_WIDTH : natural; -- tag width
-    IDX_WIDTH : natural; -- index width
-    OFS_WIDTH : natural  -- offset width
+    ಟ್ಯಾಗ್_ಅಗಲ : natural; -- tag width
+    IDX_ಅಗಲ : natural; -- index width
+    OFS_ಅಗಲ : natural  -- offset width
   );
   port (
     -- global control --
     clk_i     : in  std_ulogic;                     -- global clock, rising edge
-    addr_i    : in  std_ulogic_vector(31 downto 0); -- full byte address
+    addr_i    : in  std_ulogic_ಸದಿಶ(31 downto 0); -- full byte address
     -- tag memory --
-    tag_we_i  : in  std_ulogic;                     -- tag write-enable
-    tag_o     : out std_ulogic_vector(31 downto 0); -- zero-extended tag output
+    ಟ್ಯಾಗ್_we_i  : in  std_ulogic;                     -- tag write-enable
+    ಟ್ಯಾಗ್_o     : out std_ulogic_ಸದಿಶ(31 downto 0); -- zero-extended tag output
     -- data memory --
-    data_we_i : in  std_ulogic_vector(3 downto 0);  -- byte-wise data write-enable
-    data_i    : in  std_ulogic_vector(31 downto 0); -- write data
-    data_o    : out std_ulogic_vector(31 downto 0)  -- read data
+    ದತ್ತಾಂಶ_we_i : in  std_ulogic_ಸದಿಶ(3 downto 0);  -- byte-wise data write-enable
+    ದತ್ತಾಂಶ_i    : in  std_ulogic_ಸದಿಶ(31 downto 0); -- write data
+    ದತ್ತಾಂಶ_o    : out std_ulogic_ಸದಿಶ(31 downto 0)  -- read data
   );
 end entity;
 
 architecture neorv32_cache_ram_rtl of neorv32_cache_ram is
 
-  signal tag_rd : std_ulogic_vector(TAG_WIDTH-1 downto 0);
+  signal ಟ್ಯಾಗ್_rd : std_ulogic_ಸದಿಶ(ಟ್ಯಾಗ್_ಅಗಲ-1 downto 0);
 
 begin
 
   -- Tag RAM --------------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  tag_ram_inst: entity neorv32.neorv32_prim_spram
+  ಟ್ಯಾಗ್_ram_inst: entity neorv32.neorv32_prim_spram
   generic map (
-    AWIDTH => IDX_WIDTH,
-    DWIDTH => TAG_WIDTH,
+    AWIDTH => IDX_ಅಗಲ,
+    DWIDTH => ಟ್ಯಾಗ್_ಅಗಲ,
     OUTREG => false
   )
   port map (
     clk_i  => clk_i,
     en_i   => '1',
-    rw_i   => tag_we_i,
-    addr_i => addr_i(31-TAG_WIDTH downto 2+OFS_WIDTH), -- index
-    data_i => addr_i(31 downto 31-(TAG_WIDTH-1)), -- tag
-    data_o => tag_rd
+    rw_i   => ಟ್ಯಾಗ್_we_i,
+    addr_i => addr_i(31-ಟ್ಯಾಗ್_ಅಗಲ downto 2+OFS_ಅಗಲ), -- index
+    ದತ್ತಾಂಶ_i => addr_i(31 downto 31-(ಟ್ಯಾಗ್_ಅಗಲ-1)), -- tag
+    ದತ್ತಾಂಶ_o => ಟ್ಯಾಗ್_rd
   );
 
-  tag_o(TAG_WIDTH-1 downto 0) <= tag_rd(TAG_WIDTH-1 downto 0); -- actual tag
-  tag_o(31 downto TAG_WIDTH)  <= (others => '0'); -- zero-extend
+  ಟ್ಯಾಗ್_o(ಟ್ಯಾಗ್_ಅಗಲ-1 downto 0) <= ಟ್ಯಾಗ್_rd(ಟ್ಯಾಗ್_ಅಗಲ-1 downto 0); -- actual tag
+  ಟ್ಯಾಗ್_o(31 downto ಟ್ಯಾಗ್_ಅಗಲ)  <= (others => '0'); -- zero-extend
 
   -- Data RAM -------------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  data_ram_gen:
+  ದತ್ತಾಂಶ_ram_gen:
   for i in 0 to 3 generate -- four individual byte RAMs per word
-    data_ram_inst: entity neorv32.neorv32_prim_spram
+    ದತ್ತಾಂಶ_ram_inst: entity neorv32.neorv32_prim_spram
     generic map (
-      AWIDTH => IDX_WIDTH + OFS_WIDTH,
+      AWIDTH => IDX_ಅಗಲ + OFS_ಅಗಲ,
       DWIDTH => 8,
       OUTREG => false
     )
     port map (
       clk_i  => clk_i,
       en_i   => '1',
-      rw_i   => data_we_i(i),
-      addr_i => addr_i(IDX_WIDTH+OFS_WIDTH+1 downto 2), -- index & word-offset
-      data_i => data_i(i*8+7 downto i*8),
-      data_o => data_o(i*8+7 downto i*8)
+      rw_i   => ದತ್ತಾಂಶ_we_i(i),
+      addr_i => addr_i(IDX_ಅಗಲ+OFS_ಅಗಲ+1 downto 2), -- index & word-offset
+      ದತ್ತಾಂಶ_i => ದತ್ತಾಂಶ_i(i*8+7 downto i*8),
+      ದತ್ತಾಂಶ_o => ದತ್ತಾಂಶ_o(i*8+7 downto i*8)
     );
   end generate;
 

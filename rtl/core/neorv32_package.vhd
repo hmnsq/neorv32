@@ -20,7 +20,7 @@ package neorv32_package is
 
   -- Architecture Constants -----------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  constant hw_version_c  : std_ulogic_vector(31 downto 0) := x"01130700"; -- hardware version
+  constant hw_ಆವೃತ್ತಿ_c  : std_ulogic_ಸದಿಶ(31 downto 0) := x"01130700"; -- hardware version
   constant int_bus_tmo_c : natural := 16; -- internal bus timeout window; has to be a power of two
   constant alu_cp_tmo_c  : natural := 9;  -- log2 of max ALU co-processor execution cycles
 
@@ -38,12 +38,12 @@ package neorv32_package is
 -- SoC Peripheral/IO Address Space Layout
 -- **********************************************************************************************************
 
-  constant mem_io_dev_size_c : natural := 64*1024; -- size of a single IO device (bytes)
-  constant mem_io_base_c     : std_ulogic_vector(31 downto 0) := x"ffe00000";
-  constant mem_io_size_c     : natural := 32 * mem_io_dev_size_c;
+  constant mem_io_dev_ಗಾತ್ರ_c : natural := 64*1024; -- size of a single IO device (bytes)
+  constant mem_io_ತಳ_c     : std_ulogic_ಸದಿಶ(31 downto 0) := x"ffe00000";
+  constant mem_io_ಗಾತ್ರ_c     : natural := 32 * mem_io_dev_ಗಾತ್ರ_c;
 
   -- IO Address Map (base address must be aligned to the region's size) --
-  constant base_io_bootrom_c  : std_ulogic_vector(31 downto 0) := x"ffe00000";
+  constant ತಳ_io_bootrom_c  : std_ulogic_ಸದಿಶ(31 downto 0) := x"ffe00000";
 --constant base_io_???_c      : std_ulogic_vector(31 downto 0) := x"ffe10000"; -- reserved
 --constant base_io_???_c      : std_ulogic_vector(31 downto 0) := x"ffe20000"; -- reserved
 --constant base_io_???_c      : std_ulogic_vector(31 downto 0) := x"ffe30000"; -- reserved
@@ -53,32 +53,32 @@ package neorv32_package is
 --constant base_io_???_c      : std_ulogic_vector(31 downto 0) := x"ffe70000"; -- reserved
 --constant base_io_???_c      : std_ulogic_vector(31 downto 0) := x"ffe80000"; -- reserved
 --constant base_io_???_c      : std_ulogic_vector(31 downto 0) := x"ffe90000"; -- reserved
-  constant base_io_twd_c      : std_ulogic_vector(31 downto 0) := x"ffea0000";
-  constant base_io_cfs_c      : std_ulogic_vector(31 downto 0) := x"ffeb0000";
-  constant base_io_slink_c    : std_ulogic_vector(31 downto 0) := x"ffec0000";
-  constant base_io_dma_c      : std_ulogic_vector(31 downto 0) := x"ffed0000";
+  constant ತಳ_io_twd_c      : std_ulogic_ಸದಿಶ(31 downto 0) := x"ffea0000";
+  constant ತಳ_io_cfs_c      : std_ulogic_ಸದಿಶ(31 downto 0) := x"ffeb0000";
+  constant ತಳ_io_slink_c    : std_ulogic_ಸದಿಶ(31 downto 0) := x"ffec0000";
+  constant ತಳ_io_dma_c      : std_ulogic_ಸದಿಶ(31 downto 0) := x"ffed0000";
 --constant base_io_???_c      : std_ulogic_vector(31 downto 0) := x"ffee0000"; -- reserved
-  constant base_io_smc_c      : std_ulogic_vector(31 downto 0) := x"ffef0000";
-  constant base_io_pwm_c      : std_ulogic_vector(31 downto 0) := x"fff00000";
-  constant base_io_gptmr_c    : std_ulogic_vector(31 downto 0) := x"fff10000";
-  constant base_io_onewire_c  : std_ulogic_vector(31 downto 0) := x"fff20000";
-  constant base_io_tracebuf_c : std_ulogic_vector(31 downto 0) := x"fff30000";
-  constant base_io_clint_c    : std_ulogic_vector(31 downto 0) := x"fff40000";
-  constant base_io_uart0_c    : std_ulogic_vector(31 downto 0) := x"fff50000";
-  constant base_io_uart1_c    : std_ulogic_vector(31 downto 0) := x"fff60000";
-  constant base_io_sdi_c      : std_ulogic_vector(31 downto 0) := x"fff70000";
-  constant base_io_spi_c      : std_ulogic_vector(31 downto 0) := x"fff80000";
-  constant base_io_twi_c      : std_ulogic_vector(31 downto 0) := x"fff90000";
-  constant base_io_trng_c     : std_ulogic_vector(31 downto 0) := x"fffa0000";
-  constant base_io_wdt_c      : std_ulogic_vector(31 downto 0) := x"fffb0000";
-  constant base_io_gpio_c     : std_ulogic_vector(31 downto 0) := x"fffc0000";
-  constant base_io_neoled_c   : std_ulogic_vector(31 downto 0) := x"fffd0000";
-  constant base_io_sysinfo_c  : std_ulogic_vector(31 downto 0) := x"fffe0000";
-  constant base_io_ocd_c      : std_ulogic_vector(31 downto 0) := x"ffff0000";
+  constant ತಳ_io_smc_c      : std_ulogic_ಸದಿಶ(31 downto 0) := x"ffef0000";
+  constant ತಳ_io_pwm_c      : std_ulogic_ಸದಿಶ(31 downto 0) := x"fff00000";
+  constant ತಳ_io_gptmr_c    : std_ulogic_ಸದಿಶ(31 downto 0) := x"fff10000";
+  constant ತಳ_io_onewire_c  : std_ulogic_ಸದಿಶ(31 downto 0) := x"fff20000";
+  constant ತಳ_io_tracebuf_c : std_ulogic_ಸದಿಶ(31 downto 0) := x"fff30000";
+  constant ತಳ_io_clint_c    : std_ulogic_ಸದಿಶ(31 downto 0) := x"fff40000";
+  constant ತಳ_io_uart0_c    : std_ulogic_ಸದಿಶ(31 downto 0) := x"fff50000";
+  constant ತಳ_io_uart1_c    : std_ulogic_ಸದಿಶ(31 downto 0) := x"fff60000";
+  constant ತಳ_io_sdi_c      : std_ulogic_ಸದಿಶ(31 downto 0) := x"fff70000";
+  constant ತಳ_io_spi_c      : std_ulogic_ಸದಿಶ(31 downto 0) := x"fff80000";
+  constant ತಳ_io_twi_c      : std_ulogic_ಸದಿಶ(31 downto 0) := x"fff90000";
+  constant ತಳ_io_trng_c     : std_ulogic_ಸದಿಶ(31 downto 0) := x"fffa0000";
+  constant ತಳ_io_wdt_c      : std_ulogic_ಸದಿಶ(31 downto 0) := x"fffb0000";
+  constant ತಳ_io_gpio_c     : std_ulogic_ಸದಿಶ(31 downto 0) := x"fffc0000";
+  constant ತಳ_io_neoled_c   : std_ulogic_ಸದಿಶ(31 downto 0) := x"fffd0000";
+  constant ತಳ_io_sysinfo_c  : std_ulogic_ಸದಿಶ(31 downto 0) := x"fffe0000";
+  constant ತಳ_io_ocd_c      : std_ulogic_ಸದಿಶ(31 downto 0) := x"ffff0000";
 
   -- On-Chip Debugger - debug module entry points (code ROM) --
-  constant dm_exc_entry_c  : std_ulogic_vector(31 downto 0) := x"ffffff00"; -- = base_io_ocd_c + code_rom_base + 0
-  constant dm_park_entry_c : std_ulogic_vector(31 downto 0) := x"ffffff04"; -- = base_io_ocd_c + code_rom_base + 4
+  constant dm_exc_ನಮೂದು_c  : std_ulogic_ಸದಿಶ(31 downto 0) := x"ffffff00"; -- = base_io_ocd_c + code_rom_base + 0
+  constant dm_park_ನಮೂದು_c : std_ulogic_ಸದಿಶ(31 downto 0) := x"ffffff04"; -- = base_io_ocd_c + code_rom_base + 4
 
 -- **********************************************************************************************************
 -- SoC Definitions
@@ -99,76 +99,76 @@ package neorv32_package is
   -- -------------------------------------------------------------------------------------------
   -- bus request --
   type bus_req_t is record
-    meta  : std_ulogic_vector(4 downto 0);  -- access meta data: core_ID[2], debug[1], priv[1], instr/data[1]
-    addr  : std_ulogic_vector(31 downto 0); -- access address
-    data  : std_ulogic_vector(31 downto 0); -- write data
-    ben   : std_ulogic_vector(3 downto 0);  -- byte enable
+    meta  : std_ulogic_ಸದಿಶ(4 downto 0);  -- access meta data: core_ID[2], debug[1], priv[1], instr/data[1]
+    addr  : std_ulogic_ಸದಿಶ(31 downto 0); -- access address
+    ದತ್ತಾಂಶ  : std_ulogic_ಸದಿಶ(31 downto 0); -- write data
+    ben   : std_ulogic_ಸದಿಶ(3 downto 0);  -- byte enable
     stb   : std_ulogic;                     -- request strobe, single-shot
     rw    : std_ulogic;                     -- 0 = read, 1 = write
     amo   : std_ulogic;                     -- set if atomic memory operation
-    amoop : std_ulogic_vector(3 downto 0);  -- type of atomic memory operation
-    burst : std_ulogic;                     -- set if part of burst access
-    lock  : std_ulogic;                     -- set if exclusive access request
+    amoop : std_ulogic_ಸದಿಶ(3 downto 0);  -- type of atomic memory operation
+    ಅವಧಿ : std_ulogic;                     -- set if part of burst access
+    ಬೀಗ  : std_ulogic;                     -- set if exclusive access request
   end record;
 
   -- bus request termination --
   constant req_terminate_c : bus_req_t := (
     meta  => (others => '0'),
     addr  => (others => '0'),
-    data  => (others => '0'),
+    ದತ್ತಾಂಶ  => (others => '0'),
     ben   => (others => '0'),
     stb   => '0',
     rw    => '0',
     amo   => '0',
     amoop => (others => '0'),
-    burst => '0',
-    lock  => '0'
+    ಅವಧಿ => '0',
+    ಬೀಗ  => '0'
   );
 
   -- bus response --
   type bus_rsp_t is record
     ack  : std_ulogic;                     -- set if access acknowledge, single-shot
     err  : std_ulogic;                     -- set if access error, valid if ack = 1
-    data : std_ulogic_vector(31 downto 0); -- read data, valid if ack = 1
+    ದತ್ತಾಂಶ : std_ulogic_ಸದಿಶ(31 downto 0); -- read data, valid if ack = 1
   end record;
 
   -- bus response termination --
   constant rsp_terminate_c : bus_rsp_t := (
     ack  => '0',
     err  => '0',
-    data => (others => '0')
+    ದತ್ತಾಂಶ => (others => '0')
   );
 
   -- Debug Module Interface -----------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   -- request --
   type dmi_req_t is record
-    op   : std_ulogic_vector(1 downto 0); -- single-shot
-    addr : std_ulogic_vector(6 downto 0);
-    data : std_ulogic_vector(31 downto 0);
+    op   : std_ulogic_ಸದಿಶ(1 downto 0); -- single-shot
+    addr : std_ulogic_ಸದಿಶ(6 downto 0);
+    ದತ್ತಾಂಶ : std_ulogic_ಸದಿಶ(31 downto 0);
   end record;
 
   -- request termination --
   constant dmi_req_terminate_c : dmi_req_t := (
     op   => (others => '0'),
     addr => (others => '0'),
-    data => (others => '0')
+    ದತ್ತಾಂಶ => (others => '0')
   );
 
   -- request operation --
-  constant dmi_req_nop_c : std_ulogic_vector(1 downto 0) := "00"; -- no operation
-  constant dmi_req_rd_c  : std_ulogic_vector(1 downto 0) := "01"; -- read access
-  constant dmi_req_wr_c  : std_ulogic_vector(1 downto 0) := "10"; -- write access
+  constant dmi_req_nop_c : std_ulogic_ಸದಿಶ(1 downto 0) := "00"; -- no operation
+  constant dmi_req_rd_c  : std_ulogic_ಸದಿಶ(1 downto 0) := "01"; -- read access
+  constant dmi_req_wr_c  : std_ulogic_ಸದಿಶ(1 downto 0) := "10"; -- write access
 
   -- response --
   type dmi_rsp_t is record
-    data : std_ulogic_vector(31 downto 0);
+    ದತ್ತಾಂಶ : std_ulogic_ಸದಿಶ(31 downto 0);
     ack  : std_ulogic; -- single-shot
   end record;
 
   -- response termination --
   constant dmi_rsp_terminate_c : dmi_rsp_t := (
-    data => (others => '0'),
+    ದತ್ತಾಂಶ => (others => '0'),
     ack  => '0'
   );
 
@@ -176,12 +176,12 @@ package neorv32_package is
   -- -------------------------------------------------------------------------------------------
   -- request --
   type xbus_req_t is record
-    addr : std_ulogic_vector(31 downto 0); -- access address
-    data : std_ulogic_vector(31 downto 0); -- write data
-    cti  : std_ulogic_vector(2 downto 0);  -- cycle type
-    tag  : std_ulogic_vector(2 downto 0);  -- access tag
+    addr : std_ulogic_ಸದಿಶ(31 downto 0); -- access address
+    ದತ್ತಾಂಶ : std_ulogic_ಸದಿಶ(31 downto 0); -- write data
+    cti  : std_ulogic_ಸದಿಶ(2 downto 0);  -- cycle type
+    ಟ್ಯಾಗ್  : std_ulogic_ಸದಿಶ(2 downto 0);  -- access tag
     we   : std_ulogic;                     -- read/write
-    sel  : std_ulogic_vector(3 downto 0);  -- byte enable
+    sel  : std_ulogic_ಸದಿಶ(3 downto 0);  -- byte enable
     stb  : std_ulogic;                     -- strobe
     cyc  : std_ulogic;                     -- valid cycle
   end record;
@@ -189,9 +189,9 @@ package neorv32_package is
   -- request termination --
   constant xbus_req_terminate_c : xbus_req_t := (
     addr => (others => '0'),
-    data => (others => '0'),
+    ದತ್ತಾಂಶ => (others => '0'),
     cti  => (others => '0'),
-    tag  => (others => '0'),
+    ಟ್ಯಾಗ್  => (others => '0'),
     we   => '0',
     sel  => (others => '0'),
     stb  => '0',
@@ -200,65 +200,65 @@ package neorv32_package is
 
   -- response --
   type xbus_rsp_t is record
-    data : std_ulogic_vector(31 downto 0); -- read data, valid if ack=1
+    ದತ್ತಾಂಶ : std_ulogic_ಸದಿಶ(31 downto 0); -- read data, valid if ack=1
     ack  : std_ulogic;                     -- access acknowledge
     err  : std_ulogic;                     -- access error
   end record;
 
   -- response termination --
   constant xbus_rsp_terminate_c : xbus_rsp_t := (
-    data => (others => '0'),
+    ದತ್ತಾಂಶ => (others => '0'),
     ack  => '0',
     err  => '0'
   );
 
   -- CPU Trace Port -------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  type trace_port_t is record
+  type trace_ಪೋರ್ಟ್_t is record
     valid     : std_ulogic; -- all other signals are valid when set
     -- instruction metadata --
-    order     : std_ulogic_vector(63 downto 0); -- instruction index
-    insn      : std_ulogic_vector(31 downto 0); -- instruction word
+    ಕ್ರಮ     : std_ulogic_ಸದಿಶ(63 downto 0); -- instruction index
+    insn      : std_ulogic_ಸದಿಶ(31 downto 0); -- instruction word
     trap      : std_ulogic;                     -- set if the current instruction causes a sync exception
     halt      : std_ulogic;                     -- set if last instruction before halting
     intr      : std_ulogic;                     -- set if executing the first instruction of a trap handler
-    mode      : std_ulogic_vector(1 downto 0);  -- 00 = user mode, 11 = machine mode
-    ixl       : std_ulogic_vector(1 downto 0);  -- XLEN; 01 = 32-bit
+    ಬಹುಲಕ      : std_ulogic_ಸದಿಶ(1 downto 0);  -- 00 = user mode, 11 = machine mode
+    ixl       : std_ulogic_ಸದಿಶ(1 downto 0);  -- XLEN; 01 = 32-bit
     debug     : std_ulogic;                     -- set if instruction is executed in debug-mode
     compr     : std_ulogic;                     -- set if instruction is a decompressed instruction
     delta     : std_ulogic;                     -- set if instruction is target of a control-flow transfer
-    cmd32     : std_ulogic_vector(31 downto 0); -- 32-bit (decompressed) instruction word
+    cmd32     : std_ulogic_ಸದಿಶ(31 downto 0); -- 32-bit (decompressed) instruction word
     -- integer register --
-    rs1_addr  : std_ulogic_vector(4 downto 0);  -- rs1 address
-    rs2_addr  : std_ulogic_vector(4 downto 0);  -- rs2 address
-    rs1_rdata : std_ulogic_vector(31 downto 0); -- rs1 read data
-    rs2_rdata : std_ulogic_vector(31 downto 0); -- rs2 read data
-    rd_addr   : std_ulogic_vector(4 downto 0);  -- rd address
-    rd_wdata  : std_ulogic_vector(31 downto 0); -- rd write data
+    rs1_addr  : std_ulogic_ಸದಿಶ(4 downto 0);  -- rs1 address
+    rs2_addr  : std_ulogic_ಸದಿಶ(4 downto 0);  -- rs2 address
+    rs1_rdata : std_ulogic_ಸದಿಶ(31 downto 0); -- rs1 read data
+    rs2_rdata : std_ulogic_ಸದಿಶ(31 downto 0); -- rs2 read data
+    rd_addr   : std_ulogic_ಸದಿಶ(4 downto 0);  -- rd address
+    rd_wdata  : std_ulogic_ಸದಿಶ(31 downto 0); -- rd write data
     -- program counter --
-    pc_rdata  : std_ulogic_vector(31 downto 0); -- current instruction address
-    pc_wdata  : std_ulogic_vector(31 downto 0); -- next instruction address
+    pc_rdata  : std_ulogic_ಸದಿಶ(31 downto 0); -- current instruction address
+    pc_wdata  : std_ulogic_ಸದಿಶ(31 downto 0); -- next instruction address
     -- control and status register --
-    csr_addr  : std_ulogic_vector(11 downto 0); -- csr address
-    csr_rdata : std_ulogic_vector(31 downto 0); -- csr read data
-    csr_wdata : std_ulogic_vector(31 downto 0); -- csr write data
+    csr_addr  : std_ulogic_ಸದಿಶ(11 downto 0); -- csr address
+    csr_rdata : std_ulogic_ಸದಿಶ(31 downto 0); -- csr read data
+    csr_wdata : std_ulogic_ಸದಿಶ(31 downto 0); -- csr write data
     -- memory access --
-    mem_addr  : std_ulogic_vector(31 downto 0); -- address
-    mem_rmask : std_ulogic_vector(3 downto 0);  -- read-enable
-    mem_wmask : std_ulogic_vector(3 downto 0);  -- write-enable
-    mem_rdata : std_ulogic_vector(31 downto 0); -- read data
-    mem_wdata : std_ulogic_vector(31 downto 0); -- write data
+    mem_addr  : std_ulogic_ಸದಿಶ(31 downto 0); -- address
+    mem_rmask : std_ulogic_ಸದಿಶ(3 downto 0);  -- read-enable
+    mem_wmask : std_ulogic_ಸದಿಶ(3 downto 0);  -- write-enable
+    mem_rdata : std_ulogic_ಸದಿಶ(31 downto 0); -- read data
+    mem_wdata : std_ulogic_ಸದಿಶ(31 downto 0); -- write data
   end record;
 
   -- trace port termination --
-  constant trace_port_terminate_c : trace_port_t := (
+  constant trace_ಪೋರ್ಟ್_terminate_c : trace_ಪೋರ್ಟ್_t := (
     valid     => '0',
-    order     => (others => '0'),
+    ಕ್ರಮ     => (others => '0'),
     insn      => (others => '0'),
     trap      => '0',
     halt      => '0',
     intr      => '0',
-    mode      => (others => '0'),
+    ಬಹುಲಕ      => (others => '0'),
     ixl       => "01",
     debug     => '0',
     compr     => '0',
@@ -310,80 +310,80 @@ package neorv32_package is
   -- RISC-V Opcodes -------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   -- alu --
-  constant opcode_alui_c   : std_ulogic_vector(6 downto 0) := "0010011"; -- ALU operation with immediate
-  constant opcode_alu_c    : std_ulogic_vector(6 downto 0) := "0110011"; -- ALU operation
-  constant opcode_lui_c    : std_ulogic_vector(6 downto 0) := "0110111"; -- load upper immediate
-  constant opcode_auipc_c  : std_ulogic_vector(6 downto 0) := "0010111"; -- add upper immediate to PC
+  constant opcode_alui_c   : std_ulogic_ಸದಿಶ(6 downto 0) := "0010011"; -- ALU operation with immediate
+  constant opcode_alu_c    : std_ulogic_ಸದಿಶ(6 downto 0) := "0110011"; -- ALU operation
+  constant opcode_lui_c    : std_ulogic_ಸದಿಶ(6 downto 0) := "0110111"; -- load upper immediate
+  constant opcode_auipc_c  : std_ulogic_ಸದಿಶ(6 downto 0) := "0010111"; -- add upper immediate to PC
   -- control flow --
-  constant opcode_jal_c    : std_ulogic_vector(6 downto 0) := "1101111"; -- jump and link
-  constant opcode_jalr_c   : std_ulogic_vector(6 downto 0) := "1100111"; -- jump and link with register
-  constant opcode_branch_c : std_ulogic_vector(6 downto 0) := "1100011"; -- branch
+  constant opcode_jal_c    : std_ulogic_ಸದಿಶ(6 downto 0) := "1101111"; -- jump and link
+  constant opcode_jalr_c   : std_ulogic_ಸದಿಶ(6 downto 0) := "1100111"; -- jump and link with register
+  constant opcode_branch_c : std_ulogic_ಸದಿಶ(6 downto 0) := "1100011"; -- branch
   -- memory access --
-  constant opcode_load_c   : std_ulogic_vector(6 downto 0) := "0000011"; -- load
-  constant opcode_store_c  : std_ulogic_vector(6 downto 0) := "0100011"; -- store
-  constant opcode_amo_c    : std_ulogic_vector(6 downto 0) := "0101111"; -- atomic memory access
-  constant opcode_fence_c  : std_ulogic_vector(6 downto 0) := "0001111"; -- fence / fence.i
+  constant opcode_ತುಂಬು_c   : std_ulogic_ಸದಿಶ(6 downto 0) := "0000011"; -- load
+  constant opcode_store_c  : std_ulogic_ಸದಿಶ(6 downto 0) := "0100011"; -- store
+  constant opcode_amo_c    : std_ulogic_ಸದಿಶ(6 downto 0) := "0101111"; -- atomic memory access
+  constant opcode_fence_c  : std_ulogic_ಸದಿಶ(6 downto 0) := "0001111"; -- fence / fence.i
   -- system/csr --
-  constant opcode_system_c : std_ulogic_vector(6 downto 0) := "1110011"; -- environment/CSR access
+  constant opcode_system_c : std_ulogic_ಸದಿಶ(6 downto 0) := "1110011"; -- environment/CSR access
   -- floating point operations --
-  constant opcode_fpu_c    : std_ulogic_vector(6 downto 0) := "1010011"; -- dual/single operand instruction
+  constant opcode_fpu_c    : std_ulogic_ಸದಿಶ(6 downto 0) := "1010011"; -- dual/single operand instruction
   -- official custom opcodes - free for custom instructions --
-  constant opcode_cust0_c  : std_ulogic_vector(6 downto 0) := "0001011"; -- custom-0 (NEORV32 CFU)
-  constant opcode_cust1_c  : std_ulogic_vector(6 downto 0) := "0101011"; -- custom-1 (NEORV32 CFU)
+  constant opcode_cust0_c  : std_ulogic_ಸದಿಶ(6 downto 0) := "0001011"; -- custom-0 (NEORV32 CFU)
+  constant opcode_cust1_c  : std_ulogic_ಸದಿಶ(6 downto 0) := "0101011"; -- custom-1 (NEORV32 CFU)
   -- extended opcodes --
-  constant opcode_op32_c   : std_ulogic_vector(6 downto 0) := "0111011"; -- OP-32 (NEORV32 CFU)
-  constant opcode_op32i_c  : std_ulogic_vector(6 downto 0) := "0011011"; -- OP-IMM-32 (NEORV32 CFU)
+  constant opcode_op32_c   : std_ulogic_ಸದಿಶ(6 downto 0) := "0111011"; -- OP-32 (NEORV32 CFU)
+  constant opcode_op32i_c  : std_ulogic_ಸದಿಶ(6 downto 0) := "0011011"; -- OP-IMM-32 (NEORV32 CFU)
 
   -- RISC-V Funct3 --------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   -- conditional branch --
-  constant funct3_beq_c    : std_ulogic_vector(2 downto 0) := "000"; -- branch if equal
-  constant funct3_bne_c    : std_ulogic_vector(2 downto 0) := "001"; -- branch if not equal
-  constant funct3_beqi_c   : std_ulogic_vector(2 downto 0) := "010"; -- branch if equal immediate (Zibi ISA ext.)
-  constant funct3_bnei_c   : std_ulogic_vector(2 downto 0) := "011"; -- branch if not equal immediate (Zibi ISA ext.)
-  constant funct3_blt_c    : std_ulogic_vector(2 downto 0) := "100"; -- branch if less than
-  constant funct3_bge_c    : std_ulogic_vector(2 downto 0) := "101"; -- branch if greater than or equal
-  constant funct3_bltu_c   : std_ulogic_vector(2 downto 0) := "110"; -- branch if less than (unsigned)
-  constant funct3_bgeu_c   : std_ulogic_vector(2 downto 0) := "111"; -- branch if greater than or equal (unsigned)
+  constant funct3_beq_c    : std_ulogic_ಸದಿಶ(2 downto 0) := "000"; -- branch if equal
+  constant funct3_bne_c    : std_ulogic_ಸದಿಶ(2 downto 0) := "001"; -- branch if not equal
+  constant funct3_beqi_c   : std_ulogic_ಸದಿಶ(2 downto 0) := "010"; -- branch if equal immediate (Zibi ISA ext.)
+  constant funct3_bnei_c   : std_ulogic_ಸದಿಶ(2 downto 0) := "011"; -- branch if not equal immediate (Zibi ISA ext.)
+  constant funct3_blt_c    : std_ulogic_ಸದಿಶ(2 downto 0) := "100"; -- branch if less than
+  constant funct3_bge_c    : std_ulogic_ಸದಿಶ(2 downto 0) := "101"; -- branch if greater than or equal
+  constant funct3_bltu_c   : std_ulogic_ಸದಿಶ(2 downto 0) := "110"; -- branch if less than (unsigned)
+  constant funct3_bgeu_c   : std_ulogic_ಸದಿಶ(2 downto 0) := "111"; -- branch if greater than or equal (unsigned)
   -- memory access --
-  constant funct3_lb_c     : std_ulogic_vector(2 downto 0) := "000"; -- load byte (signed)
-  constant funct3_lh_c     : std_ulogic_vector(2 downto 0) := "001"; -- load half word (signed)
-  constant funct3_lw_c     : std_ulogic_vector(2 downto 0) := "010"; -- load word (signed)
-  constant funct3_lbu_c    : std_ulogic_vector(2 downto 0) := "100"; -- load byte (unsigned)
-  constant funct3_lhu_c    : std_ulogic_vector(2 downto 0) := "101"; -- load half word (unsigned)
-  constant funct3_lwu_c    : std_ulogic_vector(2 downto 0) := "110"; -- load word (unsigned)
-  constant funct3_sb_c     : std_ulogic_vector(2 downto 0) := "000"; -- store byte
-  constant funct3_sh_c     : std_ulogic_vector(2 downto 0) := "001"; -- store half word
-  constant funct3_sw_c     : std_ulogic_vector(2 downto 0) := "010"; -- store word
+  constant funct3_lb_c     : std_ulogic_ಸದಿಶ(2 downto 0) := "000"; -- load byte (signed)
+  constant funct3_lh_c     : std_ulogic_ಸದಿಶ(2 downto 0) := "001"; -- load half word (signed)
+  constant funct3_lw_c     : std_ulogic_ಸದಿಶ(2 downto 0) := "010"; -- load word (signed)
+  constant funct3_lbu_c    : std_ulogic_ಸದಿಶ(2 downto 0) := "100"; -- load byte (unsigned)
+  constant funct3_lhu_c    : std_ulogic_ಸದಿಶ(2 downto 0) := "101"; -- load half word (unsigned)
+  constant funct3_lwu_c    : std_ulogic_ಸದಿಶ(2 downto 0) := "110"; -- load word (unsigned)
+  constant funct3_sb_c     : std_ulogic_ಸದಿಶ(2 downto 0) := "000"; -- store byte
+  constant funct3_sh_c     : std_ulogic_ಸದಿಶ(2 downto 0) := "001"; -- store half word
+  constant funct3_sw_c     : std_ulogic_ಸದಿಶ(2 downto 0) := "010"; -- store word
   -- alu --
-  constant funct3_sadd_c   : std_ulogic_vector(2 downto 0) := "000"; -- sub/add
-  constant funct3_sll_c    : std_ulogic_vector(2 downto 0) := "001"; -- shift logical left
-  constant funct3_slt_c    : std_ulogic_vector(2 downto 0) := "010"; -- set on less
-  constant funct3_sltu_c   : std_ulogic_vector(2 downto 0) := "011"; -- set on less unsigned
-  constant funct3_xor_c    : std_ulogic_vector(2 downto 0) := "100"; -- logical exclusive-or
-  constant funct3_sr_c     : std_ulogic_vector(2 downto 0) := "101"; -- shift right
-  constant funct3_or_c     : std_ulogic_vector(2 downto 0) := "110"; -- logical or
-  constant funct3_and_c    : std_ulogic_vector(2 downto 0) := "111"; -- logical and
+  constant funct3_sadd_c   : std_ulogic_ಸದಿಶ(2 downto 0) := "000"; -- sub/add
+  constant funct3_sll_c    : std_ulogic_ಸದಿಶ(2 downto 0) := "001"; -- shift logical left
+  constant funct3_slt_c    : std_ulogic_ಸದಿಶ(2 downto 0) := "010"; -- set on less
+  constant funct3_sltu_c   : std_ulogic_ಸದಿಶ(2 downto 0) := "011"; -- set on less unsigned
+  constant funct3_xor_c    : std_ulogic_ಸದಿಶ(2 downto 0) := "100"; -- logical exclusive-or
+  constant funct3_sr_c     : std_ulogic_ಸದಿಶ(2 downto 0) := "101"; -- shift right
+  constant funct3_or_c     : std_ulogic_ಸದಿಶ(2 downto 0) := "110"; -- logical or
+  constant funct3_and_c    : std_ulogic_ಸದಿಶ(2 downto 0) := "111"; -- logical and
   -- system/csr --
-  constant funct3_env_c    : std_ulogic_vector(2 downto 0) := "000"; -- ecall, ebreak, xret, wfi, etc.
-  constant funct3_csrrw_c  : std_ulogic_vector(2 downto 0) := "001"; -- csr r/w
-  constant funct3_csrrs_c  : std_ulogic_vector(2 downto 0) := "010"; -- csr read & set
-  constant funct3_csrrc_c  : std_ulogic_vector(2 downto 0) := "011"; -- csr read & clear
-  constant funct3_zimop_c  : std_ulogic_vector(2 downto 0) := "100"; -- may-be-operation
-  constant funct3_csrrwi_c : std_ulogic_vector(2 downto 0) := "101"; -- csr r/w immediate
-  constant funct3_csrrsi_c : std_ulogic_vector(2 downto 0) := "110"; -- csr read & set immediate
-  constant funct3_csrrci_c : std_ulogic_vector(2 downto 0) := "111"; -- csr read & clear immediate
+  constant funct3_env_c    : std_ulogic_ಸದಿಶ(2 downto 0) := "000"; -- ecall, ebreak, xret, wfi, etc.
+  constant funct3_csrrw_c  : std_ulogic_ಸದಿಶ(2 downto 0) := "001"; -- csr r/w
+  constant funct3_csrrs_c  : std_ulogic_ಸದಿಶ(2 downto 0) := "010"; -- csr read & set
+  constant funct3_csrrc_c  : std_ulogic_ಸದಿಶ(2 downto 0) := "011"; -- csr read & clear
+  constant funct3_zimop_c  : std_ulogic_ಸದಿಶ(2 downto 0) := "100"; -- may-be-operation
+  constant funct3_csrrwi_c : std_ulogic_ಸದಿಶ(2 downto 0) := "101"; -- csr r/w immediate
+  constant funct3_csrrsi_c : std_ulogic_ಸದಿಶ(2 downto 0) := "110"; -- csr read & set immediate
+  constant funct3_csrrci_c : std_ulogic_ಸದಿಶ(2 downto 0) := "111"; -- csr read & clear immediate
   -- fence --
-  constant funct3_fence_c  : std_ulogic_vector(2 downto 0) := "000"; -- fence - order IO/memory access
-  constant funct3_fencei_c : std_ulogic_vector(2 downto 0) := "001"; -- fence.i - instruction stream sync
+  constant funct3_fence_c  : std_ulogic_ಸದಿಶ(2 downto 0) := "000"; -- fence - order IO/memory access
+  constant funct3_fencei_c : std_ulogic_ಸದಿಶ(2 downto 0) := "001"; -- fence.i - instruction stream sync
 
   -- RISC-V Funct12 - SYSTEM ----------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  constant funct12_ecall_c  : std_ulogic_vector(11 downto 0) := x"000";
-  constant funct12_ebreak_c : std_ulogic_vector(11 downto 0) := x"001";
-  constant funct12_wfi_c    : std_ulogic_vector(11 downto 0) := x"105";
-  constant funct12_mret_c   : std_ulogic_vector(11 downto 0) := x"302";
-  constant funct12_dret_c   : std_ulogic_vector(11 downto 0) := x"7b2";
+  constant funct12_ecall_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"000";
+  constant funct12_ebreak_c : std_ulogic_ಸದಿಶ(11 downto 0) := x"001";
+  constant funct12_wfi_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"105";
+  constant funct12_mret_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"302";
+  constant funct12_dret_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"7b2";
 
   -- RISC-V Floating-Point Stuff ------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
@@ -402,249 +402,249 @@ package neorv32_package is
   -- exception flags --
   constant fp_exc_nx_c : natural := 0; -- inexact
   constant fp_exc_uf_c : natural := 1; -- underflow
-  constant fp_exc_of_c : natural := 2; -- overflow
+  constant fp_exc_ದ_c : natural := 2; -- overflow
   constant fp_exc_dz_c : natural := 3; -- division by zero
   constant fp_exc_nv_c : natural := 4; -- invalid operation
 
   -- special values (single-precision) --
-  constant fp_single_qnan_c     : std_ulogic_vector(31 downto 0) := x"7fc00000"; -- quiet NaN
-  constant fp_single_snan_c     : std_ulogic_vector(31 downto 0) := x"7fa00000"; -- signaling NaN
-  constant fp_single_pos_max_c  : std_ulogic_vector(31 downto 0) := x"7f7fffff"; -- positive max
-  constant fp_single_neg_max_c  : std_ulogic_vector(31 downto 0) := x"ff7fffff"; -- negative max
-  constant fp_single_pos_inf_c  : std_ulogic_vector(31 downto 0) := x"7f800000"; -- positive infinity
-  constant fp_single_neg_inf_c  : std_ulogic_vector(31 downto 0) := x"ff800000"; -- negative infinity
-  constant fp_single_pos_zero_c : std_ulogic_vector(31 downto 0) := x"00000000"; -- positive zero
-  constant fp_single_neg_zero_c : std_ulogic_vector(31 downto 0) := x"80000000"; -- negative zero
+  constant fp_single_qnan_c     : std_ulogic_ಸದಿಶ(31 downto 0) := x"7fc00000"; -- quiet NaN
+  constant fp_single_snan_c     : std_ulogic_ಸದಿಶ(31 downto 0) := x"7fa00000"; -- signaling NaN
+  constant fp_single_pos_max_c  : std_ulogic_ಸದಿಶ(31 downto 0) := x"7f7fffff"; -- positive max
+  constant fp_single_neg_max_c  : std_ulogic_ಸದಿಶ(31 downto 0) := x"ff7fffff"; -- negative max
+  constant fp_single_pos_inf_c  : std_ulogic_ಸದಿಶ(31 downto 0) := x"7f800000"; -- positive infinity
+  constant fp_single_neg_inf_c  : std_ulogic_ಸದಿಶ(31 downto 0) := x"ff800000"; -- negative infinity
+  constant fp_single_pos_zero_c : std_ulogic_ಸದಿಶ(31 downto 0) := x"00000000"; -- positive zero
+  constant fp_single_neg_zero_c : std_ulogic_ಸದಿಶ(31 downto 0) := x"80000000"; -- negative zero
 
   -- RISC-V CSRs ----------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   -- user floating-point CSRs --
-  constant csr_fflags_c         : std_ulogic_vector(11 downto 0) := x"001";
-  constant csr_frm_c            : std_ulogic_vector(11 downto 0) := x"002";
-  constant csr_fcsr_c           : std_ulogic_vector(11 downto 0) := x"003";
+  constant csr_fflags_c         : std_ulogic_ಸದಿಶ(11 downto 0) := x"001";
+  constant csr_frm_c            : std_ulogic_ಸದಿಶ(11 downto 0) := x"002";
+  constant csr_fcsr_c           : std_ulogic_ಸದಿಶ(11 downto 0) := x"003";
   -- machine trap setup --
-  constant csr_mstatus_c        : std_ulogic_vector(11 downto 0) := x"300";
-  constant csr_misa_c           : std_ulogic_vector(11 downto 0) := x"301";
-  constant csr_mie_c            : std_ulogic_vector(11 downto 0) := x"304";
-  constant csr_mtvec_c          : std_ulogic_vector(11 downto 0) := x"305";
-  constant csr_mcounteren_c     : std_ulogic_vector(11 downto 0) := x"306";
-  constant csr_mstatush_c       : std_ulogic_vector(11 downto 0) := x"310";
+  constant csr_mstatus_c        : std_ulogic_ಸದಿಶ(11 downto 0) := x"300";
+  constant csr_misa_c           : std_ulogic_ಸದಿಶ(11 downto 0) := x"301";
+  constant csr_mie_c            : std_ulogic_ಸದಿಶ(11 downto 0) := x"304";
+  constant csr_mtvec_c          : std_ulogic_ಸದಿಶ(11 downto 0) := x"305";
+  constant csr_mcounteren_c     : std_ulogic_ಸದಿಶ(11 downto 0) := x"306";
+  constant csr_mstatush_c       : std_ulogic_ಸದಿಶ(11 downto 0) := x"310";
   -- machine configuration --
-  constant csr_menvcfg_c        : std_ulogic_vector(11 downto 0) := x"30a";
-  constant csr_menvcfgh_c       : std_ulogic_vector(11 downto 0) := x"31a";
+  constant csr_menvcfg_c        : std_ulogic_ಸದಿಶ(11 downto 0) := x"30a";
+  constant csr_menvcfgh_c       : std_ulogic_ಸದಿಶ(11 downto 0) := x"31a";
   -- machine counter setup --
-  constant csr_mcountinhibit_c  : std_ulogic_vector(11 downto 0) := x"320";
-  constant csr_mcyclecfg_c      : std_ulogic_vector(11 downto 0) := x"321";
-  constant csr_minstretcfg_c    : std_ulogic_vector(11 downto 0) := x"322";
-  constant csr_mhpmevent3_c     : std_ulogic_vector(11 downto 0) := x"323";
-  constant csr_mhpmevent4_c     : std_ulogic_vector(11 downto 0) := x"324";
-  constant csr_mhpmevent5_c     : std_ulogic_vector(11 downto 0) := x"325";
-  constant csr_mhpmevent6_c     : std_ulogic_vector(11 downto 0) := x"326";
-  constant csr_mhpmevent7_c     : std_ulogic_vector(11 downto 0) := x"327";
-  constant csr_mhpmevent8_c     : std_ulogic_vector(11 downto 0) := x"328";
-  constant csr_mhpmevent9_c     : std_ulogic_vector(11 downto 0) := x"329";
-  constant csr_mhpmevent10_c    : std_ulogic_vector(11 downto 0) := x"32a";
-  constant csr_mhpmevent11_c    : std_ulogic_vector(11 downto 0) := x"32b";
-  constant csr_mhpmevent12_c    : std_ulogic_vector(11 downto 0) := x"32c";
-  constant csr_mhpmevent13_c    : std_ulogic_vector(11 downto 0) := x"32d";
-  constant csr_mhpmevent14_c    : std_ulogic_vector(11 downto 0) := x"32e";
-  constant csr_mhpmevent15_c    : std_ulogic_vector(11 downto 0) := x"32f";
-  constant csr_mhpmevent16_c    : std_ulogic_vector(11 downto 0) := x"330";
-  constant csr_mhpmevent17_c    : std_ulogic_vector(11 downto 0) := x"331";
-  constant csr_mhpmevent18_c    : std_ulogic_vector(11 downto 0) := x"332";
-  constant csr_mhpmevent19_c    : std_ulogic_vector(11 downto 0) := x"333";
-  constant csr_mhpmevent20_c    : std_ulogic_vector(11 downto 0) := x"334";
-  constant csr_mhpmevent21_c    : std_ulogic_vector(11 downto 0) := x"335";
-  constant csr_mhpmevent22_c    : std_ulogic_vector(11 downto 0) := x"336";
-  constant csr_mhpmevent23_c    : std_ulogic_vector(11 downto 0) := x"337";
-  constant csr_mhpmevent24_c    : std_ulogic_vector(11 downto 0) := x"338";
-  constant csr_mhpmevent25_c    : std_ulogic_vector(11 downto 0) := x"339";
-  constant csr_mhpmevent26_c    : std_ulogic_vector(11 downto 0) := x"33a";
-  constant csr_mhpmevent27_c    : std_ulogic_vector(11 downto 0) := x"33b";
-  constant csr_mhpmevent28_c    : std_ulogic_vector(11 downto 0) := x"33c";
-  constant csr_mhpmevent29_c    : std_ulogic_vector(11 downto 0) := x"33d";
-  constant csr_mhpmevent30_c    : std_ulogic_vector(11 downto 0) := x"33e";
-  constant csr_mhpmevent31_c    : std_ulogic_vector(11 downto 0) := x"33f";
+  constant csr_mcountinhibit_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"320";
+  constant csr_mcyclecfg_c      : std_ulogic_ಸದಿಶ(11 downto 0) := x"321";
+  constant csr_minstretcfg_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"322";
+  constant csr_mhpmevent3_c     : std_ulogic_ಸದಿಶ(11 downto 0) := x"323";
+  constant csr_mhpmevent4_c     : std_ulogic_ಸದಿಶ(11 downto 0) := x"324";
+  constant csr_mhpmevent5_c     : std_ulogic_ಸದಿಶ(11 downto 0) := x"325";
+  constant csr_mhpmevent6_c     : std_ulogic_ಸದಿಶ(11 downto 0) := x"326";
+  constant csr_mhpmevent7_c     : std_ulogic_ಸದಿಶ(11 downto 0) := x"327";
+  constant csr_mhpmevent8_c     : std_ulogic_ಸದಿಶ(11 downto 0) := x"328";
+  constant csr_mhpmevent9_c     : std_ulogic_ಸದಿಶ(11 downto 0) := x"329";
+  constant csr_mhpmevent10_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"32a";
+  constant csr_mhpmevent11_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"32b";
+  constant csr_mhpmevent12_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"32c";
+  constant csr_mhpmevent13_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"32d";
+  constant csr_mhpmevent14_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"32e";
+  constant csr_mhpmevent15_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"32f";
+  constant csr_mhpmevent16_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"330";
+  constant csr_mhpmevent17_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"331";
+  constant csr_mhpmevent18_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"332";
+  constant csr_mhpmevent19_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"333";
+  constant csr_mhpmevent20_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"334";
+  constant csr_mhpmevent21_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"335";
+  constant csr_mhpmevent22_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"336";
+  constant csr_mhpmevent23_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"337";
+  constant csr_mhpmevent24_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"338";
+  constant csr_mhpmevent25_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"339";
+  constant csr_mhpmevent26_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"33a";
+  constant csr_mhpmevent27_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"33b";
+  constant csr_mhpmevent28_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"33c";
+  constant csr_mhpmevent29_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"33d";
+  constant csr_mhpmevent30_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"33e";
+  constant csr_mhpmevent31_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"33f";
   -- machine trap handling --
-  constant csr_mscratch_c       : std_ulogic_vector(11 downto 0) := x"340";
-  constant csr_mepc_c           : std_ulogic_vector(11 downto 0) := x"341";
-  constant csr_mcause_c         : std_ulogic_vector(11 downto 0) := x"342";
-  constant csr_mtval_c          : std_ulogic_vector(11 downto 0) := x"343";
-  constant csr_mip_c            : std_ulogic_vector(11 downto 0) := x"344";
+  constant csr_mscratch_c       : std_ulogic_ಸದಿಶ(11 downto 0) := x"340";
+  constant csr_mepc_c           : std_ulogic_ಸದಿಶ(11 downto 0) := x"341";
+  constant csr_mcause_c         : std_ulogic_ಸದಿಶ(11 downto 0) := x"342";
+  constant csr_mtval_c          : std_ulogic_ಸದಿಶ(11 downto 0) := x"343";
+  constant csr_mip_c            : std_ulogic_ಸದಿಶ(11 downto 0) := x"344";
   -- physical memory protection - configuration --
-  constant csr_pmpcfg0_c        : std_ulogic_vector(11 downto 0) := x"3a0";
-  constant csr_pmpcfg1_c        : std_ulogic_vector(11 downto 0) := x"3a1";
-  constant csr_pmpcfg2_c        : std_ulogic_vector(11 downto 0) := x"3a2";
-  constant csr_pmpcfg3_c        : std_ulogic_vector(11 downto 0) := x"3a3";
+  constant csr_pmpcfg0_c        : std_ulogic_ಸದಿಶ(11 downto 0) := x"3a0";
+  constant csr_pmpcfg1_c        : std_ulogic_ಸದಿಶ(11 downto 0) := x"3a1";
+  constant csr_pmpcfg2_c        : std_ulogic_ಸದಿಶ(11 downto 0) := x"3a2";
+  constant csr_pmpcfg3_c        : std_ulogic_ಸದಿಶ(11 downto 0) := x"3a3";
   -- physical memory protection - address --
-  constant csr_pmpaddr0_c       : std_ulogic_vector(11 downto 0) := x"3b0";
-  constant csr_pmpaddr1_c       : std_ulogic_vector(11 downto 0) := x"3b1";
-  constant csr_pmpaddr2_c       : std_ulogic_vector(11 downto 0) := x"3b2";
-  constant csr_pmpaddr3_c       : std_ulogic_vector(11 downto 0) := x"3b3";
-  constant csr_pmpaddr4_c       : std_ulogic_vector(11 downto 0) := x"3b4";
-  constant csr_pmpaddr5_c       : std_ulogic_vector(11 downto 0) := x"3b5";
-  constant csr_pmpaddr6_c       : std_ulogic_vector(11 downto 0) := x"3b6";
-  constant csr_pmpaddr7_c       : std_ulogic_vector(11 downto 0) := x"3b7";
-  constant csr_pmpaddr8_c       : std_ulogic_vector(11 downto 0) := x"3b8";
-  constant csr_pmpaddr9_c       : std_ulogic_vector(11 downto 0) := x"3b9";
-  constant csr_pmpaddr10_c      : std_ulogic_vector(11 downto 0) := x"3ba";
-  constant csr_pmpaddr11_c      : std_ulogic_vector(11 downto 0) := x"3bb";
-  constant csr_pmpaddr12_c      : std_ulogic_vector(11 downto 0) := x"3bc";
-  constant csr_pmpaddr13_c      : std_ulogic_vector(11 downto 0) := x"3bd";
-  constant csr_pmpaddr14_c      : std_ulogic_vector(11 downto 0) := x"3be";
-  constant csr_pmpaddr15_c      : std_ulogic_vector(11 downto 0) := x"3bf";
+  constant csr_pmpaddr0_c       : std_ulogic_ಸದಿಶ(11 downto 0) := x"3b0";
+  constant csr_pmpaddr1_c       : std_ulogic_ಸದಿಶ(11 downto 0) := x"3b1";
+  constant csr_pmpaddr2_c       : std_ulogic_ಸದಿಶ(11 downto 0) := x"3b2";
+  constant csr_pmpaddr3_c       : std_ulogic_ಸದಿಶ(11 downto 0) := x"3b3";
+  constant csr_pmpaddr4_c       : std_ulogic_ಸದಿಶ(11 downto 0) := x"3b4";
+  constant csr_pmpaddr5_c       : std_ulogic_ಸದಿಶ(11 downto 0) := x"3b5";
+  constant csr_pmpaddr6_c       : std_ulogic_ಸದಿಶ(11 downto 0) := x"3b6";
+  constant csr_pmpaddr7_c       : std_ulogic_ಸದಿಶ(11 downto 0) := x"3b7";
+  constant csr_pmpaddr8_c       : std_ulogic_ಸದಿಶ(11 downto 0) := x"3b8";
+  constant csr_pmpaddr9_c       : std_ulogic_ಸದಿಶ(11 downto 0) := x"3b9";
+  constant csr_pmpaddr10_c      : std_ulogic_ಸದಿಶ(11 downto 0) := x"3ba";
+  constant csr_pmpaddr11_c      : std_ulogic_ಸದಿಶ(11 downto 0) := x"3bb";
+  constant csr_pmpaddr12_c      : std_ulogic_ಸದಿಶ(11 downto 0) := x"3bc";
+  constant csr_pmpaddr13_c      : std_ulogic_ಸದಿಶ(11 downto 0) := x"3bd";
+  constant csr_pmpaddr14_c      : std_ulogic_ಸದಿಶ(11 downto 0) := x"3be";
+  constant csr_pmpaddr15_c      : std_ulogic_ಸದಿಶ(11 downto 0) := x"3bf";
   -- machine counter setup - continued --
-  constant csr_mcyclecfgh_c     : std_ulogic_vector(11 downto 0) := x"721";
-  constant csr_minstretcfgh_c   : std_ulogic_vector(11 downto 0) := x"722";
+  constant csr_mcyclecfgh_c     : std_ulogic_ಸದಿಶ(11 downto 0) := x"721";
+  constant csr_minstretcfgh_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"722";
   -- trigger module registers --
-  constant csr_tselect_c        : std_ulogic_vector(11 downto 0) := x"7a0";
-  constant csr_tdata1_c         : std_ulogic_vector(11 downto 0) := x"7a1";
-  constant csr_tdata2_c         : std_ulogic_vector(11 downto 0) := x"7a2";
-  constant csr_tdata3_c         : std_ulogic_vector(11 downto 0) := x"7a3";
-  constant csr_tinfo_c          : std_ulogic_vector(11 downto 0) := x"7a4";
+  constant csr_tselect_c        : std_ulogic_ಸದಿಶ(11 downto 0) := x"7a0";
+  constant csr_tdata1_c         : std_ulogic_ಸದಿಶ(11 downto 0) := x"7a1";
+  constant csr_tdata2_c         : std_ulogic_ಸದಿಶ(11 downto 0) := x"7a2";
+  constant csr_tdata3_c         : std_ulogic_ಸದಿಶ(11 downto 0) := x"7a3";
+  constant csr_tinfo_c          : std_ulogic_ಸದಿಶ(11 downto 0) := x"7a4";
   -- debug-mode registers --
-  constant csr_dcsr_c           : std_ulogic_vector(11 downto 0) := x"7b0";
-  constant csr_dpc_c            : std_ulogic_vector(11 downto 0) := x"7b1";
-  constant csr_dscratch0_c      : std_ulogic_vector(11 downto 0) := x"7b2";
+  constant csr_dcsr_c           : std_ulogic_ಸದಿಶ(11 downto 0) := x"7b0";
+  constant csr_dpc_c            : std_ulogic_ಸದಿಶ(11 downto 0) := x"7b1";
+  constant csr_dscratch0_c      : std_ulogic_ಸದಿಶ(11 downto 0) := x"7b2";
   -- machine counters/timers --
-  constant csr_mcycle_c         : std_ulogic_vector(11 downto 0) := x"b00";
-  constant csr_minstret_c       : std_ulogic_vector(11 downto 0) := x"b02";
-  constant csr_mhpmcounter3_c   : std_ulogic_vector(11 downto 0) := x"b03";
-  constant csr_mhpmcounter4_c   : std_ulogic_vector(11 downto 0) := x"b04";
-  constant csr_mhpmcounter5_c   : std_ulogic_vector(11 downto 0) := x"b05";
-  constant csr_mhpmcounter6_c   : std_ulogic_vector(11 downto 0) := x"b06";
-  constant csr_mhpmcounter7_c   : std_ulogic_vector(11 downto 0) := x"b07";
-  constant csr_mhpmcounter8_c   : std_ulogic_vector(11 downto 0) := x"b08";
-  constant csr_mhpmcounter9_c   : std_ulogic_vector(11 downto 0) := x"b09";
-  constant csr_mhpmcounter10_c  : std_ulogic_vector(11 downto 0) := x"b0a";
-  constant csr_mhpmcounter11_c  : std_ulogic_vector(11 downto 0) := x"b0b";
-  constant csr_mhpmcounter12_c  : std_ulogic_vector(11 downto 0) := x"b0c";
-  constant csr_mhpmcounter13_c  : std_ulogic_vector(11 downto 0) := x"b0d";
-  constant csr_mhpmcounter14_c  : std_ulogic_vector(11 downto 0) := x"b0e";
-  constant csr_mhpmcounter15_c  : std_ulogic_vector(11 downto 0) := x"b0f";
-  constant csr_mhpmcounter16_c  : std_ulogic_vector(11 downto 0) := x"b10";
-  constant csr_mhpmcounter17_c  : std_ulogic_vector(11 downto 0) := x"b11";
-  constant csr_mhpmcounter18_c  : std_ulogic_vector(11 downto 0) := x"b12";
-  constant csr_mhpmcounter19_c  : std_ulogic_vector(11 downto 0) := x"b13";
-  constant csr_mhpmcounter20_c  : std_ulogic_vector(11 downto 0) := x"b14";
-  constant csr_mhpmcounter21_c  : std_ulogic_vector(11 downto 0) := x"b15";
-  constant csr_mhpmcounter22_c  : std_ulogic_vector(11 downto 0) := x"b16";
-  constant csr_mhpmcounter23_c  : std_ulogic_vector(11 downto 0) := x"b17";
-  constant csr_mhpmcounter24_c  : std_ulogic_vector(11 downto 0) := x"b18";
-  constant csr_mhpmcounter25_c  : std_ulogic_vector(11 downto 0) := x"b19";
-  constant csr_mhpmcounter26_c  : std_ulogic_vector(11 downto 0) := x"b1a";
-  constant csr_mhpmcounter27_c  : std_ulogic_vector(11 downto 0) := x"b1b";
-  constant csr_mhpmcounter28_c  : std_ulogic_vector(11 downto 0) := x"b1c";
-  constant csr_mhpmcounter29_c  : std_ulogic_vector(11 downto 0) := x"b1d";
-  constant csr_mhpmcounter30_c  : std_ulogic_vector(11 downto 0) := x"b1e";
-  constant csr_mhpmcounter31_c  : std_ulogic_vector(11 downto 0) := x"b1f";
+  constant csr_mcycle_c         : std_ulogic_ಸದಿಶ(11 downto 0) := x"b00";
+  constant csr_minstret_c       : std_ulogic_ಸದಿಶ(11 downto 0) := x"b02";
+  constant csr_mhpmcounter3_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"b03";
+  constant csr_mhpmcounter4_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"b04";
+  constant csr_mhpmcounter5_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"b05";
+  constant csr_mhpmcounter6_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"b06";
+  constant csr_mhpmcounter7_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"b07";
+  constant csr_mhpmcounter8_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"b08";
+  constant csr_mhpmcounter9_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"b09";
+  constant csr_mhpmcounter10_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"b0a";
+  constant csr_mhpmcounter11_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"b0b";
+  constant csr_mhpmcounter12_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"b0c";
+  constant csr_mhpmcounter13_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"b0d";
+  constant csr_mhpmcounter14_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"b0e";
+  constant csr_mhpmcounter15_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"b0f";
+  constant csr_mhpmcounter16_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"b10";
+  constant csr_mhpmcounter17_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"b11";
+  constant csr_mhpmcounter18_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"b12";
+  constant csr_mhpmcounter19_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"b13";
+  constant csr_mhpmcounter20_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"b14";
+  constant csr_mhpmcounter21_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"b15";
+  constant csr_mhpmcounter22_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"b16";
+  constant csr_mhpmcounter23_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"b17";
+  constant csr_mhpmcounter24_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"b18";
+  constant csr_mhpmcounter25_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"b19";
+  constant csr_mhpmcounter26_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"b1a";
+  constant csr_mhpmcounter27_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"b1b";
+  constant csr_mhpmcounter28_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"b1c";
+  constant csr_mhpmcounter29_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"b1d";
+  constant csr_mhpmcounter30_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"b1e";
+  constant csr_mhpmcounter31_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"b1f";
   -- machine counters HIGH --
-  constant csr_mcycleh_c        : std_ulogic_vector(11 downto 0) := x"b80";
-  constant csr_minstreth_c      : std_ulogic_vector(11 downto 0) := x"b82";
-  constant csr_mhpmcounter3h_c  : std_ulogic_vector(11 downto 0) := x"b83";
-  constant csr_mhpmcounter4h_c  : std_ulogic_vector(11 downto 0) := x"b84";
-  constant csr_mhpmcounter5h_c  : std_ulogic_vector(11 downto 0) := x"b85";
-  constant csr_mhpmcounter6h_c  : std_ulogic_vector(11 downto 0) := x"b86";
-  constant csr_mhpmcounter7h_c  : std_ulogic_vector(11 downto 0) := x"b87";
-  constant csr_mhpmcounter8h_c  : std_ulogic_vector(11 downto 0) := x"b88";
-  constant csr_mhpmcounter9h_c  : std_ulogic_vector(11 downto 0) := x"b89";
-  constant csr_mhpmcounter10h_c : std_ulogic_vector(11 downto 0) := x"b8a";
-  constant csr_mhpmcounter11h_c : std_ulogic_vector(11 downto 0) := x"b8b";
-  constant csr_mhpmcounter12h_c : std_ulogic_vector(11 downto 0) := x"b8c";
-  constant csr_mhpmcounter13h_c : std_ulogic_vector(11 downto 0) := x"b8d";
-  constant csr_mhpmcounter14h_c : std_ulogic_vector(11 downto 0) := x"b8e";
-  constant csr_mhpmcounter15h_c : std_ulogic_vector(11 downto 0) := x"b8f";
-  constant csr_mhpmcounter16h_c : std_ulogic_vector(11 downto 0) := x"b90";
-  constant csr_mhpmcounter17h_c : std_ulogic_vector(11 downto 0) := x"b91";
-  constant csr_mhpmcounter18h_c : std_ulogic_vector(11 downto 0) := x"b92";
-  constant csr_mhpmcounter19h_c : std_ulogic_vector(11 downto 0) := x"b93";
-  constant csr_mhpmcounter20h_c : std_ulogic_vector(11 downto 0) := x"b94";
-  constant csr_mhpmcounter21h_c : std_ulogic_vector(11 downto 0) := x"b95";
-  constant csr_mhpmcounter22h_c : std_ulogic_vector(11 downto 0) := x"b96";
-  constant csr_mhpmcounter23h_c : std_ulogic_vector(11 downto 0) := x"b97";
-  constant csr_mhpmcounter24h_c : std_ulogic_vector(11 downto 0) := x"b98";
-  constant csr_mhpmcounter25h_c : std_ulogic_vector(11 downto 0) := x"b99";
-  constant csr_mhpmcounter26h_c : std_ulogic_vector(11 downto 0) := x"b9a";
-  constant csr_mhpmcounter27h_c : std_ulogic_vector(11 downto 0) := x"b9b";
-  constant csr_mhpmcounter28h_c : std_ulogic_vector(11 downto 0) := x"b9c";
-  constant csr_mhpmcounter29h_c : std_ulogic_vector(11 downto 0) := x"b9d";
-  constant csr_mhpmcounter30h_c : std_ulogic_vector(11 downto 0) := x"b9e";
-  constant csr_mhpmcounter31h_c : std_ulogic_vector(11 downto 0) := x"b9f";
+  constant csr_mcycleh_c        : std_ulogic_ಸದಿಶ(11 downto 0) := x"b80";
+  constant csr_minstreth_c      : std_ulogic_ಸದಿಶ(11 downto 0) := x"b82";
+  constant csr_mhpmcounter3h_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"b83";
+  constant csr_mhpmcounter4h_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"b84";
+  constant csr_mhpmcounter5h_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"b85";
+  constant csr_mhpmcounter6h_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"b86";
+  constant csr_mhpmcounter7h_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"b87";
+  constant csr_mhpmcounter8h_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"b88";
+  constant csr_mhpmcounter9h_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"b89";
+  constant csr_mhpmcounter10h_c : std_ulogic_ಸದಿಶ(11 downto 0) := x"b8a";
+  constant csr_mhpmcounter11h_c : std_ulogic_ಸದಿಶ(11 downto 0) := x"b8b";
+  constant csr_mhpmcounter12h_c : std_ulogic_ಸದಿಶ(11 downto 0) := x"b8c";
+  constant csr_mhpmcounter13h_c : std_ulogic_ಸದಿಶ(11 downto 0) := x"b8d";
+  constant csr_mhpmcounter14h_c : std_ulogic_ಸದಿಶ(11 downto 0) := x"b8e";
+  constant csr_mhpmcounter15h_c : std_ulogic_ಸದಿಶ(11 downto 0) := x"b8f";
+  constant csr_mhpmcounter16h_c : std_ulogic_ಸದಿಶ(11 downto 0) := x"b90";
+  constant csr_mhpmcounter17h_c : std_ulogic_ಸದಿಶ(11 downto 0) := x"b91";
+  constant csr_mhpmcounter18h_c : std_ulogic_ಸದಿಶ(11 downto 0) := x"b92";
+  constant csr_mhpmcounter19h_c : std_ulogic_ಸದಿಶ(11 downto 0) := x"b93";
+  constant csr_mhpmcounter20h_c : std_ulogic_ಸದಿಶ(11 downto 0) := x"b94";
+  constant csr_mhpmcounter21h_c : std_ulogic_ಸದಿಶ(11 downto 0) := x"b95";
+  constant csr_mhpmcounter22h_c : std_ulogic_ಸದಿಶ(11 downto 0) := x"b96";
+  constant csr_mhpmcounter23h_c : std_ulogic_ಸದಿಶ(11 downto 0) := x"b97";
+  constant csr_mhpmcounter24h_c : std_ulogic_ಸದಿಶ(11 downto 0) := x"b98";
+  constant csr_mhpmcounter25h_c : std_ulogic_ಸದಿಶ(11 downto 0) := x"b99";
+  constant csr_mhpmcounter26h_c : std_ulogic_ಸದಿಶ(11 downto 0) := x"b9a";
+  constant csr_mhpmcounter27h_c : std_ulogic_ಸದಿಶ(11 downto 0) := x"b9b";
+  constant csr_mhpmcounter28h_c : std_ulogic_ಸದಿಶ(11 downto 0) := x"b9c";
+  constant csr_mhpmcounter29h_c : std_ulogic_ಸದಿಶ(11 downto 0) := x"b9d";
+  constant csr_mhpmcounter30h_c : std_ulogic_ಸದಿಶ(11 downto 0) := x"b9e";
+  constant csr_mhpmcounter31h_c : std_ulogic_ಸದಿಶ(11 downto 0) := x"b9f";
   -- user counters/timers --
-  constant csr_cycle_c          : std_ulogic_vector(11 downto 0) := x"c00";
-  constant csr_time_c           : std_ulogic_vector(11 downto 0) := x"c01";
-  constant csr_instret_c        : std_ulogic_vector(11 downto 0) := x"c02";
-  constant csr_hpmcounter3_c    : std_ulogic_vector(11 downto 0) := x"c03";
-  constant csr_hpmcounter4_c    : std_ulogic_vector(11 downto 0) := x"c04";
-  constant csr_hpmcounter5_c    : std_ulogic_vector(11 downto 0) := x"c05";
-  constant csr_hpmcounter6_c    : std_ulogic_vector(11 downto 0) := x"c06";
-  constant csr_hpmcounter7_c    : std_ulogic_vector(11 downto 0) := x"c07";
-  constant csr_hpmcounter8_c    : std_ulogic_vector(11 downto 0) := x"c08";
-  constant csr_hpmcounter9_c    : std_ulogic_vector(11 downto 0) := x"c09";
-  constant csr_hpmcounter10_c   : std_ulogic_vector(11 downto 0) := x"c0a";
-  constant csr_hpmcounter11_c   : std_ulogic_vector(11 downto 0) := x"c0b";
-  constant csr_hpmcounter12_c   : std_ulogic_vector(11 downto 0) := x"c0c";
-  constant csr_hpmcounter13_c   : std_ulogic_vector(11 downto 0) := x"c0d";
-  constant csr_hpmcounter14_c   : std_ulogic_vector(11 downto 0) := x"c0e";
-  constant csr_hpmcounter15_c   : std_ulogic_vector(11 downto 0) := x"c0f";
-  constant csr_hpmcounter16_c   : std_ulogic_vector(11 downto 0) := x"c10";
-  constant csr_hpmcounter17_c   : std_ulogic_vector(11 downto 0) := x"c11";
-  constant csr_hpmcounter18_c   : std_ulogic_vector(11 downto 0) := x"c12";
-  constant csr_hpmcounter19_c   : std_ulogic_vector(11 downto 0) := x"c13";
-  constant csr_hpmcounter20_c   : std_ulogic_vector(11 downto 0) := x"c14";
-  constant csr_hpmcounter21_c   : std_ulogic_vector(11 downto 0) := x"c15";
-  constant csr_hpmcounter22_c   : std_ulogic_vector(11 downto 0) := x"c16";
-  constant csr_hpmcounter23_c   : std_ulogic_vector(11 downto 0) := x"c17";
-  constant csr_hpmcounter24_c   : std_ulogic_vector(11 downto 0) := x"c18";
-  constant csr_hpmcounter25_c   : std_ulogic_vector(11 downto 0) := x"c19";
-  constant csr_hpmcounter26_c   : std_ulogic_vector(11 downto 0) := x"c1a";
-  constant csr_hpmcounter27_c   : std_ulogic_vector(11 downto 0) := x"c1b";
-  constant csr_hpmcounter28_c   : std_ulogic_vector(11 downto 0) := x"c1c";
-  constant csr_hpmcounter29_c   : std_ulogic_vector(11 downto 0) := x"c1d";
-  constant csr_hpmcounter30_c   : std_ulogic_vector(11 downto 0) := x"c1e";
-  constant csr_hpmcounter31_c   : std_ulogic_vector(11 downto 0) := x"c1f";
+  constant csr_ಚಕ್ರ_c          : std_ulogic_ಸದಿಶ(11 downto 0) := x"c00";
+  constant csr_ಸಮಯ_c           : std_ulogic_ಸದಿಶ(11 downto 0) := x"c01";
+  constant csr_instret_c        : std_ulogic_ಸದಿಶ(11 downto 0) := x"c02";
+  constant csr_hpmcounter3_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"c03";
+  constant csr_hpmcounter4_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"c04";
+  constant csr_hpmcounter5_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"c05";
+  constant csr_hpmcounter6_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"c06";
+  constant csr_hpmcounter7_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"c07";
+  constant csr_hpmcounter8_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"c08";
+  constant csr_hpmcounter9_c    : std_ulogic_ಸದಿಶ(11 downto 0) := x"c09";
+  constant csr_hpmcounter10_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"c0a";
+  constant csr_hpmcounter11_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"c0b";
+  constant csr_hpmcounter12_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"c0c";
+  constant csr_hpmcounter13_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"c0d";
+  constant csr_hpmcounter14_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"c0e";
+  constant csr_hpmcounter15_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"c0f";
+  constant csr_hpmcounter16_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"c10";
+  constant csr_hpmcounter17_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"c11";
+  constant csr_hpmcounter18_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"c12";
+  constant csr_hpmcounter19_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"c13";
+  constant csr_hpmcounter20_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"c14";
+  constant csr_hpmcounter21_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"c15";
+  constant csr_hpmcounter22_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"c16";
+  constant csr_hpmcounter23_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"c17";
+  constant csr_hpmcounter24_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"c18";
+  constant csr_hpmcounter25_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"c19";
+  constant csr_hpmcounter26_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"c1a";
+  constant csr_hpmcounter27_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"c1b";
+  constant csr_hpmcounter28_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"c1c";
+  constant csr_hpmcounter29_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"c1d";
+  constant csr_hpmcounter30_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"c1e";
+  constant csr_hpmcounter31_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"c1f";
   -- user counters HIGH --
-  constant csr_cycleh_c         : std_ulogic_vector(11 downto 0) := x"c80";
-  constant csr_timeh_c          : std_ulogic_vector(11 downto 0) := x"c81";
-  constant csr_instreth_c       : std_ulogic_vector(11 downto 0) := x"c82";
-  constant csr_hpmcounter3h_c   : std_ulogic_vector(11 downto 0) := x"c83";
-  constant csr_hpmcounter4h_c   : std_ulogic_vector(11 downto 0) := x"c84";
-  constant csr_hpmcounter5h_c   : std_ulogic_vector(11 downto 0) := x"c85";
-  constant csr_hpmcounter6h_c   : std_ulogic_vector(11 downto 0) := x"c86";
-  constant csr_hpmcounter7h_c   : std_ulogic_vector(11 downto 0) := x"c87";
-  constant csr_hpmcounter8h_c   : std_ulogic_vector(11 downto 0) := x"c88";
-  constant csr_hpmcounter9h_c   : std_ulogic_vector(11 downto 0) := x"c89";
-  constant csr_hpmcounter10h_c  : std_ulogic_vector(11 downto 0) := x"c8a";
-  constant csr_hpmcounter11h_c  : std_ulogic_vector(11 downto 0) := x"c8b";
-  constant csr_hpmcounter12h_c  : std_ulogic_vector(11 downto 0) := x"c8c";
-  constant csr_hpmcounter13h_c  : std_ulogic_vector(11 downto 0) := x"c8d";
-  constant csr_hpmcounter14h_c  : std_ulogic_vector(11 downto 0) := x"c8e";
-  constant csr_hpmcounter15h_c  : std_ulogic_vector(11 downto 0) := x"c8f";
-  constant csr_hpmcounter16h_c  : std_ulogic_vector(11 downto 0) := x"c90";
-  constant csr_hpmcounter17h_c  : std_ulogic_vector(11 downto 0) := x"c91";
-  constant csr_hpmcounter18h_c  : std_ulogic_vector(11 downto 0) := x"c92";
-  constant csr_hpmcounter19h_c  : std_ulogic_vector(11 downto 0) := x"c93";
-  constant csr_hpmcounter20h_c  : std_ulogic_vector(11 downto 0) := x"c94";
-  constant csr_hpmcounter21h_c  : std_ulogic_vector(11 downto 0) := x"c95";
-  constant csr_hpmcounter22h_c  : std_ulogic_vector(11 downto 0) := x"c96";
-  constant csr_hpmcounter23h_c  : std_ulogic_vector(11 downto 0) := x"c97";
-  constant csr_hpmcounter24h_c  : std_ulogic_vector(11 downto 0) := x"c98";
-  constant csr_hpmcounter25h_c  : std_ulogic_vector(11 downto 0) := x"c99";
-  constant csr_hpmcounter26h_c  : std_ulogic_vector(11 downto 0) := x"c9a";
-  constant csr_hpmcounter27h_c  : std_ulogic_vector(11 downto 0) := x"c9b";
-  constant csr_hpmcounter28h_c  : std_ulogic_vector(11 downto 0) := x"c9c";
-  constant csr_hpmcounter29h_c  : std_ulogic_vector(11 downto 0) := x"c9d";
-  constant csr_hpmcounter30h_c  : std_ulogic_vector(11 downto 0) := x"c9e";
-  constant csr_hpmcounter31h_c  : std_ulogic_vector(11 downto 0) := x"c9f";
+  constant csr_cycleh_c         : std_ulogic_ಸದಿಶ(11 downto 0) := x"c80";
+  constant csr_timeh_c          : std_ulogic_ಸದಿಶ(11 downto 0) := x"c81";
+  constant csr_instreth_c       : std_ulogic_ಸದಿಶ(11 downto 0) := x"c82";
+  constant csr_hpmcounter3h_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"c83";
+  constant csr_hpmcounter4h_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"c84";
+  constant csr_hpmcounter5h_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"c85";
+  constant csr_hpmcounter6h_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"c86";
+  constant csr_hpmcounter7h_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"c87";
+  constant csr_hpmcounter8h_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"c88";
+  constant csr_hpmcounter9h_c   : std_ulogic_ಸದಿಶ(11 downto 0) := x"c89";
+  constant csr_hpmcounter10h_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"c8a";
+  constant csr_hpmcounter11h_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"c8b";
+  constant csr_hpmcounter12h_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"c8c";
+  constant csr_hpmcounter13h_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"c8d";
+  constant csr_hpmcounter14h_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"c8e";
+  constant csr_hpmcounter15h_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"c8f";
+  constant csr_hpmcounter16h_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"c90";
+  constant csr_hpmcounter17h_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"c91";
+  constant csr_hpmcounter18h_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"c92";
+  constant csr_hpmcounter19h_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"c93";
+  constant csr_hpmcounter20h_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"c94";
+  constant csr_hpmcounter21h_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"c95";
+  constant csr_hpmcounter22h_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"c96";
+  constant csr_hpmcounter23h_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"c97";
+  constant csr_hpmcounter24h_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"c98";
+  constant csr_hpmcounter25h_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"c99";
+  constant csr_hpmcounter26h_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"c9a";
+  constant csr_hpmcounter27h_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"c9b";
+  constant csr_hpmcounter28h_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"c9c";
+  constant csr_hpmcounter29h_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"c9d";
+  constant csr_hpmcounter30h_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"c9e";
+  constant csr_hpmcounter31h_c  : std_ulogic_ಸದಿಶ(11 downto 0) := x"c9f";
   -- machine information registers --
-  constant csr_mvendorid_c      : std_ulogic_vector(11 downto 0) := x"f11";
-  constant csr_marchid_c        : std_ulogic_vector(11 downto 0) := x"f12";
-  constant csr_mimpid_c         : std_ulogic_vector(11 downto 0) := x"f13";
-  constant csr_mhartid_c        : std_ulogic_vector(11 downto 0) := x"f14";
-  constant csr_mconfigptr_c     : std_ulogic_vector(11 downto 0) := x"f15";
+  constant csr_mvendorid_c      : std_ulogic_ಸದಿಶ(11 downto 0) := x"f11";
+  constant csr_marchid_c        : std_ulogic_ಸದಿಶ(11 downto 0) := x"f12";
+  constant csr_mimpid_c         : std_ulogic_ಸದಿಶ(11 downto 0) := x"f13";
+  constant csr_mhartid_c        : std_ulogic_ಸದಿಶ(11 downto 0) := x"f14";
+  constant csr_mconfigptr_c     : std_ulogic_ಸದಿಶ(11 downto 0) := x"f15";
   -- NEORV32-specific machine registers --
-  constant csr_mxisa_c          : std_ulogic_vector(11 downto 0) := x"fc0";
-  constant csr_mxisah_c         : std_ulogic_vector(11 downto 0) := x"fc1";
+  constant csr_mxisa_c          : std_ulogic_ಸದಿಶ(11 downto 0) := x"fc0";
+  constant csr_mxisah_c         : std_ulogic_ಸದಿಶ(11 downto 0) := x"fc1";
 
 -- **********************************************************************************************************
 -- CPU Control
@@ -658,22 +658,22 @@ package neorv32_package is
     if_ready     : std_ulogic;                     -- ready for next instruction
     if_fence     : std_ulogic;                     -- instruction fence
     -- program counter --
-    pc_cur       : std_ulogic_vector(31 downto 0); -- address of current instruction
-    pc_nxt       : std_ulogic_vector(31 downto 0); -- address of next instruction
-    pc_ret       : std_ulogic_vector(31 downto 0); -- return address
+    pc_cur       : std_ulogic_ಸದಿಶ(31 downto 0); -- address of current instruction
+    pc_nxt       : std_ulogic_ಸದಿಶ(31 downto 0); -- address of next instruction
+    pc_ret       : std_ulogic_ಸದಿಶ(31 downto 0); -- return address
     -- register file --
     rf_wb_en     : std_ulogic; -- write back enable
-    rf_rs1       : std_ulogic_vector(4 downto 0);  -- source register 1 address
-    rf_rs2       : std_ulogic_vector(4 downto 0);  -- source register 2 address
-    rf_rd        : std_ulogic_vector(4 downto 0);  -- destination register address
+    rf_rs1       : std_ulogic_ಸದಿಶ(4 downto 0);  -- source register 1 address
+    rf_rs2       : std_ulogic_ಸದಿಶ(4 downto 0);  -- source register 2 address
+    rf_rd        : std_ulogic_ಸದಿಶ(4 downto 0);  -- destination register address
     rf_zero      : std_ulogic;                     -- allow/force write access to x0
     -- alu --
-    alu_op       : std_ulogic_vector(2 downto 0);  -- operation select
+    alu_op       : std_ulogic_ಸದಿಶ(2 downto 0);  -- operation select
     alu_sub      : std_ulogic;                     -- addition/subtraction control
     alu_opa_mux  : std_ulogic;                     -- operand A select (0=rs1, 1=PC)
     alu_opb_mux  : std_ulogic;                     -- operand B select (0=rs2, 1=IMM)
     alu_unsigned : std_ulogic;                     -- is unsigned operation
-    alu_imm      : std_ulogic_vector(31 downto 0); -- immediate
+    alu_imm      : std_ulogic_ಸದಿಶ(31 downto 0); -- immediate
     alu_cp_alu   : std_ulogic;                     -- base co-processor trigger (one-shot)
     alu_cp_cfu   : std_ulogic;                     -- CFU co-processor trigger (one-shot)
     alu_cp_fpu   : std_ulogic;                     -- FPU co-processor trigger (one-shot)
@@ -688,15 +688,15 @@ package neorv32_package is
     -- control and status registers --
     csr_we       : std_ulogic;                     -- write-enable
     csr_re       : std_ulogic;                     -- read-enable
-    csr_addr     : std_ulogic_vector(11 downto 0); -- address
-    csr_wdata    : std_ulogic_vector(31 downto 0); -- write data
+    csr_addr     : std_ulogic_ಸದಿಶ(11 downto 0); -- address
+    csr_wdata    : std_ulogic_ಸದಿಶ(31 downto 0); -- write data
     -- counter events --
-    cnt_event    : std_ulogic_vector(8 downto 0);  -- counter increment events
+    cnt_event    : std_ulogic_ಸದಿಶ(8 downto 0);  -- counter increment events
     -- instruction word --
-    ir_funct3    : std_ulogic_vector(2 downto 0);  -- funct3 bit field
-    ir_funct12   : std_ulogic_vector(11 downto 0); -- funct12 bit field
-    ir_opcode    : std_ulogic_vector(6 downto 0);  -- opcode bit field
-    ir_rvc       : std_ulogic_vector(15 downto 0); -- compressed instruction word
+    ir_funct3    : std_ulogic_ಸದಿಶ(2 downto 0);  -- funct3 bit field
+    ir_funct12   : std_ulogic_ಸದಿಶ(11 downto 0); -- funct12 bit field
+    ir_opcode    : std_ulogic_ಸದಿಶ(6 downto 0);  -- opcode bit field
+    ir_rvc       : std_ulogic_ಸದಿಶ(15 downto 0); -- compressed instruction word
     -- status --
     cpu_exec     : std_ulogic;                     -- attempting to execute current instruction
     cpu_priv     : std_ulogic;                     -- effective privilege mode
@@ -754,62 +754,62 @@ package neorv32_package is
   -- -------------------------------------------------------------------------------------------
   type if_bus_t is record
     valid : std_ulogic;                     -- bus signals are valid
-    i32   : std_ulogic_vector(31 downto 0); -- (decompressed) 32-bit instruction word
-    i16   : std_ulogic_vector(15 downto 0); -- (original) 16-bit instruction word
+    i32   : std_ulogic_ಸದಿಶ(31 downto 0); -- (decompressed) 32-bit instruction word
+    i16   : std_ulogic_ಸದಿಶ(15 downto 0); -- (original) 16-bit instruction word
     compr : std_ulogic;                     -- instruction is decompressed
     fault : std_ulogic;                     -- instruction-fetch error
   end record;
 
   -- ALU Function Codes ---------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  constant alu_op_zero_c : std_ulogic_vector(2 downto 0) := "000"; -- result <= 0
-  constant alu_op_add_c  : std_ulogic_vector(2 downto 0) := "001"; -- result <= A + (-)B
-  constant alu_op_cp_c   : std_ulogic_vector(2 downto 0) := "010"; -- result <= ALU co-processor
-  constant alu_op_slt_c  : std_ulogic_vector(2 downto 0) := "011"; -- result <= A < B
-  constant alu_op_movb_c : std_ulogic_vector(2 downto 0) := "100"; -- result <= B
-  constant alu_op_xor_c  : std_ulogic_vector(2 downto 0) := "101"; -- result <= A xor B
-  constant alu_op_or_c   : std_ulogic_vector(2 downto 0) := "110"; -- result <= A or B
-  constant alu_op_and_c  : std_ulogic_vector(2 downto 0) := "111"; -- result <= A and B
+  constant alu_op_zero_c : std_ulogic_ಸದಿಶ(2 downto 0) := "000"; -- result <= 0
+  constant alu_op_ಕೂಡಿಸು_c  : std_ulogic_ಸದಿಶ(2 downto 0) := "001"; -- result <= A + (-)B
+  constant alu_op_cp_c   : std_ulogic_ಸದಿಶ(2 downto 0) := "010"; -- result <= ALU co-processor
+  constant alu_op_slt_c  : std_ulogic_ಸದಿಶ(2 downto 0) := "011"; -- result <= A < B
+  constant alu_op_movb_c : std_ulogic_ಸದಿಶ(2 downto 0) := "100"; -- result <= B
+  constant alu_op_xor_c  : std_ulogic_ಸದಿಶ(2 downto 0) := "101"; -- result <= A xor B
+  constant alu_op_or_c   : std_ulogic_ಸದಿಶ(2 downto 0) := "110"; -- result <= A or B
+  constant alu_op_and_c  : std_ulogic_ಸದಿಶ(2 downto 0) := "111"; -- result <= A and B
 
   -- Trap ID Codes --------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   -- [MSB] 1 = interrupt, 0 = sync. exception; [MSB-1] 1 = entry to debug mode, 0 = normal trapping
   -- RISC-V synchronous exceptions --
-  constant trap_ima_c     : std_ulogic_vector(6 downto 0) := "0" & "0" & "00000"; -- 0: instruction address misaligned
-  constant trap_iaf_c     : std_ulogic_vector(6 downto 0) := "0" & "0" & "00001"; -- 1: instruction access fault
-  constant trap_iil_c     : std_ulogic_vector(6 downto 0) := "0" & "0" & "00010"; -- 2: illegal instruction
-  constant trap_brk_c     : std_ulogic_vector(6 downto 0) := "0" & "0" & "00011"; -- 3: environment breakpoint
-  constant trap_lma_c     : std_ulogic_vector(6 downto 0) := "0" & "0" & "00100"; -- 4: load address misaligned
-  constant trap_laf_c     : std_ulogic_vector(6 downto 0) := "0" & "0" & "00101"; -- 5: load access fault
-  constant trap_sma_c     : std_ulogic_vector(6 downto 0) := "0" & "0" & "00110"; -- 6: store address misaligned
-  constant trap_saf_c     : std_ulogic_vector(6 downto 0) := "0" & "0" & "00111"; -- 7: store access fault
-  constant trap_env_c     : std_ulogic_vector(6 downto 0) := "0" & "0" & "01000"; -- 8..11: environment call
+  constant trap_ima_c     : std_ulogic_ಸದಿಶ(6 downto 0) := "0" & "0" & "00000"; -- 0: instruction address misaligned
+  constant trap_iaf_c     : std_ulogic_ಸದಿಶ(6 downto 0) := "0" & "0" & "00001"; -- 1: instruction access fault
+  constant trap_iil_c     : std_ulogic_ಸದಿಶ(6 downto 0) := "0" & "0" & "00010"; -- 2: illegal instruction
+  constant trap_brk_c     : std_ulogic_ಸದಿಶ(6 downto 0) := "0" & "0" & "00011"; -- 3: environment breakpoint
+  constant trap_lma_c     : std_ulogic_ಸದಿಶ(6 downto 0) := "0" & "0" & "00100"; -- 4: load address misaligned
+  constant trap_laf_c     : std_ulogic_ಸದಿಶ(6 downto 0) := "0" & "0" & "00101"; -- 5: load access fault
+  constant trap_sma_c     : std_ulogic_ಸದಿಶ(6 downto 0) := "0" & "0" & "00110"; -- 6: store address misaligned
+  constant trap_saf_c     : std_ulogic_ಸದಿಶ(6 downto 0) := "0" & "0" & "00111"; -- 7: store access fault
+  constant trap_env_c     : std_ulogic_ಸದಿಶ(6 downto 0) := "0" & "0" & "01000"; -- 8..11: environment call
   -- RISC-V asynchronous exceptions (interrupts) --
-  constant trap_msi_c     : std_ulogic_vector(6 downto 0) := "1" & "0" & "00011"; -- 3:  machine software interrupt
-  constant trap_mti_c     : std_ulogic_vector(6 downto 0) := "1" & "0" & "00111"; -- 7:  machine timer interrupt
-  constant trap_mei_c     : std_ulogic_vector(6 downto 0) := "1" & "0" & "01011"; -- 11: machine external interrupt
+  constant trap_msi_c     : std_ulogic_ಸದಿಶ(6 downto 0) := "1" & "0" & "00011"; -- 3:  machine software interrupt
+  constant trap_mti_c     : std_ulogic_ಸದಿಶ(6 downto 0) := "1" & "0" & "00111"; -- 7:  machine timer interrupt
+  constant trap_mei_c     : std_ulogic_ಸದಿಶ(6 downto 0) := "1" & "0" & "01011"; -- 11: machine external interrupt
   -- NEORV32-specific asynchronous exceptions (interrupts) --
-  constant trap_firq0_c   : std_ulogic_vector(6 downto 0) := "1" & "0" & "10000"; -- 16: fast interrupt 0
-  constant trap_firq1_c   : std_ulogic_vector(6 downto 0) := "1" & "0" & "10001"; -- 17: fast interrupt 1
-  constant trap_firq2_c   : std_ulogic_vector(6 downto 0) := "1" & "0" & "10010"; -- 18: fast interrupt 2
-  constant trap_firq3_c   : std_ulogic_vector(6 downto 0) := "1" & "0" & "10011"; -- 19: fast interrupt 3
-  constant trap_firq4_c   : std_ulogic_vector(6 downto 0) := "1" & "0" & "10100"; -- 20: fast interrupt 4
-  constant trap_firq5_c   : std_ulogic_vector(6 downto 0) := "1" & "0" & "10101"; -- 21: fast interrupt 5
-  constant trap_firq6_c   : std_ulogic_vector(6 downto 0) := "1" & "0" & "10110"; -- 22: fast interrupt 6
-  constant trap_firq7_c   : std_ulogic_vector(6 downto 0) := "1" & "0" & "10111"; -- 23: fast interrupt 7
-  constant trap_firq8_c   : std_ulogic_vector(6 downto 0) := "1" & "0" & "11000"; -- 24: fast interrupt 8
-  constant trap_firq9_c   : std_ulogic_vector(6 downto 0) := "1" & "0" & "11001"; -- 25: fast interrupt 9
-  constant trap_firq10_c  : std_ulogic_vector(6 downto 0) := "1" & "0" & "11010"; -- 26: fast interrupt 10
-  constant trap_firq11_c  : std_ulogic_vector(6 downto 0) := "1" & "0" & "11011"; -- 27: fast interrupt 11
-  constant trap_firq12_c  : std_ulogic_vector(6 downto 0) := "1" & "0" & "11100"; -- 28: fast interrupt 12
-  constant trap_firq13_c  : std_ulogic_vector(6 downto 0) := "1" & "0" & "11101"; -- 29: fast interrupt 13
-  constant trap_firq14_c  : std_ulogic_vector(6 downto 0) := "1" & "0" & "11110"; -- 30: fast interrupt 14
-  constant trap_firq15_c  : std_ulogic_vector(6 downto 0) := "1" & "0" & "11111"; -- 31: fast interrupt 15
+  constant trap_firq0_c   : std_ulogic_ಸದಿಶ(6 downto 0) := "1" & "0" & "10000"; -- 16: fast interrupt 0
+  constant trap_firq1_c   : std_ulogic_ಸದಿಶ(6 downto 0) := "1" & "0" & "10001"; -- 17: fast interrupt 1
+  constant trap_firq2_c   : std_ulogic_ಸದಿಶ(6 downto 0) := "1" & "0" & "10010"; -- 18: fast interrupt 2
+  constant trap_firq3_c   : std_ulogic_ಸದಿಶ(6 downto 0) := "1" & "0" & "10011"; -- 19: fast interrupt 3
+  constant trap_firq4_c   : std_ulogic_ಸದಿಶ(6 downto 0) := "1" & "0" & "10100"; -- 20: fast interrupt 4
+  constant trap_firq5_c   : std_ulogic_ಸದಿಶ(6 downto 0) := "1" & "0" & "10101"; -- 21: fast interrupt 5
+  constant trap_firq6_c   : std_ulogic_ಸದಿಶ(6 downto 0) := "1" & "0" & "10110"; -- 22: fast interrupt 6
+  constant trap_firq7_c   : std_ulogic_ಸದಿಶ(6 downto 0) := "1" & "0" & "10111"; -- 23: fast interrupt 7
+  constant trap_firq8_c   : std_ulogic_ಸದಿಶ(6 downto 0) := "1" & "0" & "11000"; -- 24: fast interrupt 8
+  constant trap_firq9_c   : std_ulogic_ಸದಿಶ(6 downto 0) := "1" & "0" & "11001"; -- 25: fast interrupt 9
+  constant trap_firq10_c  : std_ulogic_ಸದಿಶ(6 downto 0) := "1" & "0" & "11010"; -- 26: fast interrupt 10
+  constant trap_firq11_c  : std_ulogic_ಸದಿಶ(6 downto 0) := "1" & "0" & "11011"; -- 27: fast interrupt 11
+  constant trap_firq12_c  : std_ulogic_ಸದಿಶ(6 downto 0) := "1" & "0" & "11100"; -- 28: fast interrupt 12
+  constant trap_firq13_c  : std_ulogic_ಸದಿಶ(6 downto 0) := "1" & "0" & "11101"; -- 29: fast interrupt 13
+  constant trap_firq14_c  : std_ulogic_ಸದಿಶ(6 downto 0) := "1" & "0" & "11110"; -- 30: fast interrupt 14
+  constant trap_firq15_c  : std_ulogic_ಸದಿಶ(6 downto 0) := "1" & "0" & "11111"; -- 31: fast interrupt 15
   -- debug-mode-entry exceptions --
-  constant trap_db_brkp_c : std_ulogic_vector(6 downto 0) := "0" & "1" & "00001"; -- 1: breakpoint
-  constant trap_db_trig_c : std_ulogic_vector(6 downto 0) := "1" & "1" & "00010"; -- 2: hardware trigger
-  constant trap_db_halt_c : std_ulogic_vector(6 downto 0) := "1" & "1" & "00011"; -- 3: external halt request
-  constant trap_db_step_c : std_ulogic_vector(6 downto 0) := "1" & "1" & "00100"; -- 4: single-stepping
+  constant trap_db_brkp_c : std_ulogic_ಸದಿಶ(6 downto 0) := "0" & "1" & "00001"; -- 1: breakpoint
+  constant trap_db_trig_c : std_ulogic_ಸದಿಶ(6 downto 0) := "1" & "1" & "00010"; -- 2: hardware trigger
+  constant trap_db_halt_c : std_ulogic_ಸದಿಶ(6 downto 0) := "1" & "1" & "00011"; -- 3: external halt request
+  constant trap_db_ಹೆಜ್ಜೆ_c : std_ulogic_ಸದಿಶ(6 downto 0) := "1" & "1" & "00100"; -- 4: single-stepping
 
   -- Trap System ----------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
@@ -825,8 +825,8 @@ package neorv32_package is
   constant exc_laccess_c : natural :=  8; -- load access fault
   constant exc_db_brkp_c : natural :=  9; -- enter debug mode via break instruction
   constant exc_db_trig_c : natural := 10; -- enter debug mode via hardware trigger
-  constant exc_db_step_c : natural := 11; -- enter debug mode via single-stepping
-  constant exc_width_c   : natural := 12; -- length of this list in bits
+  constant exc_db_ಹೆಜ್ಜೆ_c : natural := 11; -- enter debug mode via single-stepping
+  constant exc_ಅಗಲ_c   : natural := 12; -- length of this list in bits
   -- interrupt source list (do not change order, only append) --
   constant irq_msi_irq_c : natural :=  0; -- machine software interrupt
   constant irq_mti_irq_c : natural :=  1; -- machine timer interrupt
@@ -848,12 +848,12 @@ package neorv32_package is
   constant irq_firq_14_c : natural := 17; -- fast interrupt channel 14
   constant irq_firq_15_c : natural := 18; -- fast interrupt channel 15
   constant irq_db_halt_c : natural := 19; -- enter debug mode via external halt request
-  constant irq_width_c   : natural := 20; -- length of this list in bits
+  constant irq_ಅಗಲ_c   : natural := 20; -- length of this list in bits
 
   -- Privilege Modes ------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  constant priv_mode_m_c : std_ulogic := '1'; -- machine mode
-  constant priv_mode_u_c : std_ulogic := '0'; -- user mode
+  constant priv_ಬಹುಲಕ_m_c : std_ulogic := '1'; -- machine mode
+  constant priv_ಬಹುಲಕ_u_c : std_ulogic := '0'; -- user mode
 
   -- Counter Events -------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
@@ -864,46 +864,46 @@ package neorv32_package is
   constant cnt_event_wait_alu_c : natural := 4; -- multi-cycle ALU co-processor wait cycle
   constant cnt_event_wait_lsu_c : natural := 5; -- load-store unit memory wait cycle
   constant cnt_event_delta_c    : natural := 6; -- control flow transfer
-  constant cnt_event_load_c     : natural := 7; -- load operation
+  constant cnt_event_ತುಂಬು_c     : natural := 7; -- load operation
   constant cnt_event_store_c    : natural := 8; -- store operation
-  constant cnt_event_width_c    : natural := 9; -- length of this list in bits
+  constant cnt_event_ಅಗಲ_c    : natural := 9; -- length of this list in bits
 
 -- **********************************************************************************************************
 -- Helper Functions
 -- **********************************************************************************************************
 
-  function index_size_f     (n : natural                          ) return natural;
+  function ಸೂಚ್ಯಂಕ_ಗಾತ್ರ_f     (n : natural                          ) return natural;
   function sel_natural_f    (c : boolean; t, f : natural          ) return natural;
-  function sel_suv_f        (c : boolean; t, f : std_ulogic_vector) return std_ulogic_vector;
+  function sel_suv_f        (c : boolean; t, f : std_ulogic_ಸದಿಶ) return std_ulogic_ಸದಿಶ;
   function sel_string_f     (c : boolean; t, f : string           ) return string;
-  function bool_to_ulogic_f (c : boolean                          ) return std_ulogic;
-  function or_reduce_f      (d : std_ulogic_vector                ) return std_ulogic;
-  function and_reduce_f     (d : std_ulogic_vector                ) return std_ulogic;
-  function xor_reduce_f     (d : std_ulogic_vector                ) return std_ulogic;
-  function to_hexchar_f     (d : std_ulogic_vector(3 downto 0)    ) return character;
-  function bit_rev_f        (d : std_ulogic_vector                ) return std_ulogic_vector;
-  function replicate_f      (d : std_ulogic; n : natural          ) return std_ulogic_vector;
-  function to_hexstring_f   (d : std_ulogic_vector                ) return string;
+  function bool_ಗಮ್ಯ_ulogic_f (c : boolean                          ) return std_ulogic;
+  function or_reduce_f      (d : std_ulogic_ಸದಿಶ                ) return std_ulogic;
+  function and_reduce_f     (d : std_ulogic_ಸದಿಶ                ) return std_ulogic;
+  function xor_reduce_f     (d : std_ulogic_ಸದಿಶ                ) return std_ulogic;
+  function ಗಮ್ಯ_hexchar_f     (d : std_ulogic_ಸದಿಶ(3 downto 0)    ) return character;
+  function ಬಿಟ್_rev_f        (d : std_ulogic_ಸದಿಶ                ) return std_ulogic_ಸದಿಶ;
+  function replicate_f      (d : std_ulogic; n : natural          ) return std_ulogic_ಸದಿಶ;
+  function ಗಮ್ಯ_hexstring_f   (d : std_ulogic_ಸದಿಶ                ) return string;
 
 -- **********************************************************************************************************
 -- NEORV32 Processor Top Entity (component prototype)
 -- **********************************************************************************************************
 
-  component neorv32_top
+  component neorv32_ತುದಿ
   generic (
     -- General --
     CLOCK_FREQUENCY     : natural                        := 0;
     DUAL_CORE_EN        : boolean                        := false;
-    TRACE_PORT_EN       : boolean                        := false;
+    TRACE_ಪೋರ್ಟ್_EN       : boolean                        := false;
     TRACE_SIMLOG_EN     : boolean                        := false;
     -- Boot Configuration --
-    BOOT_MODE_SELECT    : natural range 0 to 2           := 0;
-    BOOT_ADDR_CUSTOM    : std_ulogic_vector(31 downto 0) := x"00000000";
+    BOOT_ಬಹುಲಕ_SELECT    : natural range 0 to 2           := 0;
+    BOOT_ADDR_CUSTOM    : std_ulogic_ಸದಿಶ(31 downto 0) := x"00000000";
     -- On-Chip Debugger (OCD) --
     OCD_EN              : boolean                        := false;
-    OCD_NUM_HW_TRIGGERS : natural range 0 to 16          := 0;
+    OCD_ಅಂಕೆ_HW_TRIGGERS : natural range 0 to 16          := 0;
     OCD_AUTHENTICATION  : boolean                        := false;
-    OCD_JEDEC_ID        : std_ulogic_vector(10 downto 0) := "00000000000";
+    OCD_JEDEC_ID        : std_ulogic_ಸದಿಶ(10 downto 0) := "00000000000";
     -- RISC-V CPU Extensions --
     RISCV_ISA_C         : boolean                        := false;
     RISCV_ISA_E         : boolean                        := false;
@@ -938,43 +938,43 @@ package neorv32_package is
     CPU_CONSTT_BR_EN    : boolean                        := false;
     CPU_FAST_MUL_EN     : boolean                        := false;
     CPU_FAST_MUL_REGS   : natural range 1 to 3           := 1;
-    CPU_FAST_SHIFT_EN   : boolean                        := false;
+    CPU_FAST_ಸರಿಸು_EN   : boolean                        := false;
     CPU_RF_ARCH_SEL     : natural range 0 to 3           := 0;
     -- Physical Memory Protection (PMP) --
-    PMP_NUM_REGIONS     : natural range 0 to 16          := 0;
+    PMP_ಅಂಕೆ_REGIONS     : natural range 0 to 16          := 0;
     PMP_MIN_GRANULARITY : natural                        := 4;
-    PMP_TOR_MODE_EN     : boolean                        := false;
-    PMP_NAP_MODE_EN     : boolean                        := false;
+    PMP_TOR_ಬಹುಲಕ_EN     : boolean                        := false;
+    PMP_NAP_ಬಹುಲಕ_EN     : boolean                        := false;
     -- Hardware Performance Monitors (HPM) --
-    HPM_NUM_CNTS        : natural range 0 to 29          := 0;
-    HPM_CNT_WIDTH       : natural range 0 to 64          := 64;
+    HPM_ಅಂಕೆ_CNTS        : natural range 0 to 29          := 0;
+    HPM_CNT_ಅಗಲ       : natural range 0 to 64          := 64;
     -- Internal Instruction memory (IMEM) --
     IMEM_EN             : boolean                        := false;
-    IMEM_BASE           : std_ulogic_vector(31 downto 0) := x"00000000";
-    IMEM_SIZE           : natural                        := 16*1024;
+    IMEM_ತಳ           : std_ulogic_ಸದಿಶ(31 downto 0) := x"00000000";
+    IMEM_ಗಾತ್ರ           : natural                        := 16*1024;
     IMEM_OUTREG_EN      : boolean                        := false;
     -- Internal Data memory (DMEM) --
     DMEM_EN             : boolean                        := false;
-    DMEM_BASE           : std_ulogic_vector(31 downto 0) := x"80000000";
-    DMEM_SIZE           : natural                        := 8*1024;
+    DMEM_ತಳ           : std_ulogic_ಸದಿಶ(31 downto 0) := x"80000000";
+    DMEM_ಗಾತ್ರ           : natural                        := 8*1024;
     DMEM_OUTREG_EN      : boolean                        := false;
     -- CPU Caches --
     ICACHE_EN           : boolean                        := false;
-    ICACHE_NUM_BLOCKS   : natural range 1 to 4096        := 4;
+    ICACHE_ಅಂಕೆ_ಖಂಡಗಳು   : natural range 1 to 4096        := 4;
     DCACHE_EN           : boolean                        := false;
-    DCACHE_NUM_BLOCKS   : natural range 1 to 4096        := 4;
-    CACHE_BLOCK_SIZE    : natural range 4 to 1024        := 64;
+    DCACHE_ಅಂಕೆ_ಖಂಡಗಳು   : natural range 1 to 4096        := 4;
+    CACHE_ಖಂಡ_ಗಾತ್ರ    : natural range 4 to 1024        := 64;
     CACHE_BURSTS_EN     : boolean                        := true;
-    CACHE_UC_BASE       : std_ulogic_vector(31 downto 0) := x"F0000000";
+    CACHE_UC_ತಳ       : std_ulogic_ಸದಿಶ(31 downto 0) := x"F0000000";
     -- Serial Memory Controller (SMC) --
     SMC_EN              : boolean                        := false;
-    SMC_BASE            : std_ulogic_vector(31 downto 0) := x"E0000000";
+    SMC_ತಳ            : std_ulogic_ಸದಿಶ(31 downto 0) := x"E0000000";
     -- External Bus Interface (XBUS) --
     XBUS_EN             : boolean                        := false;
     XBUS_TIMEOUT        : natural                        := 2048;
     XBUS_REGSTAGE_EN    : boolean                        := false;
     -- General-Purpose Input/Output Controller (GPIO) --
-    IO_GPIO_NUM         : natural range 0 to 32          := 0;
+    IO_GPIO_ಅಂಕೆ         : natural range 0 to 32          := 0;
     IO_GPIO_DIR_EN      : boolean                        := false;
     -- RISC-V Core-Local Interruptor (CLINT) --
     IO_CLINT_EN         : boolean                        := false;
@@ -997,22 +997,22 @@ package neorv32_package is
     IO_TWD_RX_FIFO      : natural range 1 to 32768       := 1;
     IO_TWD_TX_FIFO      : natural range 1 to 32768       := 1;
     -- Pulse-Width Modulation Controller (PWM) --
-    IO_PWM_NUM          : natural range 0 to 32          := 0;
+    IO_PWM_ಅಂಕೆ          : natural range 0 to 32          := 0;
     -- Watchdog Timer (WDT) --
     IO_WDT_EN           : boolean                        := false;
     -- True-Random Number Generator (TRNG) --
     IO_TRNG_EN          : boolean                        := false;
     IO_TRNG_FIFO        : natural range 1 to 32768       := 1;
-    IO_TRNG_NUM_RO      : natural range 1 to 255         := 3;
-    IO_TRNG_NUM_INV     : natural range 3 to 4095        := 5;
-    IO_TRNG_NUM_RBIT    : natural range 8 to 4096        := 64;
+    IO_TRNG_ಅಂಕೆ_RO      : natural range 1 to 255         := 3;
+    IO_TRNG_ಅಂಕೆ_INV     : natural range 3 to 4095        := 5;
+    IO_TRNG_ಅಂಕೆ_RBIT    : natural range 8 to 4096        := 64;
     -- Custom Functions Subsystem (CFS) --
     IO_CFS_EN           : boolean                        := false;
     -- Smart LED interface (NEOLED) --
     IO_NEOLED_EN        : boolean                        := false;
     IO_NEOLED_TX_FIFO   : natural range 1 to 32768       := 1;
     -- General-Purpose Timer (GPTMR) --
-    IO_GPTMR_NUM        : natural range 0 to 16          := 0;
+    IO_GPTMR_ಅಂಕೆ        : natural range 0 to 16          := 0;
     -- 1-Wire Interface (ONEWIRE) --
     IO_ONEWIRE_EN       : boolean                        := false;
     IO_ONEWIRE_FIFO     : natural range 1 to 32768       := 1;
@@ -1025,7 +1025,7 @@ package neorv32_package is
     IO_SLINK_TX_FIFO    : natural range 1 to 32768       := 1;
     -- Execution Trace Buffer (TRACEBUF) --
     IO_TRACEBUF_EN      : boolean                        := false;
-    IO_TRACEBUF_DEPTH   : natural range 1 to 32768       := 1
+    IO_TRACEBUF_ಆಳ   : natural range 1 to 32768       := 1
   );
   port (
     -- Global control --
@@ -1034,8 +1034,8 @@ package neorv32_package is
     rstn_ocd_o     : out std_ulogic;
     rstn_wdt_o     : out std_ulogic;
     -- Execution trace (available if TRACE_PORT_EN = true) --
-    trace_cpu0_o   : out trace_port_t;
-    trace_cpu1_o   : out trace_port_t;
+    trace_cpu0_o   : out trace_ಪೋರ್ಟ್_t;
+    trace_cpu1_o   : out trace_ಪೋರ್ಟ್_t;
     -- JTAG on-chip debugger interface (available if OCD_EN = true) --
     jtag_tck_i     : in  std_ulogic := 'L';
     jtag_tdi_i     : in  std_ulogic := 'L';
@@ -1044,36 +1044,36 @@ package neorv32_package is
     -- Serial memory controller interface (available if SMC_EN = true) --
     smc_ioen_o     : out std_ulogic;
     smc_sck_o      : out std_ulogic;
-    smc_csn_o      : out std_ulogic_vector(1 downto 0);
+    smc_csn_o      : out std_ulogic_ಸದಿಶ(1 downto 0);
     smc_sdo_o      : out std_ulogic;
     smc_sdi_i      : in  std_ulogic := 'L';
     -- External bus interface (available if XBUS_EN = true) --
-    xbus_adr_o     : out std_ulogic_vector(31 downto 0);
-    xbus_dat_o     : out std_ulogic_vector(31 downto 0);
-    xbus_cti_o     : out std_ulogic_vector(2 downto 0);
-    xbus_tag_o     : out std_ulogic_vector(2 downto 0);
+    xbus_adr_o     : out std_ulogic_ಸದಿಶ(31 downto 0);
+    xbus_dat_o     : out std_ulogic_ಸದಿಶ(31 downto 0);
+    xbus_cti_o     : out std_ulogic_ಸದಿಶ(2 downto 0);
+    xbus_ಟ್ಯಾಗ್_o     : out std_ulogic_ಸದಿಶ(2 downto 0);
     xbus_we_o      : out std_ulogic;
-    xbus_sel_o     : out std_ulogic_vector(3 downto 0);
+    xbus_sel_o     : out std_ulogic_ಸದಿಶ(3 downto 0);
     xbus_stb_o     : out std_ulogic;
     xbus_cyc_o     : out std_ulogic;
-    xbus_dat_i     : in  std_ulogic_vector(31 downto 0) := (others => 'L');
+    xbus_dat_i     : in  std_ulogic_ಸದಿಶ(31 downto 0) := (others => 'L');
     xbus_ack_i     : in  std_ulogic := 'L';
     xbus_err_i     : in  std_ulogic := 'L';
     -- Stream link interface (available if IO_SLINK_EN = true) --
-    slink_rx_dat_i : in  std_ulogic_vector(31 downto 0) := (others => 'L');
-    slink_rx_src_i : in  std_ulogic_vector(3 downto 0)  := (others => 'L');
+    slink_rx_dat_i : in  std_ulogic_ಸದಿಶ(31 downto 0) := (others => 'L');
+    slink_rx_src_i : in  std_ulogic_ಸದಿಶ(3 downto 0)  := (others => 'L');
     slink_rx_val_i : in  std_ulogic := 'L';
     slink_rx_lst_i : in  std_ulogic := 'L';
     slink_rx_rdy_o : out std_ulogic;
-    slink_tx_dat_o : out std_ulogic_vector(31 downto 0);
-    slink_tx_dst_o : out std_ulogic_vector(3 downto 0);
+    slink_tx_dat_o : out std_ulogic_ಸದಿಶ(31 downto 0);
+    slink_tx_dst_o : out std_ulogic_ಸದಿಶ(3 downto 0);
     slink_tx_val_o : out std_ulogic;
     slink_tx_lst_o : out std_ulogic;
     slink_tx_rdy_i : in  std_ulogic := 'L';
     -- GPIO (available if IO_GPIO_NUM > 0) --
-    gpio_dir_o     : out std_ulogic_vector(31 downto 0);
-    gpio_o         : out std_ulogic_vector(31 downto 0);
-    gpio_i         : in  std_ulogic_vector(31 downto 0) := (others => 'L');
+    gpio_dir_o     : out std_ulogic_ಸದಿಶ(31 downto 0);
+    gpio_o         : out std_ulogic_ಸದಿಶ(31 downto 0);
+    gpio_i         : in  std_ulogic_ಸದಿಶ(31 downto 0) := (others => 'L');
     -- Primary UART0 (available if IO_UART0_EN = true) --
     uart0_txd_o    : out std_ulogic;
     uart0_rxd_i    : in  std_ulogic := 'L';
@@ -1088,7 +1088,7 @@ package neorv32_package is
     spi_clk_o      : out std_ulogic;
     spi_dat_o      : out std_ulogic;
     spi_dat_i      : in  std_ulogic := 'L';
-    spi_csn_o      : out std_ulogic_vector(7 downto 0); -- SPI CS
+    spi_csn_o      : out std_ulogic_ಸದಿಶ(7 downto 0); -- SPI CS
     -- SDI (available if IO_SDI_EN = true) --
     sdi_clk_i      : in  std_ulogic := 'L';
     sdi_dat_o      : out std_ulogic;
@@ -1107,14 +1107,14 @@ package neorv32_package is
     onewire_i      : in  std_ulogic := 'H';
     onewire_o      : out std_ulogic;
     -- PWM (available if IO_PWM_NUM > 0) --
-    pwm_o          : out std_ulogic_vector(31 downto 0);
+    pwm_o          : out std_ulogic_ಸದಿಶ(31 downto 0);
     -- Custom Functions Subsystem IO --
-    cfs_in_i       : in  std_ulogic_vector(255 downto 0) := (others => 'L');
-    cfs_out_o      : out std_ulogic_vector(255 downto 0);
+    cfs_ಒಳ_i       : in  std_ulogic_ಸದಿಶ(255 downto 0) := (others => 'L');
+    cfs_ಹೊರಹೋಗು_o      : out std_ulogic_ಸದಿಶ(255 downto 0);
     -- NeoPixel-compatible smart LED interface (available if IO_NEOLED_EN = true) --
     neoled_o       : out std_ulogic;
     -- Machine timer system time (available if IO_CLINT_EN = true) --
-    mtime_time_o   : out std_ulogic_vector(63 downto 0);
+    mtime_ಸಮಯ_o   : out std_ulogic_ಸದಿಶ(63 downto 0);
     -- CPU Interrupts --
     irq_msi_i      : in  std_ulogic := 'L';
     irq_mti_i      : in  std_ulogic := 'L';
@@ -1135,12 +1135,12 @@ package neorv32_package is
   );
   port (
     clk_i      : in  std_ulogic;
-    req_addr_i : in  std_ulogic_vector(31 downto 0);
-    req_data_i : in  std_ulogic_vector(31 downto 0);
-    req_ben_i  : in  std_ulogic_vector(3 downto 0);
+    req_addr_i : in  std_ulogic_ಸದಿಶ(31 downto 0);
+    req_ದತ್ತಾಂಶ_i : in  std_ulogic_ಸದಿಶ(31 downto 0);
+    req_ben_i  : in  std_ulogic_ಸದಿಶ(3 downto 0);
     req_stb_i  : in  std_ulogic;
     req_rw_i   : in  std_ulogic;
-    rsp_data_o : out std_ulogic_vector(31 downto 0);
+    rsp_ದತ್ತಾಂಶ_o : out std_ulogic_ಸದಿಶ(31 downto 0);
     rsp_ack_o  : out std_ulogic;
     rsp_err_o  : out std_ulogic
   );
@@ -1154,12 +1154,12 @@ package neorv32_package is
   );
   port (
     clk_i      : in  std_ulogic;
-    req_addr_i : in  std_ulogic_vector(31 downto 0);
-    req_data_i : in  std_ulogic_vector(31 downto 0);
-    req_ben_i  : in  std_ulogic_vector(3 downto 0);
+    req_addr_i : in  std_ulogic_ಸದಿಶ(31 downto 0);
+    req_ದತ್ತಾಂಶ_i : in  std_ulogic_ಸದಿಶ(31 downto 0);
+    req_ben_i  : in  std_ulogic_ಸದಿಶ(3 downto 0);
     req_stb_i  : in  std_ulogic;
     req_rw_i   : in  std_ulogic;
-    rsp_data_o : out std_ulogic_vector(31 downto 0);
+    rsp_ದತ್ತಾಂಶ_o : out std_ulogic_ಸದಿಶ(31 downto 0);
     rsp_ack_o  : out std_ulogic;
     rsp_err_o  : out std_ulogic
   );
@@ -1169,11 +1169,11 @@ package neorv32_package is
   component neorv32_bootrom
   port (
     clk_i      : in  std_ulogic;
-    req_addr_i : in  std_ulogic_vector(15 downto 0);
-    req_ben_i  : in  std_ulogic_vector(3 downto 0);
+    req_addr_i : in  std_ulogic_ಸದಿಶ(15 downto 0);
+    req_ben_i  : in  std_ulogic_ಸದಿಶ(3 downto 0);
     req_stb_i  : in  std_ulogic;
     req_rw_i   : in  std_ulogic;
-    rsp_data_o : out std_ulogic_vector(31 downto 0);
+    rsp_ದತ್ತಾಂಶ_o : out std_ulogic_ಸದಿಶ(31 downto 0);
     rsp_ack_o  : out std_ulogic;
     rsp_err_o  : out std_ulogic
   );
@@ -1182,18 +1182,18 @@ package neorv32_package is
   -- cache memory (CACHERAM) --
   component neorv32_cache_ram
   generic (
-    TAG_WIDTH : natural;
-    IDX_WIDTH : natural;
-    OFS_WIDTH : natural
+    ಟ್ಯಾಗ್_ಅಗಲ : natural;
+    IDX_ಅಗಲ : natural;
+    OFS_ಅಗಲ : natural
   );
   port (
     clk_i     : in  std_ulogic;
-    addr_i    : in  std_ulogic_vector(31 downto 0);
-    tag_we_i  : in  std_ulogic;
-    tag_o     : out std_ulogic_vector(31 downto 0);
-    data_we_i : in  std_ulogic_vector(3 downto 0);
-    data_i    : in  std_ulogic_vector(31 downto 0);
-    data_o    : out std_ulogic_vector(31 downto 0)
+    addr_i    : in  std_ulogic_ಸದಿಶ(31 downto 0);
+    ಟ್ಯಾಗ್_we_i  : in  std_ulogic;
+    ಟ್ಯಾಗ್_o     : out std_ulogic_ಸದಿಶ(31 downto 0);
+    ದತ್ತಾಂಶ_we_i : in  std_ulogic_ಸದಿಶ(3 downto 0);
+    ದತ್ತಾಂಶ_i    : in  std_ulogic_ಸದಿಶ(31 downto 0);
+    ದತ್ತಾಂಶ_o    : out std_ulogic_ಸದಿಶ(31 downto 0)
   );
   end component;
 
@@ -1202,16 +1202,16 @@ package neorv32_package is
   port (
     clk_i      : in  std_ulogic;
     rstn_i     : in  std_ulogic;
-    req_addr_i : in  std_ulogic_vector(15 downto 0);
-    req_data_i : in  std_ulogic_vector(31 downto 0);
-    req_ben_i  : in  std_ulogic_vector(3 downto 0);
+    req_addr_i : in  std_ulogic_ಸದಿಶ(15 downto 0);
+    req_ದತ್ತಾಂಶ_i : in  std_ulogic_ಸದಿಶ(31 downto 0);
+    req_ben_i  : in  std_ulogic_ಸದಿಶ(3 downto 0);
     req_stb_i  : in  std_ulogic;
     req_rw_i   : in  std_ulogic;
-    rsp_data_o : out std_ulogic_vector(31 downto 0);
+    rsp_ದತ್ತಾಂಶ_o : out std_ulogic_ಸದಿಶ(31 downto 0);
     rsp_ack_o  : out std_ulogic;
     irq_o      : out std_ulogic;
-    cfs_in_i   : in  std_ulogic_vector(255 downto 0);
-    cfs_out_o  : out std_ulogic_vector(255 downto 0)
+    cfs_ಒಳ_i   : in  std_ulogic_ಸದಿಶ(255 downto 0);
+    cfs_ಹೊರಹೋಗು_o  : out std_ulogic_ಸದಿಶ(255 downto 0)
   );
   end component;
 
@@ -1226,12 +1226,12 @@ package neorv32_package is
     rstn_i     : in  std_ulogic;
     zero_i     : in  std_ulogic;
     rd_we_i    : in  std_ulogic;
-    rd_addr_i  : in  std_ulogic_vector(4 downto 0);
-    rd_data_i  : in  std_ulogic_vector(31 downto 0);
-    rs1_addr_i : in  std_ulogic_vector(4 downto 0);
-    rs1_data_o : out std_ulogic_vector(31 downto 0);
-    rs2_addr_i : in  std_ulogic_vector(4 downto 0);
-    rs2_data_o : out std_ulogic_vector(31 downto 0)
+    rd_addr_i  : in  std_ulogic_ಸದಿಶ(4 downto 0);
+    rd_ದತ್ತಾಂಶ_i  : in  std_ulogic_ಸದಿಶ(31 downto 0);
+    rs1_addr_i : in  std_ulogic_ಸದಿಶ(4 downto 0);
+    rs1_ದತ್ತಾಂಶ_o : out std_ulogic_ಸದಿಶ(31 downto 0);
+    rs2_addr_i : in  std_ulogic_ಸದಿಶ(4 downto 0);
+    rs2_ದತ್ತಾಂಶ_o : out std_ulogic_ಸದಿಶ(31 downto 0)
   );
   end component;
 
@@ -1240,11 +1240,11 @@ package neorv32_package is
   port (
     clk_i    : in  std_ulogic;
     rstn_i   : in  std_ulogic;
-    start_i  : in  std_ulogic;
-    inst_i   : in  std_ulogic_vector(31 downto 0);
-    rs1_i    : in  std_ulogic_vector(31 downto 0);
-    rs2_i    : in  std_ulogic_vector(31 downto 0);
-    result_o : out std_ulogic_vector(31 downto 0);
+    ಆರಂಭ_i  : in  std_ulogic;
+    inst_i   : in  std_ulogic_ಸದಿಶ(31 downto 0);
+    rs1_i    : in  std_ulogic_ಸದಿಶ(31 downto 0);
+    rs2_i    : in  std_ulogic_ಸದಿಶ(31 downto 0);
+    ಫಲಿತಾಂಶ_o : out std_ulogic_ಸದಿಶ(31 downto 0);
     valid_o  : out std_ulogic
   );
   end component;
@@ -1259,7 +1259,7 @@ package body neorv32_package is
 
   -- Minimal required number of bits to represent <input> numbers ---------------------------
   -- -------------------------------------------------------------------------------------------
-  function index_size_f(n : natural) return natural is
+  function ಸೂಚ್ಯಂಕ_ಗಾತ್ರ_f(n : natural) return natural is
   begin
     for i in 0 to 31 loop
       if (2**i >= n) then
@@ -1282,7 +1282,7 @@ package body neorv32_package is
 
   -- Conditional select std_ulogic_vector ---------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  function sel_suv_f(c : boolean; t, f : std_ulogic_vector) return std_ulogic_vector is
+  function sel_suv_f(c : boolean; t, f : std_ulogic_ಸದಿಶ) return std_ulogic_ಸದಿಶ is
   begin
     if c then
       return t;
@@ -1304,7 +1304,7 @@ package body neorv32_package is
 
   -- Convert boolean to std_ulogic ----------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  function bool_to_ulogic_f(c : boolean) return std_ulogic is
+  function bool_ಗಮ್ಯ_ulogic_f(c : boolean) return std_ulogic is
   begin
     if c then
       return '1';
@@ -1315,7 +1315,7 @@ package body neorv32_package is
 
   -- OR all bits ----------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  function or_reduce_f(d : std_ulogic_vector) return std_ulogic is
+  function or_reduce_f(d : std_ulogic_ಸದಿಶ) return std_ulogic is
     variable v : std_ulogic;
   begin
     v := '0';
@@ -1327,7 +1327,7 @@ package body neorv32_package is
 
   -- AND all bits ---------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  function and_reduce_f(d : std_ulogic_vector) return std_ulogic is
+  function and_reduce_f(d : std_ulogic_ಸದಿಶ) return std_ulogic is
     variable v : std_ulogic;
   begin
     v := '1';
@@ -1339,7 +1339,7 @@ package body neorv32_package is
 
   -- XOR all bits ---------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  function xor_reduce_f(d : std_ulogic_vector) return std_ulogic is
+  function xor_reduce_f(d : std_ulogic_ಸದಿಶ) return std_ulogic is
     variable v : std_ulogic;
   begin
     v := '0';
@@ -1351,7 +1351,7 @@ package body neorv32_package is
 
   -- Convert 4-bit std_ulogic_vector to lowercase hex char ----------------------------------
   -- -------------------------------------------------------------------------------------------
-  function to_hexchar_f(d : std_ulogic_vector(3 downto 0)) return character is
+  function ಗಮ್ಯ_hexchar_f(d : std_ulogic_ಸದಿಶ(3 downto 0)) return character is
     variable hex_v : string(1 to 16);
   begin
     hex_v := "0123456789abcdef";
@@ -1361,25 +1361,25 @@ package body neorv32_package is
        ((d(3) /= '0') and (d(3) /= '1')) then
       return '?';
     else
-      return hex_v(to_integer(unsigned(d)) + 1);
+      return hex_v(ಗಮ್ಯ_integer(unsigned(d)) + 1);
     end if;
   end function;
 
   -- Bit reversal ---------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  function bit_rev_f(d : std_ulogic_vector) return std_ulogic_vector is
-    variable r : std_ulogic_vector(d'length-1 downto 0);
+  function ಬಿಟ್_rev_f(d : std_ulogic_ಸದಿಶ) return std_ulogic_ಸದಿಶ is
+    variable r : std_ulogic_ಸದಿಶ(d'ಉದ್ದಳತೆ-1 downto 0);
   begin
-    for i in 0 to d'length-1 loop
-      r((d'length-1)-i) := d(d'low + i);
+    for i in 0 to d'ಉದ್ದಳತೆ-1 loop
+      r((d'length-1)-i) := d(d'ಕೆಳಗಿನ + i);
     end loop;
     return r;
   end function;
 
   -- Replicate bit --------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  function replicate_f(d : std_ulogic; n : natural) return std_ulogic_vector is
-    variable v : std_ulogic_vector(n-1 downto 0);
+  function replicate_f(d : std_ulogic; n : natural) return std_ulogic_ಸದಿಶ is
+    variable v : std_ulogic_ಸದಿಶ(n-1 downto 0);
   begin
     v := (others => d);
     return v;
@@ -1387,11 +1387,11 @@ package body neorv32_package is
 
   -- Convert to hex string ------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  function to_hexstring_f(d : std_ulogic_vector) return string is
-    variable v : string(1 to d'length/4);
+  function ಗಮ್ಯ_hexstring_f(d : std_ulogic_ಸದಿಶ) return string is
+    variable v : string(1 to d'ಉದ್ದಳತೆ/4);
   begin
-    for i in 0 to (d'length/4)-1 loop
-      v(i+1) := to_hexchar_f(d(d'high-i*4 downto (d'high-i*4)-3));
+    for i in 0 to (d'ಉದ್ದಳತೆ/4)-1 loop
+      v(i+1) := ಗಮ್ಯ_hexchar_f(d(d'high-i*4 downto (d'ಮೇಲಿನ-i*4)-3));
     end loop;
     return v;
   end function;

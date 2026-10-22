@@ -27,7 +27,7 @@ use neorv32.neorv32_package.all;
 
 entity neorv32_cpu_alu_bitmanip is
   generic (
-    FAST_SHIFT : boolean; -- use barrel shifter for shift operations
+    FAST_ಸರಿಸು : boolean; -- use barrel shifter for shift operations
     ZBA        : boolean; -- address-generation instructions
     ZBB        : boolean; -- basic bit-manipulation instructions
     ZBC        : boolean; -- carry-less multiplication instructions
@@ -43,11 +43,11 @@ entity neorv32_cpu_alu_bitmanip is
     ctrl_i  : in  ctrl_bus_t; -- main control bus
     -- data input --
     less_i  : in  std_ulogic;                     -- compare less
-    rs1_i   : in  std_ulogic_vector(31 downto 0); -- rf source 1
-    rs2_i   : in  std_ulogic_vector(31 downto 0); -- rf source 2
-    shamt_i : in  std_ulogic_vector(4 downto 0);  -- shift amount
+    rs1_i   : in  std_ulogic_ಸದಿಶ(31 downto 0); -- rf source 1
+    rs2_i   : in  std_ulogic_ಸದಿಶ(31 downto 0); -- rf source 2
+    shamt_i : in  std_ulogic_ಸದಿಶ(4 downto 0);  -- shift amount
     -- result and status --
-    res_o   : out std_ulogic_vector(31 downto 0); -- operation result
+    res_o   : out std_ulogic_ಸದಿಶ(31 downto 0); -- operation result
     valid_o : out std_ulogic                      -- data output valid
   );
 end entity;
@@ -55,12 +55,12 @@ end entity;
 architecture neorv32_cpu_alu_bitmanip_rtl of neorv32_cpu_alu_bitmanip is
 
   -- count leading zeros --
-  function leading_zeros_f(input : std_ulogic_vector) return natural is
-    variable cnt_v : natural range 0 to input'length;
+  function leading_zeros_f(ಒಳಹರಿವು : std_ulogic_ಸದಿಶ) return natural is
+    variable cnt_v : natural range 0 to ಒಳಹರಿವು'ಉದ್ದಳತೆ;
   begin
     cnt_v := 0;
-    for i in input'range loop
-      if (input(i) = '0') then
+    for i in ಒಳಹರಿವು'range loop
+      if (ಒಳಹರಿವು(i) = '0') then
         cnt_v := cnt_v + 1;
       else
         exit;
@@ -70,12 +70,12 @@ architecture neorv32_cpu_alu_bitmanip_rtl of neorv32_cpu_alu_bitmanip is
   end function;
 
   -- population count (number of set bits) --
-  function popcount_f(input : std_ulogic_vector) return natural is
-    variable cnt_v : natural range 0 to input'length;
+  function popcount_f(ಒಳಹರಿವು : std_ulogic_ಸದಿಶ) return natural is
+    variable cnt_v : natural range 0 to ಒಳಹರಿವು'ಉದ್ದಳತೆ;
   begin
     cnt_v := 0;
-    for i in input'range loop
-      if (input(i) = '1') then
+    for i in ಒಳಹರಿವು'range loop
+      if (ಒಳಹರಿವು(i) = '1') then
         cnt_v := cnt_v + 1;
       end if;
     end loop;
@@ -83,8 +83,8 @@ architecture neorv32_cpu_alu_bitmanip_rtl of neorv32_cpu_alu_bitmanip is
   end function;
 
   -- byte-wise vector look-up --
-  function xperm8_f(vec : std_ulogic_vector(31 downto 0); sel : std_ulogic_vector(7 downto 0)) return std_ulogic_vector is
-    variable res_v : std_ulogic_vector(7 downto 0);
+  function xperm8_f(vec : std_ulogic_ಸದಿಶ(31 downto 0); sel : std_ulogic_ಸದಿಶ(7 downto 0)) return std_ulogic_ಸದಿಶ is
+    variable res_v : std_ulogic_ಸದಿಶ(7 downto 0);
   begin
     if (sel(7 downto 2) /= "000000") then -- index out of range
       res_v := (others => '0');
@@ -100,8 +100,8 @@ architecture neorv32_cpu_alu_bitmanip_rtl of neorv32_cpu_alu_bitmanip is
   end function;
 
   -- nibble-wise vector look-up --
-  function xperm4_f(vec : std_ulogic_vector(31 downto 0); sel : std_ulogic_vector(3 downto 0)) return std_ulogic_vector is
-    variable res_v : std_ulogic_vector(3 downto 0);
+  function xperm4_f(vec : std_ulogic_ಸದಿಶ(31 downto 0); sel : std_ulogic_ಸದಿಶ(3 downto 0)) return std_ulogic_ಸದಿಶ is
+    variable res_v : std_ulogic_ಸದಿಶ(3 downto 0);
   begin
     if (sel(3) /= '0') then -- index out of range
       res_v := (others => '0');
@@ -143,45 +143,45 @@ architecture neorv32_cpu_alu_bitmanip_rtl of neorv32_cpu_alu_bitmanip is
   constant op_clmul_c  : natural := 19; -- carry-less multiplication
   constant op_clmulr_c : natural := 20; -- reversed carry-less multiplication
   constant op_xperm_c  : natural := 21; -- crossbar permutation
-  constant op_width_c  : natural := 22;
+  constant op_ಅಗಲ_c  : natural := 22;
 
   -- controller --
-  type state_t is (S_IDLE, S_START, S_BUSY);
+  type state_t is (S_IDLE, S_ಆರಂಭ, S_BUSY);
   signal state      : state_t;
   signal valid_cmd  : std_ulogic;
-  signal cmd        : std_ulogic_vector(op_width_c-1 downto 0);
+  signal cmd        : std_ulogic_ಸದಿಶ(op_ಅಗಲ_c-1 downto 0);
   signal valid      : std_ulogic;
 
   -- operand buffers --
-  signal rs1_reg  : std_ulogic_vector(31 downto 0);
-  signal rs2_reg  : std_ulogic_vector(31 downto 0);
-  signal sha_reg  : std_ulogic_vector(4 downto 0);
+  signal rs1_reg  : std_ulogic_ಸದಿಶ(31 downto 0);
+  signal rs2_reg  : std_ulogic_ಸದಿಶ(31 downto 0);
+  signal sha_reg  : std_ulogic_ಸದಿಶ(4 downto 0);
   signal less_reg : std_ulogic;
 
   -- serial carry-less multiplier --
-  signal clmul_start : std_ulogic;
-  signal clmul_run   : std_ulogic;
-  signal clmul_cnt   : std_ulogic_vector(5 downto 0);
-  signal clmul_res   : std_ulogic_vector(63 downto 0);
+  signal clmul_ಆರಂಭ : std_ulogic;
+  signal clmul_ಸತತ   : std_ulogic;
+  signal clmul_cnt   : std_ulogic_ಸದಿಶ(5 downto 0);
+  signal clmul_res   : std_ulogic_ಸದಿಶ(63 downto 0);
 
   -- serial shifter --
-  signal shifter_start   : std_ulogic;
-  signal shifter_run     : std_ulogic;
+  signal shifter_ಆರಂಭ   : std_ulogic;
+  signal shifter_ಸತತ     : std_ulogic;
   signal shifter_nxt     : std_ulogic;
-  signal shifter_bcnt    : std_ulogic_vector(5 downto 0); -- bit counter
-  signal shifter_cnt     : std_ulogic_vector(5 downto 0); -- iteration counter
-  signal shifter_cnt_max : std_ulogic_vector(5 downto 0);
-  signal shifter_sreg    : std_ulogic_vector(31 downto 0);
+  signal shifter_bcnt    : std_ulogic_ಸದಿಶ(5 downto 0); -- bit counter
+  signal shifter_cnt     : std_ulogic_ಸದಿಶ(5 downto 0); -- iteration counter
+  signal shifter_cnt_max : std_ulogic_ಸದಿಶ(5 downto 0);
+  signal shifter_sreg    : std_ulogic_ಸದಿಶ(31 downto 0);
 
   -- barrel shifter --
-  type bs_level_t is array (5 downto 0) of std_ulogic_vector(31 downto 0);
+  type bs_level_t is array (5 downto 0) of std_ulogic_ಸದಿಶ(31 downto 0);
   signal bs_level : bs_level_t;
-  signal bs_shift : std_ulogic_vector(4 downto 0);
+  signal bs_ಸರಿಸು : std_ulogic_ಸದಿಶ(4 downto 0);
 
   -- operation/intermediate results --
-  type res_t is array (op_width_c-1 downto 0) of std_ulogic_vector(31 downto 0);
+  type res_t is array (op_ಅಗಲ_c-1 downto 0) of std_ulogic_ಸದಿಶ(31 downto 0);
   signal res_int, res : res_t;
-  signal xperm4_res, xperm8_res, adder_res, one_hot_res, zip_res, unzip_res, res_out : std_ulogic_vector(31 downto 0);
+  signal xperm4_res, xperm8_res, adder_res, one_hot_res, zip_res, unzip_res, res_ಹೊರಹೋಗು : std_ulogic_ಸದಿಶ(31 downto 0);
 
 begin
 
@@ -231,13 +231,13 @@ begin
   begin
     if (rstn_i = '0') then
       state         <= S_IDLE;
-      shifter_start <= '0';
-      clmul_start   <= '0';
+      shifter_ಆರಂಭ <= '0';
+      clmul_ಆರಂಭ   <= '0';
       valid         <= '0';
-    elsif rising_edge(clk_i) then
+    elsif rising_ಅಂಚು(clk_i) then
       -- defaults --
-      shifter_start <= '0';
-      clmul_start   <= '0';
+      shifter_ಆರಂಭ <= '0';
+      clmul_ಆರಂಭ   <= '0';
       valid         <= '0';
       -- fsm --
       case state is
@@ -245,24 +245,24 @@ begin
         -- wait for operation trigger --
         when S_IDLE =>
           if (valid_cmd = '1') then
-            if (not FAST_SHIFT) and ((cmd(op_cz_c) or cmd(op_cpop_c) or cmd(op_rot_c)) = '1') then -- multi-cycle shift operation
-              shifter_start <= '1';
-              state         <= S_START;
+            if (not FAST_ಸರಿಸು) and ((cmd(op_cz_c) or cmd(op_cpop_c) or cmd(op_rot_c)) = '1') then -- multi-cycle shift operation
+              shifter_ಆರಂಭ <= '1';
+              state         <= S_ಆರಂಭ;
             elsif (cmd(op_clmul_c) = '1') or (cmd(op_clmulr_c) = '1') then -- multi-cycle carry-less multiplication operation
-              clmul_start <= '1';
-              state       <= S_START;
+              clmul_ಆರಂಭ <= '1';
+              state       <= S_ಆರಂಭ;
             else
               valid <= '1';
             end if;
           end if;
 
         -- one cycle delay to start iterative operation --
-        when S_START =>
+        when S_ಆರಂಭ =>
           state <= S_BUSY;
 
         -- wait for multi-cycle operation to complete --
         when S_BUSY =>
-          if ((shifter_run = '0') and (clmul_run = '0')) or (ctrl_i.cpu_trap = '1') then -- abort on trap
+          if ((shifter_ಸತತ = '0') and (clmul_ಸತತ = '0')) or (ctrl_i.cpu_trap = '1') then -- abort on trap
             valid <= '1';
             state <= S_IDLE;
           end if;
@@ -274,7 +274,7 @@ begin
   -- operand gating / buffering --
   op_buf: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_ಅಂಚು(clk_i) then
       if (ctrl_i.alu_cp_alu = '1') then
         less_reg <= less_i;
         rs1_reg  <= rs1_i;
@@ -288,30 +288,30 @@ begin
   -- Serial Shifter (small but slow) --------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   serial_shifter:
-  if not FAST_SHIFT generate
+  if not FAST_ಸರಿಸು generate
 
     serial_shifter_core: process(clk_i)
     begin
-      if rising_edge(clk_i) then
-        if (shifter_start = '1') then -- trigger new shift
+      if rising_ಅಂಚು(clk_i) then
+        if (shifter_ಆರಂಭ = '1') then -- trigger new shift
           shifter_cnt  <= (others => '0');
           shifter_sreg <= rs1_reg;
           if (cmd(op_cpop_c) = '1') then -- population count
-            shifter_cnt_max <= std_ulogic_vector(to_unsigned(32, 6));
+            shifter_cnt_max <= std_ulogic_ಸದಿಶ(ಗಮ್ಯ_unsigned(32, 6));
           else
             shifter_cnt_max <= '0' & shamt_i;
           end if;
           shifter_bcnt <= (others => '0');
-        elsif (state = S_BUSY) and (shifter_run = '1') then
+        elsif (state = S_BUSY) and (shifter_ಸತತ = '1') then
           if ((cmd(op_rot_c) = '1') and (ctrl_i.ir_funct3(2) = '0')) or -- rol
              ((cmd(op_cz_c) = '1') and (ctrl_i.ir_funct12(0) = '0')) then -- clz
-            shifter_sreg <= shifter_sreg(shifter_sreg'left-1 downto 0) & shifter_nxt; -- left-shift
+            shifter_sreg <= shifter_sreg(shifter_sreg'ಎಡ-1 downto 0) & shifter_nxt; -- left-shift
           else
-            shifter_sreg <= shifter_nxt & shifter_sreg(shifter_sreg'left downto 1); -- right-shift
+            shifter_sreg <= shifter_nxt & shifter_sreg(shifter_sreg'ಎಡ downto 1); -- right-shift
           end if;
-          shifter_cnt <= std_ulogic_vector(unsigned(shifter_cnt) + 1); -- iteration counter
+          shifter_cnt <= std_ulogic_ಸದಿಶ(unsigned(shifter_cnt) + 1); -- iteration counter
           if (shifter_sreg(0) = '1') then
-            shifter_bcnt <= std_ulogic_vector(unsigned(shifter_bcnt) + 1); -- set-bits counter
+            shifter_bcnt <= std_ulogic_ಸದಿಶ(unsigned(shifter_bcnt) + 1); -- set-bits counter
           end if;
         end if;
       end if;
@@ -328,15 +328,15 @@ begin
       -- keep shifting until all bits are processed --
       if (cmd(op_cz_c) = '1') then -- count zeros
         if (ctrl_i.ir_funct12(0) = '0') then -- leading zeros
-          shifter_run <= not shifter_sreg(31);
+          shifter_ಸತತ <= not shifter_sreg(31);
         else -- trailing zeros
-          shifter_run <= not shifter_sreg(0);
+          shifter_ಸತತ <= not shifter_sreg(0);
         end if;
       else -- population count / rotate
         if (shifter_cnt = shifter_cnt_max) then
-          shifter_run <= '0';
+          shifter_ಸತತ <= '0';
         else
-          shifter_run <= '1';
+          shifter_ಸತತ <= '1';
         end if;
       end if;
     end process;
@@ -347,37 +347,37 @@ begin
   -- Parallel Shifter (fast but large) ------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   barrel_shifter:
-  if FAST_SHIFT generate
+  if FAST_ಸರಿಸು generate
 
     -- shifter input layer: convert left-rotates to right-rotates (rotate by 32-N positions) --
-    bs_shift <= std_ulogic_vector(unsigned(not sha_reg) + 1) when (ctrl_i.ir_funct3(2) = '0') else sha_reg;
+    bs_ಸರಿಸು <= std_ulogic_ಸದಿಶ(unsigned(not sha_reg) + 1) when (ctrl_i.ir_funct3(2) = '0') else sha_reg;
 
     -- shifter mux layers: right-rotates only --
     bs_level(0) <= rs1_reg;
     barrel_shifter_core:
     for i in 0 to 4 generate
-      bs_level(i+1)(31 downto 32-(2**i))    <= bs_level(i)((2**i)-1 downto 0) when (bs_shift(i) = '1') else bs_level(i)(31 downto 32-(2**i));
-      bs_level(i+1)((32-(2**i))-1 downto 0) <= bs_level(i)(31 downto 2**i)    when (bs_shift(i) = '1') else bs_level(i)((32-(2**i))-1 downto 0);
+      bs_level(i+1)(31 downto 32-(2**i))    <= bs_level(i)((2**i)-1 downto 0) when (bs_ಸರಿಸು(i) = '1') else bs_level(i)(31 downto 32-(2**i));
+      bs_level(i+1)((32-(2**i))-1 downto 0) <= bs_level(i)(31 downto 2**i)    when (bs_ಸರಿಸು(i) = '1') else bs_level(i)((32-(2**i))-1 downto 0);
     end generate;
-    shifter_sreg <= bs_level(bs_level'left); -- rol/ror[i]
+    shifter_sreg <= bs_level(bs_level'ಎಡ); -- rol/ror[i]
 
     -- population count --
-    shifter_bcnt <= std_ulogic_vector(to_unsigned(popcount_f(rs1_reg), 6)); -- cpop
+    shifter_bcnt <= std_ulogic_ಸದಿಶ(ಗಮ್ಯ_unsigned(popcount_f(rs1_reg), 6)); -- cpop
 
     -- count leading/trailing zeros --
-    count_zeros: process(ctrl_i.ir_funct12, rs1_reg)
-      variable tmp_v : std_ulogic_vector(31 downto 0);
+    ಎಣಿಕೆ_zeros: process(ctrl_i.ir_funct12, rs1_reg)
+      variable tmp_v : std_ulogic_ಸದಿಶ(31 downto 0);
     begin
       if (ctrl_i.ir_funct12(0) = '0') then -- clz
         tmp_v := rs1_reg;
       else -- ctz
-        tmp_v := bit_rev_f(rs1_reg);
+        tmp_v := ಬಿಟ್_rev_f(rs1_reg);
       end if;
-      shifter_cnt <= std_ulogic_vector(to_unsigned(leading_zeros_f(tmp_v), 6));
+      shifter_cnt <= std_ulogic_ಸದಿಶ(ಗಮ್ಯ_unsigned(leading_zeros_f(tmp_v), 6));
     end process;
 
     -- unused --
-    shifter_run     <= '0';
+    shifter_ಸತತ     <= '0';
     shifter_nxt     <= '0';
     shifter_cnt_max <= (others => '0');
 
@@ -386,24 +386,24 @@ begin
 
   -- Shifted-Add ----------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  shift_adder: process(rs1_reg, rs2_reg, ctrl_i)
-    variable tmp_v : std_ulogic_vector(31 downto 0);
+  ಸರಿಸು_adder: process(rs1_reg, rs2_reg, ctrl_i)
+    variable tmp_v : std_ulogic_ಸದಿಶ(31 downto 0);
   begin
     case ctrl_i.ir_funct3(2 downto 1) is
       when "01"   => tmp_v := rs1_reg(rs1_reg'left-1 downto 0) & '0';   -- << 1
-      when "10"   => tmp_v := rs1_reg(rs1_reg'left-2 downto 0) & "00";  -- << 2
-      when others => tmp_v := rs1_reg(rs1_reg'left-3 downto 0) & "000"; -- << 3
+      when "10"   => tmp_v := rs1_reg(rs1_reg'ಎಡ-2 downto 0) & "00";  -- << 2
+      when others => tmp_v := rs1_reg(rs1_reg'ಎಡ-3 downto 0) & "000"; -- << 3
     end case;
-    adder_res <= std_ulogic_vector(unsigned(rs2_reg) + unsigned(tmp_v));
+    adder_res <= std_ulogic_ಸದಿಶ(unsigned(rs2_reg) + unsigned(tmp_v));
   end process;
 
 
   -- One-Hot Encoder ------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  shift_one_hot: process(sha_reg)
+  ಸರಿಸು_one_hot: process(sha_reg)
   begin
     one_hot_res <= (others => '0');
-    one_hot_res(to_integer(unsigned(sha_reg))) <= '1';
+    one_hot_res(ಗಮ್ಯ_integer(unsigned(sha_reg))) <= '1';
   end process;
 
 
@@ -414,12 +414,12 @@ begin
 
     clmul_core: process(clk_i)
     begin
-      if rising_edge(clk_i) then
-        if (clmul_start = '1') then -- start new multiplication
-          clmul_cnt <= std_ulogic_vector(to_unsigned(32, clmul_cnt'length));
+      if rising_ಅಂಚು(clk_i) then
+        if (clmul_ಆರಂಭ = '1') then -- start new multiplication
+          clmul_cnt <= std_ulogic_ಸದಿಶ(ಗಮ್ಯ_unsigned(32, clmul_cnt'ಉದ್ದಳತೆ));
           clmul_res <= x"00000000" & rs1_reg;
-        elsif (state = S_BUSY) and (clmul_run = '1') then -- operation in progress
-          clmul_cnt     <= std_ulogic_vector(unsigned(clmul_cnt) - 1);
+        elsif (state = S_BUSY) and (clmul_ಸತತ = '1') then -- operation in progress
+          clmul_cnt     <= std_ulogic_ಸದಿಶ(unsigned(clmul_cnt) - 1);
           clmul_res(63) <= '0'; -- always zero
           if (clmul_res(0) = '1') then
             clmul_res(62 downto 31) <= clmul_res(63 downto 32) xor rs2_reg;
@@ -432,7 +432,7 @@ begin
     end process;
 
     -- operation in progress --
-    clmul_run <= '1' when (or_reduce_f(clmul_cnt) = '1') else '0';
+    clmul_ಸತತ <= '1' when (or_reduce_f(clmul_cnt) = '1') else '0';
 
   end generate;
 
@@ -440,7 +440,7 @@ begin
   if not (ZBC or ZBKC) generate
     clmul_cnt <= (others => '0');
     clmul_res <= (others => '0');
-    clmul_run <= '0';
+    clmul_ಸತತ <= '0';
   end generate;
 
 
@@ -479,11 +479,11 @@ begin
 
   -- count leading/trailing zeros --
   res_int(op_cz_c)(31 downto shifter_cnt'left+1) <= (others => '0');
-  res_int(op_cz_c)(shifter_cnt'left downto 0) <= shifter_cnt;
+  res_int(op_cz_c)(shifter_cnt'ಎಡ downto 0) <= shifter_cnt;
 
   -- population count --
   res_int(op_cpop_c)(31 downto shifter_bcnt'left+1) <= (others => '0');
-  res_int(op_cpop_c)(shifter_bcnt'left downto 0) <= shifter_bcnt;
+  res_int(op_cpop_c)(shifter_bcnt'ಎಡ downto 0) <= shifter_bcnt;
 
   -- min/max select --
   res_int(op_max_c) <= rs1_reg when ((less_reg xor ctrl_i.ir_funct3(1)) = '1') else rs2_reg;
@@ -507,7 +507,7 @@ begin
   end generate;
 
   -- reversal.8 (byte swap) --
-  byte_swap_gen:
+  byte_ಅದಲುಬದಲು_gen:
   for i in 0 to 3 generate -- byte loop
     res_int(op_rev8_c)(i*8+7 downto i*8) <= rs1_reg((32-i*8)-1 downto 32-(i+1)*8);
   end generate;
@@ -539,7 +539,7 @@ begin
   -- byte-wise bit-reversal --
   brev_gen:
   for i in 0 to 3 generate -- byte loop
-    res_int(op_brev8_c)(i*8+7 downto i*8) <= bit_rev_f(rs1_reg(i*8+7 downto i*8));
+    res_int(op_brev8_c)(i*8+7 downto i*8) <= ಬಿಟ್_rev_f(rs1_reg(i*8+7 downto i*8));
   end generate;
 
   -- carry-less multiplication --
@@ -577,22 +577,22 @@ begin
 
   -- OR all --
   res_or: process(res)
-    variable tmp_v : std_ulogic_vector(31 downto 0);
+    variable tmp_v : std_ulogic_ಸದಿಶ(31 downto 0);
   begin
     tmp_v := (others => '0');
-    for i in 0 to op_width_c-1 loop
+    for i in 0 to op_ಅಗಲ_c-1 loop
       tmp_v := tmp_v or res(i);
     end loop;
-    res_out <= tmp_v;
+    res_ಹೊರಹೋಗು <= tmp_v;
   end process;
 
   -- output gate --
   output_gate: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_ಅಂಚು(clk_i) then
       res_o <= (others => '0');
       if (valid = '1') then
-        res_o <= res_out;
+        res_o <= res_ಹೊರಹೋಗು;
       end if;
     end if;
   end process;
