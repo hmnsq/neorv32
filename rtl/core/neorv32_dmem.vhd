@@ -25,13 +25,13 @@ entity neorv32_dmem is
     -- global control --
     clk_i      : in  std_ulogic;                     -- clock, trigger on rising edge
     -- bus request --
-    req_addr_i : in  std_ulogic_vector(31 downto 0); -- access address (byte-addressing)
-    req_data_i : in  std_ulogic_vector(31 downto 0); -- write data
-    req_ben_i  : in  std_ulogic_vector(3 downto 0);  -- byte enable
+    req_addr_i : in  std_ulogic_سمتیہ(31 downto 0); -- access address (byte-addressing)
+    req_انکڑے_i : in  std_ulogic_سمتیہ(31 downto 0); -- write data
+    req_ben_i  : in  std_ulogic_سمتیہ(3 downto 0);  -- byte enable
     req_stb_i  : in  std_ulogic;                     -- request strobe
     req_rw_i   : in  std_ulogic;                     -- 0 = read, 1 = write
     -- bus response --
-    rsp_data_o : out std_ulogic_vector(31 downto 0); -- read data
+    rsp_انکڑے_o : out std_ulogic_سمتیہ(31 downto 0); -- read data
     rsp_ack_o  : out std_ulogic;                     -- access acknowledge
     rsp_err_o  : out std_ulogic                      -- access error
   );
@@ -41,10 +41,10 @@ architecture neorv32_dmem_rtl of neorv32_dmem is
 
   constant outreg_c : natural := sel_natural_f(OUTREG, 1, 0); -- add output register?
 
-  signal en    : std_ulogic_vector(3 downto 0);
-  signal rdata : std_ulogic_vector(31 downto 0);
+  signal en    : std_ulogic_سمتیہ(3 downto 0);
+  signal rdata : std_ulogic_سمتیہ(31 downto 0);
   signal wrack : std_ulogic;
-  signal rdack : std_ulogic_vector(1 downto 0);
+  signal rdack : std_ulogic_سمتیہ(1 downto 0);
 
 begin
 
@@ -62,8 +62,8 @@ begin
       en_i   => en(i),
       rw_i   => req_rw_i,
       addr_i => req_addr_i(AWIDTH-1 downto 2),
-      data_i => req_data_i(i*8+7 downto i*8),
-      data_o => rdata(i*8+7 downto i*8)
+      انکڑے_i => req_انکڑے_i(i*8+7 downto i*8),
+      انکڑے_o => rdata(i*8+7 downto i*8)
     );
     en(i) <= req_ben_i(i) and req_stb_i; -- byte-wise enable
   end generate;
@@ -71,14 +71,14 @@ begin
   -- bus handshake --
   bus_handshake: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_کنارا(clk_i) then
       wrack <= req_stb_i and req_rw_i;
       rdack <= rdack(0) & (req_stb_i and (not req_rw_i));
     end if;
   end process;
 
   -- output gate --
-  rsp_data_o <= rdata when (rdack(outreg_c) = '1') else (others => '0');
+  rsp_انکڑے_o <= rdata when (rdack(outreg_c) = '1') else (others => '0');
   rsp_ack_o  <= wrack or rdack(outreg_c);
   rsp_err_o  <= '0'; -- no access errors supported (could be used for ECC / parity checks)
 

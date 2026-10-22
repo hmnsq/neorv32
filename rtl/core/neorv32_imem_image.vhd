@@ -3,9 +3,9 @@ use ieee.std_logic_1164.all;
 
 package neorv32_imem_image is
 
-type rom_t is array (0 to 255) of std_ulogic_vector(31 downto 0);
-constant image_size_c : natural := 796;
-constant image_data_c : rom_t := (
+type rom_t is array (0 to 255) of std_ulogic_سمتیہ(31 downto 0);
+constant image_ناپ_c : natural := 796;
+constant image_انکڑے_c : rom_t := (
 x"f14020f3",
 x"80002217",
 x"ffc20213",

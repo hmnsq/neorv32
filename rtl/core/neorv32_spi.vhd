@@ -24,11 +24,11 @@ entity neorv32_spi is
     rstn_i    : in  std_ulogic;                    -- global reset line, low-active, async
     bus_req_i : in  bus_req_t;                     -- bus request
     bus_rsp_o : out bus_rsp_t;                     -- bus response
-    clkgen_i  : in  std_ulogic_vector(7 downto 0); -- prescaled clock enables
+    clkgen_i  : in  std_ulogic_سمتیہ(7 downto 0); -- prescaled clock enables
     spi_clk_o : out std_ulogic;                    -- serial clock
     spi_dat_o : out std_ulogic;                    -- controller data out, peripheral data in
     spi_dat_i : in  std_ulogic;                    -- controller data in, peripheral data out
-    spi_csn_o : out std_ulogic_vector(7 downto 0); -- chip-select, low-active
+    spi_csn_o : out std_ulogic_سمتیہ(7 downto 0); -- chip-select, low-active
     irq_o     : out std_ulogic                     -- CPU interrupt
   );
 end entity;
@@ -45,8 +45,8 @@ architecture neorv32_spi_rtl of neorv32_spi is
   constant ctrl_cdiv3_c    : natural :=  9; -- r/w: clock divider, bit 3 (MSB)
   --
   constant ctrl_rx_avail_c : natural := 16; -- r/-: RX FIFO data available (FIFO not empty)
-  constant ctrl_tx_empty_c : natural := 17; -- r/-: TX FIFO empty
-  constant ctrl_tx_full_c  : natural := 18; -- r/-: TX FIFO full
+  constant ctrl_tx_خالی_تھاواں_c : natural := 17; -- r/-: TX FIFO empty
+  constant ctrl_tx_بھریا_c  : natural := 18; -- r/-: TX FIFO full
   --
   constant ctrl_fifo0_c    : natural := 24; -- r/-: log2(FIFO size), bit 0 (LSB)
   constant ctrl_fifo3_c    : natural := 27; -- r/-: log2(FIFO size), bit 3 (MSB)
@@ -55,35 +55,35 @@ architecture neorv32_spi_rtl of neorv32_spi is
   constant ctrl_busy_c     : natural := 31; -- r/-: SPI PHY busy or TX FIFO not empty yet
 
   -- helpers --
-  constant log2_fifo_size_c : natural := index_size_f(IO_SPI_FIFO);
+  constant log2_fifo_ناپ_c : natural := اشاریہ_ناپ_f(IO_SPI_FIFO);
 
   -- bus interface --
   signal bus_ack, bus_rden : std_ulogic;
-  signal bus_rdata : std_ulogic_vector(31 downto 0);
+  signal bus_rdata : std_ulogic_سمتیہ(31 downto 0);
 
   -- control register --
   type ctrl_t is record
     enable : std_ulogic;
     cpha   : std_ulogic;
     cpol   : std_ulogic;
-    prsc   : std_ulogic_vector(2 downto 0);
-    cdiv   : std_ulogic_vector(3 downto 0);
+    prsc   : std_ulogic_سمتیہ(2 downto 0);
+    cdiv   : std_ulogic_سمتیہ(3 downto 0);
   end record;
   signal ctrl : ctrl_t;
 
   -- clock generator --
-  signal cdiv_cnt   : std_ulogic_vector(3 downto 0);
+  signal cdiv_cnt   : std_ulogic_سمتیہ(3 downto 0);
   signal spi_clk_en : std_ulogic;
 
   -- SPI engine --
   type rtx_engine_t is record
-    state    : std_ulogic_vector(2 downto 0);
-    sreg     : std_ulogic_vector(7 downto 0);
-    bitcnt   : std_ulogic_vector(3 downto 0);
+    state    : std_ulogic_سمتیہ(2 downto 0);
+    sreg     : std_ulogic_سمتیہ(7 downto 0);
+    bitcnt   : std_ulogic_سمتیہ(3 downto 0);
     sdi_sync : std_ulogic;
     sck      : std_ulogic;
-    cs_ctrl  : std_ulogic_vector(3 downto 0);
-    done     : std_ulogic;
+    cs_ctrl  : std_ulogic_سمتیہ(3 downto 0);
+    پورا     : std_ulogic;
   end record;
   signal rtx_engine : rtx_engine_t;
   signal busy : std_ulogic;
@@ -91,7 +91,7 @@ architecture neorv32_spi_rtl of neorv32_spi is
   -- RX FIFO interface --
   type tx_fifo_t is record
     we,    re    : std_ulogic;
-    wdata, rdata : std_ulogic_vector(8 downto 0);
+    wdata, rdata : std_ulogic_سمتیہ(8 downto 0);
     avail, free  : std_ulogic;
     clear        : std_ulogic;
   end record;
@@ -100,7 +100,7 @@ architecture neorv32_spi_rtl of neorv32_spi is
   -- TX FIFO interface --
   type rx_fifo_t is record
     we,    re    : std_ulogic;
-    wdata, rdata : std_ulogic_vector(7 downto 0);
+    wdata, rdata : std_ulogic_سمتیہ(7 downto 0);
     avail, free  : std_ulogic;
     clear        : std_ulogic;
   end record;
@@ -112,7 +112,7 @@ begin
   -- -------------------------------------------------------------------------------------------
   bus_handshake: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_کنارا(clk_i) then
       bus_ack  <= bus_req_i.stb;
       bus_rden <= bus_req_i.stb and (not bus_req_i.rw);
     end if;
@@ -127,14 +127,14 @@ begin
       ctrl.cpol   <= '0';
       ctrl.prsc   <= (others => '0');
       ctrl.cdiv   <= (others => '0');
-    elsif rising_edge(clk_i) then
+    elsif rising_کنارا(clk_i) then
       if (bus_req_i.stb = '1') and (bus_req_i.rw = '1') then
         if (bus_req_i.addr(2) = '0') then -- control register
-          ctrl.enable <= bus_req_i.data(ctrl_en_c);
-          ctrl.cpha   <= bus_req_i.data(ctrl_cpha_c);
-          ctrl.cpol   <= bus_req_i.data(ctrl_cpol_c);
-          ctrl.prsc   <= bus_req_i.data(ctrl_prsc2_c downto ctrl_prsc0_c);
-          ctrl.cdiv   <= bus_req_i.data(ctrl_cdiv3_c downto ctrl_cdiv0_c);
+          ctrl.enable <= bus_req_i.انکڑے(ctrl_en_c);
+          ctrl.cpha   <= bus_req_i.انکڑے(ctrl_cpha_c);
+          ctrl.cpol   <= bus_req_i.انکڑے(ctrl_cpol_c);
+          ctrl.prsc   <= bus_req_i.انکڑے(ctrl_prsc2_c downto ctrl_prsc0_c);
+          ctrl.cdiv   <= bus_req_i.انکڑے(ctrl_cdiv3_c downto ctrl_cdiv0_c);
         end if;
       end if;
     end if;
@@ -152,9 +152,9 @@ begin
         bus_rdata(ctrl_prsc2_c downto ctrl_prsc0_c) <= ctrl.prsc;
         bus_rdata(ctrl_cdiv3_c downto ctrl_cdiv0_c) <= ctrl.cdiv;
         bus_rdata(ctrl_rx_avail_c)                  <= rx_fifo.avail;
-        bus_rdata(ctrl_tx_empty_c)                  <= not tx_fifo.avail;
-        bus_rdata(ctrl_tx_full_c)                   <= not tx_fifo.free;
-        bus_rdata(ctrl_fifo3_c downto ctrl_fifo0_c) <= std_ulogic_vector(to_unsigned(log2_fifo_size_c, 4));
+        bus_rdata(ctrl_tx_خالی_تھاواں_c)                  <= not tx_fifo.avail;
+        bus_rdata(ctrl_tx_بھریا_c)                   <= not tx_fifo.free;
+        bus_rdata(ctrl_fifo3_c downto ctrl_fifo0_c) <= std_ulogic_سمتیہ(منزل_unsigned(log2_fifo_ناپ_c, 4));
         bus_rdata(ctrl_cs_en_c)                     <= rtx_engine.cs_ctrl(3);
         bus_rdata(ctrl_busy_c)                      <= busy or tx_fifo.avail;
       else -- RX data
@@ -166,7 +166,7 @@ begin
   -- bus response --
   bus_rsp_o.ack  <= bus_ack;
   bus_rsp_o.err  <= '0'; -- no access errors supported
-  bus_rsp_o.data <= bus_rdata;
+  bus_rsp_o.انکڑے <= bus_rdata;
 
 
   -- Data FIFO ("Ring Buffer") --------------------------------------------------------------
@@ -175,7 +175,7 @@ begin
   -- TX FIFO --
   tx_fifo_inst: entity neorv32.neorv32_prim_fifo
   generic map (
-    AWIDTH  => log2_fifo_size_c,
+    AWIDTH  => log2_fifo_ناپ_c,
     DWIDTH  => 9,
     OUTGATE => false,
     ASYNCRD => false
@@ -197,14 +197,14 @@ begin
 
   tx_fifo.clear <= not ctrl.enable;
   tx_fifo.we    <= bus_req_i.stb and bus_req_i.rw and bus_req_i.addr(2);
-  tx_fifo.wdata <= bus_req_i.data(31) & bus_req_i.data(7 downto 0); -- command/data select & command/data byte
+  tx_fifo.wdata <= bus_req_i.انکڑے(31) & bus_req_i.انکڑے(7 downto 0); -- command/data select & command/data byte
   tx_fifo.re    <= '1' when (rtx_engine.state = "100") else '0';
 
 
   -- RX FIFO --
   rx_fifo_inst: entity neorv32.neorv32_prim_fifo
   generic map (
-    AWIDTH  => log2_fifo_size_c,
+    AWIDTH  => log2_fifo_ناپ_c,
     DWIDTH  => 8,
     OUTGATE => false,
     ASYNCRD => false
@@ -226,14 +226,14 @@ begin
 
   rx_fifo.clear <= not ctrl.enable;
   rx_fifo.wdata <= rtx_engine.sreg;
-  rx_fifo.we    <= rtx_engine.done;
+  rx_fifo.we    <= rtx_engine.پورا;
   rx_fifo.re    <= bus_rden and bus_req_i.addr(2);
 
 
   -- IRQ generator: IRQ if TX FIFO is empty and serial engine is idle --
   irq_generator: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_کنارا(clk_i) then
       irq_o <= ctrl.enable and (not tx_fifo.avail) and (not busy);
     end if;
   end process;
@@ -250,9 +250,9 @@ begin
       rtx_engine.sdi_sync <= '0';
       rtx_engine.sck      <= '0';
       rtx_engine.cs_ctrl  <= (others => '0');
-      rtx_engine.done     <= '0';
-    elsif rising_edge(clk_i) then
-      rtx_engine.done     <= '0';
+      rtx_engine.پورا     <= '0';
+    elsif rising_کنارا(clk_i) then
+      rtx_engine.پورا     <= '0';
       rtx_engine.state(2) <= ctrl.enable;
       case rtx_engine.state is
 
@@ -283,7 +283,7 @@ begin
           if (spi_clk_en = '1') then
             rtx_engine.sck               <= not (ctrl.cpha xor ctrl.cpol);
             rtx_engine.sdi_sync          <= spi_dat_i; -- sample data input
-            rtx_engine.bitcnt            <= std_ulogic_vector(unsigned(rtx_engine.bitcnt) + 1);
+            rtx_engine.bitcnt            <= std_ulogic_سمتیہ(unsigned(rtx_engine.bitcnt) + 1);
             rtx_engine.state(1 downto 0) <= "11";
           end if;
 
@@ -293,7 +293,7 @@ begin
             rtx_engine.sreg <= rtx_engine.sreg(6 downto 0) & rtx_engine.sdi_sync; -- shift and set output
             if (rtx_engine.bitcnt(3) = '1') then -- all bits transferred?
               rtx_engine.sck               <= ctrl.cpol;
-              rtx_engine.done              <= '1'; -- done!
+              rtx_engine.پورا              <= '1'; -- done!
               rtx_engine.state(1 downto 0) <= "00"; -- transmission done
             else
               rtx_engine.sck               <= ctrl.cpha xor ctrl.cpol;
@@ -323,10 +323,10 @@ begin
   begin
     if (rstn_i = '0') then
       spi_csn_o <= (others => '1');
-    elsif rising_edge(clk_i) then
+    elsif rising_کنارا(clk_i) then
       spi_csn_o <= (others => '1'); -- default: all disabled (low-active!)
       if (rtx_engine.cs_ctrl(3) = '1') then
-        spi_csn_o(to_integer(unsigned(rtx_engine.cs_ctrl(2 downto 0)))) <= '0';
+        spi_csn_o(منزل_integer(unsigned(rtx_engine.cs_ctrl(2 downto 0)))) <= '0';
       end if;
     end if;
   end process;
@@ -336,16 +336,16 @@ begin
   -- -------------------------------------------------------------------------------------------
   clock_generator: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_کنارا(clk_i) then
       spi_clk_en <= '0'; -- default
       if (ctrl.enable = '0') then -- reset/disabled
         cdiv_cnt <= (others => '0');
-      elsif (clkgen_i(to_integer(unsigned(ctrl.prsc))) = '1') then -- pre-scaled clock
+      elsif (clkgen_i(منزل_integer(unsigned(ctrl.prsc))) = '1') then -- pre-scaled clock
         if (cdiv_cnt = ctrl.cdiv) then -- clock divider for fine-tuning
           spi_clk_en <= '1';
           cdiv_cnt   <= (others => '0');
         else
-          cdiv_cnt <= std_ulogic_vector(unsigned(cdiv_cnt) + 1);
+          cdiv_cnt <= std_ulogic_سمتیہ(unsigned(cdiv_cnt) + 1);
         end if;
       end if;
     end if;

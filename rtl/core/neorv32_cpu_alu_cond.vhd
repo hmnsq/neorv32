@@ -20,10 +20,10 @@ entity neorv32_cpu_alu_cond is
     clk_i   : in  std_ulogic; -- global clock, rising edge
     ctrl_i  : in  ctrl_bus_t; -- main control bus
     -- data input --
-    rs1_i   : in  std_ulogic_vector(31 downto 0); -- rf source 1
-    rs2_i   : in  std_ulogic_vector(31 downto 0); -- rf source 2
+    rs1_i   : in  std_ulogic_سمتیہ(31 downto 0); -- rf source 1
+    rs2_i   : in  std_ulogic_سمتیہ(31 downto 0); -- rf source 2
     -- result and status --
-    res_o   : out std_ulogic_vector(31 downto 0); -- operation result
+    res_o   : out std_ulogic_سمتیہ(31 downto 0); -- operation result
     valid_o : out std_ulogic                      -- data output valid
   );
 end entity;
@@ -40,9 +40,9 @@ begin
     (ctrl_i.ir_funct3(0) = '1') and (ctrl_i.ir_funct12(11 downto 5) = "0000111") else '0';
 
   -- conditional output --
-  cond_out: process(clk_i)
+  cond_باہرلا: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_کنارا(clk_i) then
       if (valid_cmd = '1') and (condition = '1') then -- unit triggered and move-condition is true
         res_o <= rs1_i;
       else

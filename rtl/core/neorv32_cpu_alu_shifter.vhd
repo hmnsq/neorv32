@@ -20,7 +20,7 @@ use neorv32.neorv32_package.all;
 
 entity neorv32_cpu_alu_shifter is
   generic (
-    FAST_SHIFT_EN : boolean -- implement fast but large barrel shifter
+    FAST_کھسکاؤ_EN : boolean -- implement fast but large barrel shifter
   );
   port (
     -- global control --
@@ -28,10 +28,10 @@ entity neorv32_cpu_alu_shifter is
     rstn_i  : in  std_ulogic; -- global reset, low-active, async
     ctrl_i  : in  ctrl_bus_t; -- main control bus
     -- data input --
-    rs1_i   : in  std_ulogic_vector(31 downto 0); -- rf source 1
-    shamt_i : in  std_ulogic_vector(4 downto 0);  -- shift amount
+    rs1_i   : in  std_ulogic_سمتیہ(31 downto 0); -- rf source 1
+    shamt_i : in  std_ulogic_سمتیہ(4 downto 0);  -- shift amount
     -- result and status --
-    res_o   : out std_ulogic_vector(31 downto 0); -- operation result
+    res_o   : out std_ulogic_سمتیہ(31 downto 0); -- operation result
     valid_o : out std_ulogic                      -- data output valid
   );
 end entity;
@@ -42,12 +42,12 @@ architecture neorv32_cpu_alu_shifter_rtl of neorv32_cpu_alu_shifter is
   signal valid_cmd : std_ulogic;
 
   -- shifter core --
-  signal busy, sgn, done, oe : std_ulogic;
-  signal cnt  : std_ulogic_vector(4 downto 0);
-  signal sreg : std_ulogic_vector(31 downto 0);
+  signal busy, sgn, پورا, oe : std_ulogic;
+  signal cnt  : std_ulogic_سمتیہ(4 downto 0);
+  signal sreg : std_ulogic_سمتیہ(31 downto 0);
 
   -- barrel shifter layers --
-  type level_t is array (5 downto 0) of std_ulogic_vector(31 downto 0);
+  type level_t is array (5 downto 0) of std_ulogic_سمتیہ(31 downto 0);
   signal lvl : level_t;
 
 begin
@@ -62,7 +62,7 @@ begin
   -- Serial Shifter (small but slow) --------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   serial_shifter:
-  if not FAST_SHIFT_EN generate
+  if not FAST_کھسکاؤ_EN generate
 
     -- iteration control --
     serial_ctrl: process(rstn_i, clk_i)
@@ -70,25 +70,25 @@ begin
       if (rstn_i = '0') then
         busy <= '0';
         oe   <= '0';
-      elsif rising_edge(clk_i) then
+      elsif rising_کنارا(clk_i) then
         if (valid_cmd = '1') then
           busy <= '1';
-        elsif (done = '1') or (ctrl_i.cpu_trap = '1') then -- abort on trap
+        elsif (پورا = '1') or (ctrl_i.cpu_trap = '1') then -- abort on trap
           busy <= '0';
         end if;
-        oe <= busy and done;
+        oe <= busy and پورا;
       end if;
     end process;
 
     -- shift register --
-    serial_data: process(clk_i)
+    serial_انکڑے: process(clk_i)
     begin
-      if rising_edge(clk_i) then
+      if rising_کنارا(clk_i) then
         if (valid_cmd = '1') then
           cnt  <= shamt_i;
           sreg <= rs1_i;
         elsif (busy = '1') and (or_reduce_f(cnt) = '1') then -- operation in progress
-          cnt <= std_ulogic_vector(unsigned(cnt) - 1);
+          cnt <= std_ulogic_سمتیہ(unsigned(cnt) - 1);
           if (ctrl_i.ir_funct3(2) = '0') then -- shift left logical
             sreg <= sreg(30 downto 0) & '0';
           else -- shift right (arithmetical)
@@ -99,8 +99,8 @@ begin
     end process;
 
     -- shift control --
-    done    <= not or_reduce_f(cnt(cnt'left downto 1));
-    valid_o <= busy and done;
+    پورا    <= not or_reduce_f(cnt(cnt'بایاں downto 1));
+    valid_o <= busy and پورا;
     res_o   <= sreg when (oe = '1') else (others => '0');
 
     -- unused --
@@ -112,10 +112,10 @@ begin
   -- Barrel Shifter (fast but large) --------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   barrel_shifter:
-  if FAST_SHIFT_EN generate
+  if FAST_کھسکاؤ_EN generate
 
     -- input layer: convert left shifts to right shifts using bit-reversal --
-    lvl(0) <= bit_rev_f(rs1_i) when (ctrl_i.ir_funct3(2) = '0') else rs1_i;
+    lvl(0) <= ثنائی_ہندسہ_rev_f(rs1_i) when (ctrl_i.ir_funct3(2) = '0') else rs1_i;
     sgn    <= rs1_i(31) and ctrl_i.ir_funct12(10); -- sign (extension) for arithmetic shifts
 
     -- mux layers: right-shifts only --
@@ -128,7 +128,7 @@ begin
     -- register layer --
     pipe_reg: process(clk_i)
     begin
-      if rising_edge(clk_i) then
+      if rising_کنارا(clk_i) then
         sreg <= lvl(5);
       end if;
     end process;
@@ -138,18 +138,18 @@ begin
     begin
       if (rstn_i = '0') then
         oe <= '0';
-      elsif rising_edge(clk_i) then
+      elsif rising_کنارا(clk_i) then
         oe <= valid_cmd;
       end if;
     end process;
 
     -- output layer: re-convert original left shifts and result gate --
-    res_o   <= (others => '0') when (oe = '0') else bit_rev_f(sreg) when (ctrl_i.ir_funct3(2) = '0') else sreg;
+    res_o   <= (others => '0') when (oe = '0') else ثنائی_ہندسہ_rev_f(sreg) when (ctrl_i.ir_funct3(2) = '0') else sreg;
     valid_o <= valid_cmd;
 
     -- unused --
     busy <= '0';
-    done <= '0';
+    پورا <= '0';
     cnt  <= (others => '0');
 
   end generate;

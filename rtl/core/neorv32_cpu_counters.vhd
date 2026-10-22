@@ -26,8 +26,8 @@ entity neorv32_cpu_counters is
     ZIHPM_EN     : boolean;               -- hardware performance monitors
     SMCNTRPMF_EN : boolean;               -- counter privilege-mode filtering
     UMODE_EN     : boolean;               -- user-mode
-    HPM_NUM      : natural range 0 to 29; -- number of implemented HPM counters
-    HPM_WIDTH    : natural range 0 to 64  -- total size of HPM counters
+    HPM_عدد      : natural range 0 to 29; -- number of implemented HPM counters
+    HPM_چوڑائی    : natural range 0 to 64  -- total size of HPM counters
   );
   port (
     -- global control --
@@ -35,32 +35,32 @@ entity neorv32_cpu_counters is
     rstn_i  : in  std_ulogic; -- global reset, low-active, async
     ctrl_i  : in  ctrl_bus_t; -- main control bus
     -- system time --
-    mtime_i : in  std_ulogic_vector(63 downto 0); -- from CLINT.MTIME
+    mtime_i : in  std_ulogic_سمتیہ(63 downto 0); -- from CLINT.MTIME
     -- read back --
-    rdata_o : out std_ulogic_vector(31 downto 0) -- read data
+    rdata_o : out std_ulogic_سمتیہ(31 downto 0) -- read data
   );
 end entity;
 
 architecture neorv32_cpu_counters_rtl of neorv32_cpu_counters is
 
   -- global access decoder --
-  type cnt_we_t is array (31 downto 0) of std_ulogic_vector(1 downto 0);
+  type cnt_we_t is array (31 downto 0) of std_ulogic_سمتیہ(1 downto 0);
   signal cnt_we : cnt_we_t;
   signal cnt_acc, cfg_acc, inh_acc, pmf_acc : std_ulogic;
-  signal sel, cnt_re, cfg_we, cfg_re : std_ulogic_vector(31 downto 0);
+  signal sel, cnt_re, cfg_we, cfg_re : std_ulogic_سمتیہ(31 downto 0);
 
   -- counter increment control --
-  signal inhibit, cnt_inc : std_ulogic_vector(31 downto 0);
-  signal pmf_cy, pmf_ir, pmf_inh : std_ulogic_vector(1 downto 0);
+  signal inhibit, cnt_inc : std_ulogic_سمتیہ(31 downto 0);
+  signal pmf_cy, pmf_ir, pmf_inh : std_ulogic_سمتیہ(1 downto 0);
 
   -- HPM read-backs --
-  type hpmevent_t is array (3 to 31) of std_ulogic_vector(cnt_event_width_c-1 downto 0);
-  type hpmcnt_t   is array (3 to 31) of std_ulogic_vector(63 downto 0);
+  type hpmevent_t is array (3 to 31) of std_ulogic_سمتیہ(cnt_event_چوڑائی_c-1 downto 0);
+  type hpmcnt_t   is array (3 to 31) of std_ulogic_سمتیہ(63 downto 0);
   signal hpmevent, hpmevent_rd : hpmevent_t;
   signal hpmcnt_rd : hpmcnt_t;
 
   -- global CSR read-backs --
-  signal rdata64, cycle_rd, time_rd, instret_rd, hpm_rd, inhibit_rd, pmf_rd : std_ulogic_vector(63 downto 0);
+  signal rdata64, چکر_rd, ویلا_rd, instret_rd, hpm_rd, inhibit_rd, pmf_rd : std_ulogic_سمتیہ(63 downto 0);
 
 begin
 
@@ -68,7 +68,7 @@ begin
   -- -------------------------------------------------------------------------------------------
   acc_gen:
   for i in 0 to 31 generate
-    sel(i)       <= '1' when (ctrl_i.csr_addr(4 downto 0) = std_ulogic_vector(to_unsigned(i, 5))) else '0';
+    sel(i)       <= '1' when (ctrl_i.csr_addr(4 downto 0) = std_ulogic_سمتیہ(منزل_unsigned(i, 5))) else '0';
     cnt_we(i)(0) <= cnt_acc and sel(i) and ctrl_i.csr_we and (not ctrl_i.csr_addr(7)); -- counter low word
     cnt_we(i)(1) <= cnt_acc and sel(i) and ctrl_i.csr_we and (    ctrl_i.csr_addr(7)); -- counter high word
     cnt_re(i)    <= cnt_acc and sel(i) and ctrl_i.csr_re;
@@ -77,7 +77,7 @@ begin
   end generate;
 
   -- CSR access --
-  cnt_acc <= '1' when ((ctrl_i.csr_addr(11 downto 5) = csr_cycle_c(11 downto 5)) or
+  cnt_acc <= '1' when ((ctrl_i.csr_addr(11 downto 5) = csr_چکر_c(11 downto 5)) or
                        (ctrl_i.csr_addr(11 downto 5) = csr_mcycle_c(11 downto 5)) or
                        (ctrl_i.csr_addr(11 downto 5) = csr_cycleh_c(11 downto 5)) or
                        (ctrl_i.csr_addr(11 downto 5) = csr_mcycleh_c(11 downto 5))) else '0';
@@ -86,7 +86,7 @@ begin
   pmf_acc <= '1' when ((ctrl_i.csr_addr = csr_mcyclecfgh_c) or (ctrl_i.csr_addr = csr_minstretcfgh_c)) else '0';
 
   -- global CSR read-back and subword select --
-  rdata64 <= cycle_rd or time_rd or instret_rd or hpm_rd or inhibit_rd or pmf_rd;
+  rdata64 <= چکر_rd or ویلا_rd or instret_rd or hpm_rd or inhibit_rd or pmf_rd;
   rdata_o <= rdata64(63 downto 32) when (ctrl_i.csr_addr(7) = '1') else rdata64(31 downto 0);
 
 
@@ -96,7 +96,7 @@ begin
   begin
     if (rstn_i = '0') then
       inhibit <= (others => '0');
-    elsif rising_edge(clk_i) then
+    elsif rising_کنارا(clk_i) then
       -- base counters --
       if not ZICNTR_EN then
         inhibit(0) <= '0';
@@ -107,7 +107,7 @@ begin
       end if;
       -- hardware performance monitors --
       for i in 3 to 31 loop
-        if ZIHPM_EN and ((i-3) < HPM_NUM) then
+        if ZIHPM_EN and ((i-3) < HPM_عدد) then
           if (inh_acc = '1') and (ctrl_i.csr_we = '1') then
             inhibit(i) <= ctrl_i.csr_wdata(i); -- [m]hpmcounter3..31[h]
           end if;
@@ -134,7 +134,7 @@ begin
       if (rstn_i = '0') then
         pmf_cy <= (others => '0');
         pmf_ir <= (others => '0');
-      elsif rising_edge(clk_i) then
+      elsif rising_کنارا(clk_i) then
         if (pmf_acc = '1') and (ctrl_i.csr_we = '1') then
           if (ctrl_i.csr_addr(1 downto 0) = csr_mcyclecfgh_c(1 downto 0)) then
             pmf_cy <= ctrl_i.csr_wdata(30) & ctrl_i.csr_wdata(28);
@@ -152,7 +152,7 @@ begin
     end process;
 
     -- CSR read-back --
-    pmf_read_back: process(pmf_acc, ctrl_i, pmf_cy, pmf_ir)
+    pmf_read_پٹھ: process(pmf_acc, ctrl_i, pmf_cy, pmf_ir)
     begin
       pmf_rd <= (others => '0');
       if (pmf_acc = '1') and (ctrl_i.csr_re = '1') then
@@ -167,8 +167,8 @@ begin
     end process;
 
     -- counter-inhibit according to current privilege-mode --
-    pmf_inh(0) <= pmf_cy(1) when (ctrl_i.cpu_priv = priv_mode_m_c) or (UMODE_EN = false) else pmf_cy(0);
-    pmf_inh(1) <= pmf_ir(1) when (ctrl_i.cpu_priv = priv_mode_m_c) or (UMODE_EN = false) else pmf_ir(0);
+    pmf_inh(0) <= pmf_cy(1) when (ctrl_i.cpu_priv = priv_منوال_m_c) or (UMODE_EN = false) else pmf_cy(0);
+    pmf_inh(1) <= pmf_ir(1) when (ctrl_i.cpu_priv = priv_منوال_m_c) or (UMODE_EN = false) else pmf_ir(0);
   end generate;
 
   -- filtering disabled --
@@ -200,11 +200,11 @@ begin
 
   -- Base Counters (Zicntr) -----------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  base_enabled:
+  ادھار_enabled:
   if ZICNTR_EN generate
 
     -- [m]cycle[h] --
-    cycle_inst: entity neorv32.neorv32_prim_cnt
+    چکر_inst: entity neorv32.neorv32_prim_cnt
     generic map (
       CWIDTH => 64
     )
@@ -213,13 +213,13 @@ begin
       rstn_i => rstn_i,
       inc_i  => cnt_inc(0),
       we_i   => cnt_we(0),
-      data_i => ctrl_i.csr_wdata,
+      انکڑے_i => ctrl_i.csr_wdata,
       oe_i   => cnt_re(0),
-      cnt_o  => cycle_rd
+      cnt_o  => چکر_rd
     );
 
     -- time[h] --
-    time_rd <= mtime_i when (cnt_re(1) = '1') else (others => '0');
+    ویلا_rd <= mtime_i when (cnt_re(1) = '1') else (others => '0');
 
     -- [m]instret[h] --
     instret_inst: entity neorv32.neorv32_prim_cnt
@@ -231,7 +231,7 @@ begin
       rstn_i => rstn_i,
       inc_i  => cnt_inc(2),
       we_i   => cnt_we(2),
-      data_i => ctrl_i.csr_wdata,
+      انکڑے_i => ctrl_i.csr_wdata,
       oe_i   => cnt_re(2),
       cnt_o  => instret_rd
     );
@@ -239,10 +239,10 @@ begin
   end generate;
 
   -- base counters disabled --
-  base_disabled:
+  ادھار_disabled:
   if not ZICNTR_EN generate
-    cycle_rd   <= (others => '0');
-    time_rd    <= (others => '0');
+    چکر_rd   <= (others => '0');
+    ویلا_rd    <= (others => '0');
     instret_rd <= (others => '0');
   end generate;
 
@@ -250,22 +250,22 @@ begin
   -- Hardware Performance Monitors (Zihpm) --------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   hpm_enabled:
-  if ZIHPM_EN and (HPM_NUM > 0) generate
+  if ZIHPM_EN and (HPM_عدد > 0) generate
 
     hpm_gen:
-    for i in 3 to (HPM_NUM + 3) - 1 generate
+    for i in 3 to (HPM_عدد + 3) - 1 generate
 
       -- [m]hpmcnt[3..31][h] --
       hpmcnt_inst: entity neorv32.neorv32_prim_cnt
       generic map (
-        CWIDTH => HPM_WIDTH
+        CWIDTH => HPM_چوڑائی
       )
       port map (
         clk_i  => clk_i,
         rstn_i => rstn_i,
         inc_i  => cnt_inc(i),
         we_i   => cnt_we(i),
-        data_i => ctrl_i.csr_wdata,
+        انکڑے_i => ctrl_i.csr_wdata,
         oe_i   => cnt_re(i),
         cnt_o  => hpmcnt_rd(i)
       );
@@ -275,9 +275,9 @@ begin
       begin
         if (rstn_i = '0') then
           hpmevent(i) <= (others => '0');
-        elsif rising_edge(clk_i) then
+        elsif rising_کنارا(clk_i) then
           if (cfg_we(i) = '1') then
-            hpmevent(i) <= ctrl_i.csr_wdata(cnt_event_width_c-1 downto 0);
+            hpmevent(i) <= ctrl_i.csr_wdata(cnt_event_چوڑائی_c-1 downto 0);
           end if;
         end if;
       end process;
@@ -287,19 +287,19 @@ begin
 
     -- terminate unused HPM slices --
     hpm_terminate_gen:
-    for i in HPM_NUM + 3 to 31 generate
+    for i in HPM_عدد + 3 to 31 generate
       hpmcnt_rd(i)   <= (others => '0');
       hpmevent(i)    <= (others => '0');
       hpmevent_rd(i) <= (others => '0');
     end generate;
 
     -- read-back --
-    hpm_read_back: process(hpmcnt_rd, hpmevent_rd)
-      variable tmp_v : std_ulogic_vector(63 downto 0);
+    hpm_read_پٹھ: process(hpmcnt_rd, hpmevent_rd)
+      variable tmp_v : std_ulogic_سمتیہ(63 downto 0);
     begin
       tmp_v := (others => '0');
       for i in 3 to 31 loop
-        tmp_v := tmp_v or hpmcnt_rd(i) or std_ulogic_vector(resize(unsigned(hpmevent_rd(i)), 64));
+        tmp_v := tmp_v or hpmcnt_rd(i) or std_ulogic_سمتیہ(resize(unsigned(hpmevent_rd(i)), 64));
       end loop;
       hpm_rd <= tmp_v;
     end process;
@@ -308,7 +308,7 @@ begin
 
   -- HPMs disabled --
   hpm_disabled:
-  if (not ZIHPM_EN) or (HPM_NUM = 0) generate
+  if (not ZIHPM_EN) or (HPM_عدد = 0) generate
     hpmcnt_rd   <= (others => (others => '0'));
     hpmevent    <= (others => (others => '0'));
     hpmevent_rd <= (others => (others => '0'));

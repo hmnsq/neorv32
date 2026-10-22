@@ -19,14 +19,14 @@ use neorv32.neorv32_package.all;
 
 entity neorv32_gptmr is
   generic (
-    NUM_SLICES : natural range 0 to 16 -- number of timer slices
+    عدد_SLICES : natural range 0 to 16 -- number of timer slices
   );
   port (
     clk_i     : in  std_ulogic;                    -- global clock line
     rstn_i    : in  std_ulogic;                    -- global reset line, low-active
     bus_req_i : in  bus_req_t;                     -- bus request
     bus_rsp_o : out bus_rsp_t;                     -- bus response
-    clkgen_i  : in  std_ulogic_vector(7 downto 0); -- prescaled clocks
+    clkgen_i  : in  std_ulogic_سمتیہ(7 downto 0); -- prescaled clocks
     irq_o     : out std_ulogic                     -- timer match interrupt
   );
 end entity;
@@ -34,33 +34,33 @@ end entity;
 architecture neorv32_gptmr_rtl of neorv32_gptmr is
 
   -- counter slice --
-  component neorv32_gptmr_slice
+  component neorv32_gptmr_ٹکڑا
   port (
     clk_i   : in  std_ulogic;
     rstn_i  : in  std_ulogic;
     clken_i : in  std_ulogic;
     en_i    : in  std_ulogic;
-    mode_i  : in  std_ulogic;
+    منوال_i  : in  std_ulogic;
     cs_i    : in  std_ulogic;
     we_i    : in  std_ulogic;
     addr_i  : in  std_ulogic;
-    wdata_i : in  std_ulogic_vector(31 downto 0);
-    rdata_o : out std_ulogic_vector(31 downto 0);
+    wdata_i : in  std_ulogic_سمتیہ(31 downto 0);
+    rdata_o : out std_ulogic_سمتیہ(31 downto 0);
     irq_o   : out std_ulogic
   );
   end component;
 
   -- slice configuration --
-  signal acc_addr : std_ulogic_vector(1 downto 0);
-  signal clkprsc : std_ulogic_vector(2 downto 0);
-  signal enable, mode, irq : std_ulogic_vector(NUM_SLICES-1 downto 0);
+  signal acc_addr : std_ulogic_سمتیہ(1 downto 0);
+  signal clkprsc : std_ulogic_سمتیہ(2 downto 0);
+  signal enable, منوال, irq : std_ulogic_سمتیہ(عدد_SLICES-1 downto 0);
   signal clken : std_ulogic;
 
   -- slice wiring --
-  type rdata_t is array (NUM_SLICES-1 downto 0) of std_ulogic_vector(31 downto 0);
+  type rdata_t is array (عدد_SLICES-1 downto 0) of std_ulogic_سمتیہ(31 downto 0);
   signal rdata : rdata_t;
-  signal rdata_sum : std_ulogic_vector(31 downto 0);
-  signal cs, trig : std_ulogic_vector(NUM_SLICES-1 downto 0);
+  signal rdata_جوڑ : std_ulogic_سمتیہ(31 downto 0);
+  signal cs, trig : std_ulogic_سمتیہ(عدد_SLICES-1 downto 0);
 
 begin
 
@@ -68,7 +68,7 @@ begin
   -- -------------------------------------------------------------------------------------------
   bus_handshake: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_کنارا(clk_i) then
       bus_rsp_o.ack <= bus_req_i.stb;
     end if;
   end process;
@@ -86,23 +86,23 @@ begin
   begin
     if (rstn_i = '0') then
       enable  <= (others => '0');
-      mode    <= (others => '0');
+      منوال    <= (others => '0');
       clkprsc <= (others => '0');
-    elsif rising_edge(clk_i) then
+    elsif rising_کنارا(clk_i) then
       if (bus_req_i.stb = '1') and (bus_req_i.rw = '1') then -- write access
         -- CSR0: control and status register 0 --
         if (acc_addr = "00") then
           if (bus_req_i.ben(1 downto 0) = "11") then -- low half: per-slice enable
-            enable <= bus_req_i.data((NUM_SLICES-1)+0 downto 0);
+            enable <= bus_req_i.انکڑے((عدد_SLICES-1)+0 downto 0);
           end if;
           if (bus_req_i.ben(3 downto 2) = "11") then -- high half: per-slice mode
-            mode <= bus_req_i.data((NUM_SLICES-1)+16 downto 16);
+            منوال <= bus_req_i.انکڑے((عدد_SLICES-1)+16 downto 16);
           end if;
         end if;
         -- CSR1: control and status register 1 --
         if (acc_addr = "01") then
           if (bus_req_i.ben(3 downto 2) = "11") then -- high half: clock prescaler
-            clkprsc <= bus_req_i.data(18 downto 16);
+            clkprsc <= bus_req_i.انکڑے(18 downto 16);
           end if;
         end if;
       end if;
@@ -112,8 +112,8 @@ begin
   -- clock generator --
   clk_gen: process(clk_i)
   begin
-    if rising_edge(clk_i) then
-      clken <= clkgen_i(to_integer(unsigned(clkprsc)));
+    if rising_کنارا(clk_i) then
+      clken <= clkgen_i(منزل_integer(unsigned(clkprsc)));
     end if;
   end process;
 
@@ -122,18 +122,18 @@ begin
   -- -------------------------------------------------------------------------------------------
   bus_read: process(clk_i)
   begin
-    if rising_edge(clk_i) then
-      bus_rsp_o.data <= (others => '0');
+    if rising_کنارا(clk_i) then
+      bus_rsp_o.انکڑے <= (others => '0');
       if (bus_req_i.stb = '1') and (bus_req_i.rw = '0') then -- read access
         case acc_addr is
           when "00" => -- CSR0
-            bus_rsp_o.data((NUM_SLICES-1)+0 downto 0)   <= enable;
-            bus_rsp_o.data((NUM_SLICES-1)+16 downto 16) <= mode;
+            bus_rsp_o.انکڑے((عدد_SLICES-1)+0 downto 0)   <= enable;
+            bus_rsp_o.انکڑے((عدد_SLICES-1)+16 downto 16) <= منوال;
           when "01" => -- CSR1
-            bus_rsp_o.data((NUM_SLICES-1)+0 downto  0) <= irq;
-            bus_rsp_o.data(18 downto 16)               <= clkprsc;
+            bus_rsp_o.انکڑے((عدد_SLICES-1)+0 downto  0) <= irq;
+            bus_rsp_o.انکڑے(18 downto 16)               <= clkprsc;
           when others => -- slice registers
-            bus_rsp_o.data <= rdata_sum;
+            bus_rsp_o.انکڑے <= rdata_جوڑ;
         end case;
       end if;
     end if;
@@ -142,38 +142,38 @@ begin
 
   -- Timer Slices ---------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  timer_slice_gen:
-  for i in 0 to NUM_SLICES-1 generate
-    neorv32_gptmr_slice_inst: neorv32_gptmr_slice
+  timer_ٹکڑا_gen:
+  for i in 0 to عدد_SLICES-1 generate
+    neorv32_gptmr_ٹکڑا_inst: neorv32_gptmr_ٹکڑا
     port map (
       -- global control --
       clk_i   => clk_i,
       rstn_i  => rstn_i,
       clken_i => clken,
       en_i    => enable(i),
-      mode_i  => mode(i),
+      منوال_i  => منوال(i),
       -- register access --
       cs_i    => cs(i),
       we_i    => bus_req_i.rw,
       addr_i  => bus_req_i.addr(2),
-      wdata_i => bus_req_i.data,
+      wdata_i => bus_req_i.انکڑے,
       rdata_o => rdata(i),
       -- IRQ output --
       irq_o   => trig(i)
     );
     cs(i) <= bus_req_i.stb when (bus_req_i.addr(7) = '1') and
-                                (bus_req_i.addr(6 downto 3) = std_ulogic_vector(to_unsigned(i, 4))) else '0';
+                                (bus_req_i.addr(6 downto 3) = std_ulogic_سمتیہ(منزل_unsigned(i, 4))) else '0';
   end generate;
 
   -- channel read-back --
-  read_back: process(rdata)
-    variable tmp_v : std_ulogic_vector(31 downto 0);
+  read_پٹھ: process(rdata)
+    variable tmp_v : std_ulogic_سمتیہ(31 downto 0);
   begin
     tmp_v := (others => '0');
-    for i in 0 to NUM_SLICES-1 loop
+    for i in 0 to عدد_SLICES-1 loop
       tmp_v := tmp_v or rdata(i);
     end loop;
-    rdata_sum <= tmp_v;
+    rdata_جوڑ <= tmp_v;
   end process;
 
 
@@ -181,14 +181,14 @@ begin
   -- -------------------------------------------------------------------------------------------
   irq_generator: process(clk_i)
   begin
-    if rising_edge(clk_i) then
-      for i in 0 to NUM_SLICES-1 loop
+    if rising_کنارا(clk_i) then
+      for i in 0 to عدد_SLICES-1 loop
         if (enable(i) = '0') then
           irq(i) <= '0';
         elsif (trig(i) = '1') then
           irq(i) <= '1';
         elsif (bus_req_i.stb = '1') and (bus_req_i.rw = '1') and (acc_addr = "01") and
-              (bus_req_i.ben(i/8) = '1') and (bus_req_i.data(i) = '0') then -- write 0 to clear/ACK
+              (bus_req_i.ben(i/8) = '1') and (bus_req_i.انکڑے(i) = '0') then -- write 0 to clear/ACK
           irq(i) <= '0';
         end if;
       end loop;
@@ -215,29 +215,29 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity neorv32_gptmr_slice is
+entity neorv32_gptmr_ٹکڑا is
   port (
     -- global control --
     clk_i   : in  std_ulogic;                     -- global clock line
     rstn_i  : in  std_ulogic;                     -- global reset line, low-active, async
     clken_i : in  std_ulogic;                     -- counter clock-enable
     en_i    : in  std_ulogic;                     -- slice enable
-    mode_i  : in  std_ulogic;                     -- operation mode
+    منوال_i  : in  std_ulogic;                     -- operation mode
     -- register access --
     cs_i    : in  std_ulogic;                     -- access enable
     we_i    : in  std_ulogic;                     -- write-enable
     addr_i  : in  std_ulogic;                     -- register select
-    wdata_i : in  std_ulogic_vector(31 downto 0); -- write data
-    rdata_o : out std_ulogic_vector(31 downto 0); -- read data
+    wdata_i : in  std_ulogic_سمتیہ(31 downto 0); -- write data
+    rdata_o : out std_ulogic_سمتیہ(31 downto 0); -- read data
     -- IRQ output --
     irq_o   : out std_ulogic                      -- counter reached zero
   );
 end entity;
 
-architecture neorv32_gptmr_slice_rtl of neorv32_gptmr_slice is
+architecture neorv32_gptmr_ٹکڑا_rtl of neorv32_gptmr_ٹکڑا is
 
-  signal thr, cnt : std_ulogic_vector(31 downto 0);
-  signal match, trig : std_ulogic;
+  signal thr, cnt : std_ulogic_سمتیہ(31 downto 0);
+  signal میل, trig : std_ulogic;
 
 begin
 
@@ -249,7 +249,7 @@ begin
       thr  <= (others => '0');
       cnt  <= (others => '0');
       trig <= '0';
-    elsif rising_edge(clk_i) then
+    elsif rising_کنارا(clk_i) then
       -- threshold value --
       if (cs_i = '1') and (we_i = '1') and (addr_i = '1') then
         thr <= wdata_i;
@@ -258,14 +258,14 @@ begin
       if (cs_i = '1') and (we_i = '1') and (addr_i = '0') then
         cnt <= wdata_i;
       elsif (en_i = '1') and (clken_i = '1') then
-        if (match = '0') then
-          cnt <= std_ulogic_vector(unsigned(cnt) + 1);
-        elsif (mode_i = '1') then -- continuous mode
+        if (میل = '0') then
+          cnt <= std_ulogic_سمتیہ(unsigned(cnt) + 1);
+        elsif (منوال_i = '1') then -- continuous mode
           cnt <= (others => '0');
         end if;
       end if;
       -- interrupt --
-      trig <= match;
+      trig <= میل;
     end if;
   end process;
 
@@ -273,9 +273,9 @@ begin
   rdata_o <= (others => '0') when (cs_i = '0') else cnt when (addr_i = '0') else thr;
 
   -- match detector --
-  match <= '1' when (cnt = thr) else '0';
+  میل <= '1' when (cnt = thr) else '0';
 
   -- match interrupt --
-  irq_o <= match and (not trig);
+  irq_o <= میل and (not trig);
 
 end architecture;
