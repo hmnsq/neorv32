@@ -18,11 +18,11 @@ entity neorv32_core_complex is
   generic (
     -- General --
     HART_ID             : natural range 0 to 1           := 0;           -- hardware thread ID
-    VENDOR_ID           : std_ulogic_vector(31 downto 0) := x"00000000"; -- vendor ID
-    BOOT_ADDR           : std_ulogic_vector(31 downto 0) := x"00000000"; -- CPU boot address
-    DEBUG_PARK_ADDR     : std_ulogic_vector(31 downto 0) := x"00000000"; -- CPU debug mode parking loop entry address
-    DEBUG_EXC_ADDR      : std_ulogic_vector(31 downto 0) := x"00000000"; -- CPU debug mode exception entry address
-    TRACE_PORT_EN       : boolean                        := false;       -- enable CPU trace port
+    VENDOR_ID           : std_ulogic_سمتیہ(31 downto 0) := x"00000000"; -- vendor ID
+    BOOT_ADDR           : std_ulogic_سمتیہ(31 downto 0) := x"00000000"; -- CPU boot address
+    DEBUG_PARK_ADDR     : std_ulogic_سمتیہ(31 downto 0) := x"00000000"; -- CPU debug mode parking loop entry address
+    DEBUG_EXC_ADDR      : std_ulogic_سمتیہ(31 downto 0) := x"00000000"; -- CPU debug mode exception entry address
+    TRACE_پورٹ_EN       : boolean                        := false;       -- enable CPU trace port
     TRACE_SIMLOG_EN     : boolean                        := false;       -- enable simulation trace logging
     -- RISC-V ISA Extensions --
     RISCV_ISA_C         : boolean                        := false;       -- compressed extension
@@ -61,26 +61,26 @@ entity neorv32_core_complex is
     CPU_CONSTT_BR_EN    : boolean                        := false;       -- constant-time branches
     CPU_FAST_MUL_EN     : boolean                        := false;       -- use DSPs for M extension's multiplier
     CPU_FAST_MUL_REGS   : natural range 1 to 3           := 1;           -- number of fast multiplier register stages (needs CPU_FAST_MUL_EN)
-    CPU_FAST_SHIFT_EN   : boolean                        := false;       -- use barrel shifter for shift operations
+    CPU_FAST_سرکاؤ_EN   : boolean                        := false;       -- use barrel shifter for shift operations
     CPU_RF_ARCH_SEL     : natural range 0 to 3           := 0;           -- register file implementation style select
     -- Physical Memory Protection (PMP) --
-    PMP_NUM_REGIONS     : natural range 0 to 16          := 0;           -- number of regions
+    PMP_عدد_REGIONS     : natural range 0 to 16          := 0;           -- number of regions
     PMP_MIN_GRANULARITY : natural                        := 4;           -- minimal region granularity in bytes, has to be a power of 2, min 4 bytes
-    PMP_TOR_MODE_EN     : boolean                        := false;       -- enable TOR mode
-    PMP_NAP_MODE_EN     : boolean                        := false;       -- enable NAPOT/NA4 modes
+    PMP_TOR_منوال_EN     : boolean                        := false;       -- enable TOR mode
+    PMP_NAP_منوال_EN     : boolean                        := false;       -- enable NAPOT/NA4 modes
     -- Hardware Performance Monitors (HPM) --
-    HPM_NUM_CNTS        : natural range 0 to 29          := 0;           -- number of implemented HPM counters
-    HPM_CNT_WIDTH       : natural range 0 to 64          := 0;           -- total size of HPM counters
+    HPM_عدد_CNTS        : natural range 0 to 29          := 0;           -- number of implemented HPM counters
+    HPM_CNT_چوڑائی       : natural range 0 to 64          := 0;           -- total size of HPM counters
     -- Trigger Module (TM) --
-    NUM_HW_TRIGGERS     : natural range 0 to 16          := 0;           -- number of hardware triggers
+    عدد_HW_TRIGGERS     : natural range 0 to 16          := 0;           -- number of hardware triggers
     -- CPU Caches --
     ICACHE_EN           : boolean                        := false;       -- implement instruction cache (i-cache)
-    ICACHE_NUM_BLOCKS   : natural range 1 to 4096        := 4;           -- i-cache: number of blocks, has to be a power of 2
+    ICACHE_عدد_بلاکیں   : natural range 1 to 4096        := 4;           -- i-cache: number of blocks, has to be a power of 2
     DCACHE_EN           : boolean                        := false;       -- implement data cache (d-cache)
-    DCACHE_NUM_BLOCKS   : natural range 1 to 4096        := 4;           -- d-cache: number of blocks, has to be a power of 2
-    CACHE_BLOCK_SIZE    : natural range 4 to 1024        := 64;          -- i-cache/d-cache: block size in bytes, has to be a power of 2
+    DCACHE_عدد_بلاکیں   : natural range 1 to 4096        := 4;           -- d-cache: number of blocks, has to be a power of 2
+    CACHE_بلاک_سائز    : natural range 4 to 1024        := 64;          -- i-cache/d-cache: block size in bytes, has to be a power of 2
     CACHE_BURSTS_EN     : boolean                        := true;        -- i-cache/d-cache: enable issuing of burst transfer for cache update
-    CACHE_UC_BASE       : std_ulogic_vector(3 downto 0)  := x"F";        -- base address of uncached address space (256MB page)
+    CACHE_UC_بنیاد       : std_ulogic_سمتیہ(3 downto 0)  := x"F";        -- base address of uncached address space (256MB page)
     -- Misc --
     REGSTAGE_EN         : boolean                        := false        -- enable bus interface register stage
   );
@@ -89,14 +89,14 @@ entity neorv32_core_complex is
     clk_i     : in  std_ulogic;                     -- global clock, rising edge
     rstn_i    : in  std_ulogic;                     -- global reset, low-active, async
     -- status --
-    mtime_i   : in  std_ulogic_vector(63 downto 0); -- system time input from CLINT/MTIME
-    trace_o   : out trace_port_t;                   -- execution trace port (enabled when CPU_TRACE_EN = true)
+    mtime_i   : in  std_ulogic_سمتیہ(63 downto 0); -- system time input from CLINT/MTIME
+    trace_o   : out trace_پورٹ_t;                   -- execution trace port (enabled when CPU_TRACE_EN = true)
     sleep_o   : out std_ulogic;                     -- CPU is in sleep mode
     -- interrupts --
     msi_i     : in  std_ulogic;                     -- RISC-V machine software interrupt
     mei_i     : in  std_ulogic;                     -- RISC-V machine external interrupt
     mti_i     : in  std_ulogic;                     -- RISC-V machine timer interrupt
-    firq_i    : in  std_ulogic_vector(15 downto 0); -- custom fast interrupts
+    firq_i    : in  std_ulogic_سمتیہ(15 downto 0); -- custom fast interrupts
     dbi_i     : in  std_ulogic;                     -- RISC-V debug halt request interrupt
     -- bus interface --
     bus_req_o : out bus_req_t;                      -- request bus
@@ -121,7 +121,7 @@ begin
     BOOT_ADDR           => BOOT_ADDR,
     DEBUG_PARK_ADDR     => DEBUG_PARK_ADDR,
     DEBUG_EXC_ADDR      => DEBUG_EXC_ADDR,
-    TRACE_PORT_EN       => TRACE_PORT_EN,
+    TRACE_پورٹ_EN       => TRACE_پورٹ_EN,
     TRACE_SIMLOG_EN     => TRACE_SIMLOG_EN,
     RISCV_ISA_C         => RISCV_ISA_C,
     RISCV_ISA_E         => RISCV_ISA_E,
@@ -158,15 +158,15 @@ begin
     CPU_CONSTT_BR_EN    => CPU_CONSTT_BR_EN,
     CPU_FAST_MUL_EN     => CPU_FAST_MUL_EN,
     CPU_FAST_MUL_REGS   => CPU_FAST_MUL_REGS,
-    CPU_FAST_SHIFT_EN   => CPU_FAST_SHIFT_EN,
+    CPU_FAST_سرکاؤ_EN   => CPU_FAST_سرکاؤ_EN,
     CPU_RF_ARCH_SEL     => CPU_RF_ARCH_SEL,
-    PMP_NUM_REGIONS     => PMP_NUM_REGIONS,
+    PMP_عدد_REGIONS     => PMP_عدد_REGIONS,
     PMP_MIN_GRANULARITY => PMP_MIN_GRANULARITY,
-    PMP_TOR_MODE_EN     => PMP_TOR_MODE_EN,
-    PMP_NAP_MODE_EN     => PMP_NAP_MODE_EN,
-    HPM_NUM_CNTS        => HPM_NUM_CNTS,
-    HPM_CNT_WIDTH       => HPM_CNT_WIDTH,
-    NUM_HW_TRIGGERS     => NUM_HW_TRIGGERS
+    PMP_TOR_منوال_EN     => PMP_TOR_منوال_EN,
+    PMP_NAP_منوال_EN     => PMP_NAP_منوال_EN,
+    HPM_عدد_CNTS        => HPM_عدد_CNTS,
+    HPM_CNT_چوڑائی       => HPM_CNT_چوڑائی,
+    عدد_HW_TRIGGERS     => عدد_HW_TRIGGERS
   )
   port map (
     clk_i      => clk_i,
@@ -193,9 +193,9 @@ begin
   if ICACHE_EN generate
     icache_inst: entity neorv32.neorv32_cache
     generic map (
-      NUM_BLOCKS => ICACHE_NUM_BLOCKS,
-      BLOCK_SIZE => CACHE_BLOCK_SIZE,
-      UC_BEGIN   => CACHE_UC_BASE,
+      عدد_بلاکیں => ICACHE_عدد_بلاکیں,
+      بلاک_سائز => CACHE_بلاک_سائز,
+      UC_BEGIN   => CACHE_UC_بنیاد,
       READ_ONLY  => true,
       BURSTS_EN  => CACHE_BURSTS_EN
     )
@@ -225,9 +225,9 @@ begin
   if DCACHE_EN generate
     dcache_inst: entity neorv32.neorv32_cache
     generic map (
-      NUM_BLOCKS => DCACHE_NUM_BLOCKS,
-      BLOCK_SIZE => CACHE_BLOCK_SIZE,
-      UC_BEGIN   => CACHE_UC_BASE,
+      عدد_بلاکیں => DCACHE_عدد_بلاکیں,
+      بلاک_سائز => CACHE_بلاک_سائز,
+      UC_BEGIN   => CACHE_UC_بنیاد,
       READ_ONLY  => false,
       BURSTS_EN  => CACHE_BURSTS_EN
     )
@@ -256,7 +256,7 @@ begin
   -- -------------------------------------------------------------------------------------------
   bus_switch_inst: entity neorv32.neorv32_bus_switch
   generic map (
-    ROUND_ROBIN_EN => false, -- use prioritizing arbitration
+    باری_ROBIN_EN => false, -- use prioritizing arbitration
     A_READ_ONLY    => false,
     B_READ_ONLY    => true   -- instruction fetch is read-only
   )

@@ -42,16 +42,16 @@ entity neorv32_cpu_alu_fpu is
     ctrl_i      : in  ctrl_bus_t;                     -- main control bus
     -- CSR interface --
     csr_we_i    : in  std_ulogic;                     -- write enable
-    csr_addr_i  : in  std_ulogic_vector(1 downto 0);  -- address
-    csr_wdata_i : in  std_ulogic_vector(31 downto 0); -- write data
-    csr_rdata_o : out std_ulogic_vector(31 downto 0); -- read data
+    csr_addr_i  : in  std_ulogic_سمتیہ(1 downto 0);  -- address
+    csr_wdata_i : in  std_ulogic_سمتیہ(31 downto 0); -- write data
+    csr_rdata_o : out std_ulogic_سمتیہ(31 downto 0); -- read data
     -- data input --
     equal_i     : in  std_ulogic;                     -- compare equal
     less_i      : in  std_ulogic;                     -- compare less
-    rs1_i       : in  std_ulogic_vector(31 downto 0); -- rf source 1
-    rs2_i       : in  std_ulogic_vector(31 downto 0); -- rf source 2
+    rs1_i       : in  std_ulogic_سمتیہ(31 downto 0); -- rf source 1
+    rs2_i       : in  std_ulogic_سمتیہ(31 downto 0); -- rf source 2
     -- result and status --
-    res_o       : out std_ulogic_vector(31 downto 0); -- operation result
+    res_o       : out std_ulogic_سمتیہ(31 downto 0); -- operation result
     valid_o     : out std_ulogic                      -- data output valid
   );
 end entity;
@@ -59,19 +59,19 @@ end entity;
 architecture neorv32_cpu_alu_fpu_rtl of neorv32_cpu_alu_fpu is
 
   -- FPU core functions --
-  constant op_class_c  : std_ulogic_vector(2 downto 0) := "000";
-  constant op_comp_c   : std_ulogic_vector(2 downto 0) := "001";
-  constant op_i2f_c    : std_ulogic_vector(2 downto 0) := "010";
-  constant op_f2i_c    : std_ulogic_vector(2 downto 0) := "011";
-  constant op_sgnj_c   : std_ulogic_vector(2 downto 0) := "100";
-  constant op_minmax_c : std_ulogic_vector(2 downto 0) := "101";
-  constant op_addsub_c : std_ulogic_vector(2 downto 0) := "110";
-  constant op_mul_c    : std_ulogic_vector(2 downto 0) := "111";
+  constant op_class_c  : std_ulogic_سمتیہ(2 downto 0) := "000";
+  constant op_comp_c   : std_ulogic_سمتیہ(2 downto 0) := "001";
+  constant op_i2f_c    : std_ulogic_سمتیہ(2 downto 0) := "010";
+  constant op_f2i_c    : std_ulogic_سمتیہ(2 downto 0) := "011";
+  constant op_sgnj_c   : std_ulogic_سمتیہ(2 downto 0) := "100";
+  constant op_minmax_c : std_ulogic_سمتیہ(2 downto 0) := "101";
+  constant op_addsub_c : std_ulogic_سمتیہ(2 downto 0) := "110";
+  constant op_mul_c    : std_ulogic_سمتیہ(2 downto 0) := "111";
 
   -- FPU CSRs --
-  signal csr_frm    : std_ulogic_vector(2 downto 0);
-  signal csr_fflags : std_ulogic_vector(4 downto 0);
-  signal fflags     : std_ulogic_vector(4 downto 0);
+  signal csr_frm    : std_ulogic_سمتیہ(2 downto 0);
+  signal csr_fflags : std_ulogic_سمتیہ(4 downto 0);
+  signal fflags     : std_ulogic_سمتیہ(4 downto 0);
 
   -- float-to-integer unit --
   component neorv32_cpu_alu_fpu_f2i
@@ -81,17 +81,17 @@ architecture neorv32_cpu_alu_fpu_rtl of neorv32_cpu_alu_fpu is
     port (
       clk_i      : in  std_ulogic;
       rstn_i     : in  std_ulogic;
-      start_i    : in  std_ulogic;
+      آغاز_i    : in  std_ulogic;
       abort_i    : in  std_ulogic;
-      rmode_i    : in  std_ulogic_vector(2 downto 0);
+      rmode_i    : in  std_ulogic_سمتیہ(2 downto 0);
       funct_i    : in  std_ulogic;
       sign_i     : in  std_ulogic;
-      exponent_i : in  std_ulogic_vector(7 downto 0);
-      mantissa_i : in  std_ulogic_vector(22 downto 0);
-      class_i    : in  std_ulogic_vector(9 downto 0);
-      result_o   : out std_ulogic_vector(31 downto 0);
-      flags_o    : out std_ulogic_vector(4 downto 0);
-      done_o     : out std_ulogic
+      exponent_i : in  std_ulogic_سمتیہ(7 downto 0);
+      mantissa_i : in  std_ulogic_سمتیہ(22 downto 0);
+      class_i    : in  std_ulogic_سمتیہ(9 downto 0);
+      نتیجہ_o   : out std_ulogic_سمتیہ(31 downto 0);
+      flags_o    : out std_ulogic_سمتیہ(4 downto 0);
+      مکمل_o     : out std_ulogic
     );
   end component;
 
@@ -103,19 +103,19 @@ architecture neorv32_cpu_alu_fpu_rtl of neorv32_cpu_alu_fpu is
     port (
       clk_i      : in  std_ulogic;
       rstn_i     : in  std_ulogic;
-      start_i    : in  std_ulogic;
+      آغاز_i    : in  std_ulogic;
       abort_i    : in  std_ulogic;
-      rmode_i    : in  std_ulogic_vector(2 downto 0);
+      rmode_i    : in  std_ulogic_سمتیہ(2 downto 0);
       funct_i    : in  std_ulogic;
       sign_i     : in  std_ulogic;
-      exponent_i : in  std_ulogic_vector(8 downto 0);
-      mantissa_i : in  std_ulogic_vector(47 downto 0);
-      integer_i  : in  std_ulogic_vector(31 downto 0);
-      class_i    : in  std_ulogic_vector(9 downto 0);
-      flags_i    : in  std_ulogic_vector(4 downto 0);
-      result_o   : out std_ulogic_vector(31 downto 0);
-      flags_o    : out std_ulogic_vector(4 downto 0);
-      done_o     : out std_ulogic
+      exponent_i : in  std_ulogic_سمتیہ(8 downto 0);
+      mantissa_i : in  std_ulogic_سمتیہ(47 downto 0);
+      integer_i  : in  std_ulogic_سمتیہ(31 downto 0);
+      class_i    : in  std_ulogic_سمتیہ(9 downto 0);
+      flags_i    : in  std_ulogic_سمتیہ(4 downto 0);
+      نتیجہ_o   : out std_ulogic_سمتیہ(31 downto 0);
+      flags_o    : out std_ulogic_سمتیہ(4 downto 0);
+      مکمل_o     : out std_ulogic
     );
   end component;
 
@@ -129,32 +129,32 @@ architecture neorv32_cpu_alu_fpu_rtl of neorv32_cpu_alu_fpu is
     instr_minmax : std_ulogic;
     instr_addsub : std_ulogic;
     instr_mul    : std_ulogic;
-    funct        : std_ulogic_vector(2 downto 0);
+    funct        : std_ulogic_سمتیہ(2 downto 0);
     valid        : std_ulogic;
   end record;
   signal cmd : cmd_t;
-  signal funct_ff : std_ulogic_vector(2 downto 0);
+  signal funct_ff : std_ulogic_سمتیہ(2 downto 0);
 
   -- co-processor control engine --
   type ctrl_state_t is (S_IDLE, S_BUSY);
   type ctrl_engine_t is record
     state : ctrl_state_t;
-    start : std_ulogic;
+    آغاز : std_ulogic;
     valid : std_ulogic;
   end record;
   signal ctrl_engine : ctrl_engine_t;
 
   -- floating-point operands --
-  type op_data_t  is array (1 downto 0) of std_ulogic_vector(31 downto 0);
-  type op_class_t is array (1 downto 0) of std_ulogic_vector(9 downto 0);
+  type op_ڈیٹا_t  is array (1 downto 0) of std_ulogic_سمتیہ(31 downto 0);
+  type op_class_t is array (1 downto 0) of std_ulogic_سمتیہ(9 downto 0);
   type fpu_operands_t is record
-    rs1       : std_ulogic_vector(31 downto 0);
-    rs1_class : std_ulogic_vector(9 downto 0);
-    rs2       : std_ulogic_vector(31 downto 0);
-    rs2_class : std_ulogic_vector(9 downto 0);
-    frm       : std_ulogic_vector(2 downto 0);
+    rs1       : std_ulogic_سمتیہ(31 downto 0);
+    rs1_class : std_ulogic_سمتیہ(9 downto 0);
+    rs2       : std_ulogic_سمتیہ(31 downto 0);
+    rs2_class : std_ulogic_سمتیہ(9 downto 0);
+    frm       : std_ulogic_سمتیہ(2 downto 0);
   end record;
-  signal op_data      : op_data_t;
+  signal op_ڈیٹا      : op_ڈیٹا_t;
   signal op_class     : op_class_t;
   signal fpu_operands : fpu_operands_t;
 
@@ -166,10 +166,10 @@ architecture neorv32_cpu_alu_fpu_rtl of neorv32_cpu_alu_fpu is
 
   -- functional units interface --
   type fu_interface_t is record
-    result : std_ulogic_vector(31 downto 0);
-    flags  : std_ulogic_vector(4 downto 0);
-    start  : std_ulogic;
-    done   : std_ulogic;
+    نتیجہ : std_ulogic_سمتیہ(31 downto 0);
+    flags  : std_ulogic_سمتیہ(4 downto 0);
+    آغاز  : std_ulogic;
+    مکمل   : std_ulogic;
   end record;
   signal fu_classify    : fu_interface_t;
   signal fu_compare     : fu_interface_t;
@@ -178,78 +178,78 @@ architecture neorv32_cpu_alu_fpu_rtl of neorv32_cpu_alu_fpu is
   signal fu_conv_f2i    : fu_interface_t;
   signal fu_addsub      : fu_interface_t;
   signal fu_mul         : fu_interface_t;
-  signal fu_core_done   : std_ulogic;
+  signal fu_core_مکمل   : std_ulogic;
 
   -- integer-to-float --
   type fu_i2f_interface_t is record
-    result : std_ulogic_vector(31 downto 0);
+    نتیجہ : std_ulogic_سمتیہ(31 downto 0);
     sign   : std_ulogic;
-    start  : std_ulogic;
-    done   : std_ulogic;
+    آغاز  : std_ulogic;
+    مکمل   : std_ulogic;
   end record;
   signal fu_conv_i2f : fu_i2f_interface_t; -- float result
 
   -- multiplier unit --
   type multiplier_t is record
-    opa       : std_ulogic_vector(23 downto 0); -- mantissa A plus hidden one
-    opb       : std_ulogic_vector(23 downto 0); -- mantissa B plus hidden one
+    opa       : std_ulogic_سمتیہ(23 downto 0); -- mantissa A plus hidden one
+    opb       : std_ulogic_سمتیہ(23 downto 0); -- mantissa B plus hidden one
     sign      : std_ulogic; -- resulting sign
-    product   : std_ulogic_vector(47 downto 0); -- product
-    exp_sum   : std_ulogic_vector(8 downto 0);  -- incl 1x overflow/underflow bit
-    exp_res   : std_ulogic_vector(9 downto 0);  -- resulting exponent incl 2x overflow/underflow bit
+    حاصل_ضرب   : std_ulogic_سمتیہ(47 downto 0); -- product
+    exp_مجموع   : std_ulogic_سمتیہ(8 downto 0);  -- incl 1x overflow/underflow bit
+    exp_res   : std_ulogic_سمتیہ(9 downto 0);  -- resulting exponent incl 2x overflow/underflow bit
     --
-    res_class : std_ulogic_vector(9 downto 0);
-    flags     : std_ulogic_vector(4 downto 0);  -- exception flags
+    res_class : std_ulogic_سمتیہ(9 downto 0);
+    flags     : std_ulogic_سمتیہ(4 downto 0);  -- exception flags
     --
-    start     : std_ulogic;
-    latency   : std_ulogic_vector(1 downto 0);  -- unit latency
-    done      : std_ulogic;
+    آغاز     : std_ulogic;
+    latency   : std_ulogic_سمتیہ(1 downto 0);  -- unit latency
+    مکمل      : std_ulogic;
   end record;
   signal multiplier : multiplier_t;
 
   -- adder/subtractor unit --
   type addsub_t is record
     -- input comparison --
-    exp_comp  : std_ulogic_vector(1 downto 0);  -- equal & less
-    small_exp : std_ulogic_vector(7 downto 0);
-    small_man : std_ulogic_vector(23 downto 0); -- mantissa + hidden one
-    large_exp : std_ulogic_vector(7 downto 0);
-    large_man : std_ulogic_vector(23 downto 0); -- mantissa + hidden one
+    exp_comp  : std_ulogic_سمتیہ(1 downto 0);  -- equal & less
+    small_exp : std_ulogic_سمتیہ(7 downto 0);
+    small_man : std_ulogic_سمتیہ(23 downto 0); -- mantissa + hidden one
+    large_exp : std_ulogic_سمتیہ(7 downto 0);
+    large_man : std_ulogic_سمتیہ(23 downto 0); -- mantissa + hidden one
     -- smaller mantissa alignment --
-    man_sreg  : std_ulogic_vector(23 downto 0); -- mantissa + hidden one
+    man_sreg  : std_ulogic_سمتیہ(23 downto 0); -- mantissa + hidden one
     man_g_ext : std_ulogic;
     man_r_ext : std_ulogic;
     man_s_ext : std_ulogic;
-    exp_cnt   : std_ulogic_vector(8 downto 0);
+    exp_cnt   : std_ulogic_سمتیہ(8 downto 0);
     -- adder/subtractor stage --
     man_comp  : std_ulogic;
-    man_s     : std_ulogic_vector(26 downto 0); -- mantissa + hidden one + GRS
-    man_l     : std_ulogic_vector(26 downto 0); -- mantissa + hidden one + GRS
-    add_stage : std_ulogic_vector(27 downto 0); -- adder result incl. overflow
+    man_s     : std_ulogic_سمتیہ(26 downto 0); -- mantissa + hidden one + GRS
+    man_l     : std_ulogic_سمتیہ(26 downto 0); -- mantissa + hidden one + GRS
+    جوڑو_stage : std_ulogic_سمتیہ(27 downto 0); -- adder result incl. overflow
     -- result --
     res_sign  : std_ulogic;
-    res_sum   : std_ulogic_vector(27 downto 0); -- mantissa sum (+1 bit) + GRS bits (for rounding)
-    res_class : std_ulogic_vector(9 downto 0);
-    flags     : std_ulogic_vector(4 downto 0);  -- exception flags
+    res_مجموع   : std_ulogic_سمتیہ(27 downto 0); -- mantissa sum (+1 bit) + GRS bits (for rounding)
+    res_class : std_ulogic_سمتیہ(9 downto 0);
+    flags     : std_ulogic_سمتیہ(4 downto 0);  -- exception flags
     -- arbitration --
-    start     : std_ulogic;
-    latency   : std_ulogic_vector(4 downto 0);  -- unit latency
-    done      : std_ulogic;
+    آغاز     : std_ulogic;
+    latency   : std_ulogic_سمتیہ(4 downto 0);  -- unit latency
+    مکمل      : std_ulogic;
   end record;
   signal addsub : addsub_t;
 
   -- normalizer interface (normalization & rounding and int-to-float) --
   type normalizer_t is record
-    start     : std_ulogic;
-    mode      : std_ulogic;
+    آغاز     : std_ulogic;
+    منوال      : std_ulogic;
     sign      : std_ulogic;
-    xexp      : std_ulogic_vector(8 downto 0);
-    xmantissa : std_ulogic_vector(47 downto 0);
-    result    : std_ulogic_vector(31 downto 0);
-    class     : std_ulogic_vector(9 downto 0);
-    flags_in  : std_ulogic_vector(4 downto 0);
-    flags_out : std_ulogic_vector(4 downto 0);
-    done      : std_ulogic;
+    xexp      : std_ulogic_سمتیہ(8 downto 0);
+    xmantissa : std_ulogic_سمتیہ(47 downto 0);
+    نتیجہ    : std_ulogic_سمتیہ(31 downto 0);
+    class     : std_ulogic_سمتیہ(9 downto 0);
+    flags_اندر  : std_ulogic_سمتیہ(4 downto 0);
+    flags_برآمد : std_ulogic_سمتیہ(4 downto 0);
+    مکمل      : std_ulogic;
   end record;
   signal normalizer : normalizer_t;
 
@@ -268,7 +268,7 @@ begin
     if (rstn_i = '0') then
       csr_frm    <= (others => '0');
       csr_fflags <= (others => '0');
-    elsif rising_edge(clk_i) then
+    elsif rising_کنارہ(clk_i) then
       if (csr_we_i = '1') then
         -- exception flags --
         if (csr_addr_i = csr_fflags_c(1 downto 0)) then
@@ -334,25 +334,25 @@ begin
 
   -- [WARNING] Subnormal numbers are not supported yet and are "flushed to zero"! -----------
   -- -------------------------------------------------------------------------------------------
-  op_data(0)(31)           <= rs1_i(31);
-  op_data(0)(30 downto 23) <= rs1_i(30 downto 23);
-  op_data(0)(22 downto 0)  <= (others => '0') when (rs1_i(30 downto 23) = "00000000") else rs1_i(22 downto 0); -- flush mantissa to zero if subnormal
-  op_data(1)(31)           <= rs2_i(31);
-  op_data(1)(30 downto 23) <= rs2_i(30 downto 23);
-  op_data(1)(22 downto 0)  <= (others => '0') when (rs2_i(30 downto 23) = "00000000") else rs2_i(22 downto 0); -- flush mantissa to zero if subnormal
+  op_ڈیٹا(0)(31)           <= rs1_i(31);
+  op_ڈیٹا(0)(30 downto 23) <= rs1_i(30 downto 23);
+  op_ڈیٹا(0)(22 downto 0)  <= (others => '0') when (rs1_i(30 downto 23) = "00000000") else rs1_i(22 downto 0); -- flush mantissa to zero if subnormal
+  op_ڈیٹا(1)(31)           <= rs2_i(31);
+  op_ڈیٹا(1)(30 downto 23) <= rs2_i(30 downto 23);
+  op_ڈیٹا(1)(22 downto 0)  <= (others => '0') when (rs2_i(30 downto 23) = "00000000") else rs2_i(22 downto 0); -- flush mantissa to zero if subnormal
 
 
   -- Number Classifier ----------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  number_classifier: process(op_data, rs1_i, rs2_i)
+  نمبر_classifier: process(op_ڈیٹا, rs1_i, rs2_i)
     variable op_m_all_zero_v, op_e_all_zero_v, op_e_all_one_v       : std_ulogic;
     variable op_is_zero_v, op_is_inf_v, op_is_denorm_v, op_is_nan_v : std_ulogic;
   begin
     for i in 0 to 1 loop -- for rs1 and rs2 inputs
       -- check for all-zero/all-one --
-      op_m_all_zero_v := not or_reduce_f(op_data(i)(22 downto 0));
-      op_e_all_zero_v := not or_reduce_f(op_data(i)(30 downto 23));
-      op_e_all_one_v  :=    and_reduce_f(op_data(i)(30 downto 23));
+      op_m_all_zero_v := not or_reduce_f(op_ڈیٹا(i)(22 downto 0));
+      op_e_all_zero_v := not or_reduce_f(op_ڈیٹا(i)(30 downto 23));
+      op_e_all_one_v  :=    and_reduce_f(op_ڈیٹا(i)(30 downto 23));
 
       -- check special cases --
       op_is_zero_v := op_e_all_zero_v and op_m_all_zero_v;  -- zero
@@ -368,16 +368,16 @@ begin
       op_is_nan_v := op_e_all_one_v and (not op_m_all_zero_v); -- NaN
 
       -- actual attributes --
-      op_class(i)(fp_class_neg_inf_c)    <= op_data(i)(31) and op_is_inf_v; -- negative infinity
-      op_class(i)(fp_class_neg_norm_c)   <= op_data(i)(31) and (not op_is_denorm_v) and (not op_is_nan_v) and (not op_is_inf_v) and (not op_is_zero_v); -- negative normal number
-      op_class(i)(fp_class_neg_denorm_c) <= op_data(i)(31) and op_is_denorm_v; -- negative subnormal number
-      op_class(i)(fp_class_neg_zero_c)   <= op_data(i)(31) and op_is_zero_v and (not op_is_denorm_v); -- negative zero
-      op_class(i)(fp_class_pos_zero_c)   <= (not op_data(i)(31)) and op_is_zero_v and (not op_is_denorm_v); -- positive zero
-      op_class(i)(fp_class_pos_denorm_c) <= (not op_data(i)(31)) and op_is_denorm_v; -- positive subnormal number
-      op_class(i)(fp_class_pos_norm_c)   <= (not op_data(i)(31)) and (not op_is_denorm_v) and (not op_is_nan_v) and (not op_is_inf_v) and (not op_is_zero_v); -- positive normal number
-      op_class(i)(fp_class_pos_inf_c)    <= (not op_data(i)(31)) and op_is_inf_v; -- positive infinity
-      op_class(i)(fp_class_snan_c)       <= op_is_nan_v and (not op_data(i)(22)); -- signaling NaN
-      op_class(i)(fp_class_qnan_c)       <= op_is_nan_v and (    op_data(i)(22)); -- quiet NaN
+      op_class(i)(fp_class_neg_inf_c)    <= op_ڈیٹا(i)(31) and op_is_inf_v; -- negative infinity
+      op_class(i)(fp_class_neg_norm_c)   <= op_ڈیٹا(i)(31) and (not op_is_denorm_v) and (not op_is_nan_v) and (not op_is_inf_v) and (not op_is_zero_v); -- negative normal number
+      op_class(i)(fp_class_neg_denorm_c) <= op_ڈیٹا(i)(31) and op_is_denorm_v; -- negative subnormal number
+      op_class(i)(fp_class_neg_zero_c)   <= op_ڈیٹا(i)(31) and op_is_zero_v and (not op_is_denorm_v); -- negative zero
+      op_class(i)(fp_class_pos_zero_c)   <= (not op_ڈیٹا(i)(31)) and op_is_zero_v and (not op_is_denorm_v); -- positive zero
+      op_class(i)(fp_class_pos_denorm_c) <= (not op_ڈیٹا(i)(31)) and op_is_denorm_v; -- positive subnormal number
+      op_class(i)(fp_class_pos_norm_c)   <= (not op_ڈیٹا(i)(31)) and (not op_is_denorm_v) and (not op_is_nan_v) and (not op_is_inf_v) and (not op_is_zero_v); -- positive normal number
+      op_class(i)(fp_class_pos_inf_c)    <= (not op_ڈیٹا(i)(31)) and op_is_inf_v; -- positive infinity
+      op_class(i)(fp_class_snan_c)       <= op_is_nan_v and (not op_ڈیٹا(i)(22)); -- signaling NaN
+      op_class(i)(fp_class_qnan_c)       <= op_is_nan_v and (    op_ڈیٹا(i)(22)); -- quiet NaN
     end loop; -- i
   end process;
 
@@ -389,7 +389,7 @@ begin
     if (rstn_i = '0') then
       ctrl_engine.state      <= S_IDLE;
       ctrl_engine.valid      <= '0';
-      ctrl_engine.start      <= '0';
+      ctrl_engine.آغاز      <= '0';
       fpu_operands.frm       <= (others => '0');
       fpu_operands.rs1       <= (others => '0');
       fpu_operands.rs1_class <= (others => '0');
@@ -398,10 +398,10 @@ begin
       funct_ff               <= (others => '0');
       equal_ff               <= '0';
       less_ff                <= '0';
-    elsif rising_edge(clk_i) then
+    elsif rising_کنارہ(clk_i) then
       -- arbiter defaults --
       ctrl_engine.valid <= '0';
-      ctrl_engine.start <= '0';
+      ctrl_engine.آغاز <= '0';
 
       -- state machine --
       case ctrl_engine.state is
@@ -421,18 +421,18 @@ begin
           --
           if (ctrl_i.alu_cp_fpu = '1') and (cmd.valid = '1') then
             -- operand data --
-            fpu_operands.rs1       <= op_data(0);
+            fpu_operands.rs1       <= op_ڈیٹا(0);
             fpu_operands.rs1_class <= op_class(0);
-            fpu_operands.rs2       <= op_data(1);
+            fpu_operands.rs2       <= op_ڈیٹا(1);
             fpu_operands.rs2_class <= op_class(1);
             -- execute! --
-            ctrl_engine.start <= '1';
+            ctrl_engine.آغاز <= '1';
             ctrl_engine.state <= S_BUSY;
           end if;
 
         when S_BUSY => -- operation in progress (multi-cycle)
         -- -----------------------------------------------------------
-          if (fu_core_done = '1') or (ctrl_i.cpu_trap = '1') then -- processing done? abort if trap
+          if (fu_core_مکمل = '1') or (ctrl_i.cpu_trap = '1') then -- processing done? abort if trap
             ctrl_engine.valid <= '1';
             ctrl_engine.state <= S_IDLE;
           end if;
@@ -451,14 +451,14 @@ begin
 
   -- Functional Unit Interface (operation-start trigger) ------------------------------------
   -- -------------------------------------------------------------------------------------------
-  fu_classify.start    <= ctrl_engine.start and cmd.instr_class;
-  fu_compare.start     <= ctrl_engine.start and cmd.instr_comp;
-  fu_sign_inject.start <= ctrl_engine.start and cmd.instr_sgnj;
-  fu_min_max.start     <= ctrl_engine.start and cmd.instr_minmax;
-  fu_conv_i2f.start    <= ctrl_engine.start and cmd.instr_i2f;
-  fu_conv_f2i.start    <= ctrl_engine.start and cmd.instr_f2i;
-  fu_addsub.start      <= ctrl_engine.start and cmd.instr_addsub;
-  fu_mul.start         <= ctrl_engine.start and cmd.instr_mul;
+  fu_classify.آغاز    <= ctrl_engine.آغاز and cmd.instr_class;
+  fu_compare.آغاز     <= ctrl_engine.آغاز and cmd.instr_comp;
+  fu_sign_inject.آغاز <= ctrl_engine.آغاز and cmd.instr_sgnj;
+  fu_min_max.آغاز     <= ctrl_engine.آغاز and cmd.instr_minmax;
+  fu_conv_i2f.آغاز    <= ctrl_engine.آغاز and cmd.instr_i2f;
+  fu_conv_f2i.آغاز    <= ctrl_engine.آغاز and cmd.instr_f2i;
+  fu_addsub.آغاز      <= ctrl_engine.آغاز and cmd.instr_addsub;
+  fu_mul.آغاز         <= ctrl_engine.آغاز and cmd.instr_mul;
 
 
 -- ****************************************************************************************************************************
@@ -468,22 +468,22 @@ begin
   -- Number Classifier (FCLASS) -------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   fu_classify.flags <= (others => '0'); -- does not generate flags at all
-  fu_classify.result(31 downto 10) <= (others => '0');
-  fu_classify.result(9 downto 0) <= fpu_operands.rs1_class;
-  fu_classify.done <= fu_classify.start;
+  fu_classify.نتیجہ(31 downto 10) <= (others => '0');
+  fu_classify.نتیجہ(9 downto 0) <= fpu_operands.rs1_class;
+  fu_classify.مکمل <= fu_classify.آغاز;
 
 
   -- Floating-Point Comparator --------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   float_comparator: process(rstn_i, clk_i)
-    variable cond_v : std_ulogic_vector(1 downto 0);
+    variable cond_v : std_ulogic_سمتیہ(1 downto 0);
   begin
     if (rstn_i = '0') then
       comp_equal_ff   <= '0';
       comp_less_ff    <= '0';
-      fu_compare.done <= '0';
-      fu_min_max.done <= '0';
-    elsif rising_edge(clk_i) then
+      fu_compare.مکمل <= '0';
+      fu_min_max.مکمل <= '0';
+    elsif rising_کنارہ(clk_i) then
       if (not FPU_SUBNORMAL_SUPPORT) then -- if we do not support subnormals we need to expand the compare with +/- denorm as if it was a +/- zero.
         if ((fpu_operands.rs1_class(fp_class_pos_inf_c)     = '1') and (fpu_operands.rs2_class(fp_class_pos_inf_c)   = '1')) or -- +inf == +inf
            ((fpu_operands.rs1_class(fp_class_neg_inf_c)     = '1') and (fpu_operands.rs2_class(fp_class_neg_inf_c)   = '1')) or -- -inf == -inf
@@ -558,8 +558,8 @@ begin
       end if;
 
       -- comparator latency --
-      fu_compare.done <= fu_compare.start; -- for actual comparison operation
-      fu_min_max.done <= fu_min_max.start; -- for min/max operations
+      fu_compare.مکمل <= fu_compare.آغاز; -- for actual comparison operation
+      fu_min_max.مکمل <= fu_min_max.آغاز; -- for min/max operations
     end if;
   end process;
 
@@ -578,29 +578,29 @@ begin
     -- assume no exceptions by default
     fu_compare.flags <= (others => '0');
     -- condition evaluation --
-    fu_compare.result <= (others => '0');
+    fu_compare.نتیجہ <= (others => '0');
     case ctrl_i.ir_funct3(1 downto 0) is
       when "00" => -- FLE: less than or equal
-        fu_compare.result(0) <= (comp_less_ff or comp_equal_ff) and (not (snan_v or qnan_v)); -- result is zero if either input is NaN
+        fu_compare.نتیجہ(0) <= (comp_less_ff or comp_equal_ff) and (not (snan_v or qnan_v)); -- result is zero if either input is NaN
         -- if one of the operands is unordered (q/sNAN) the compare operation must signal NV per 754.
         if ((snan_v or qnan_v) = '1') then
           fu_compare.flags(fp_exc_nv_c) <= '1';
         end if;
       when "01" => -- FLT: less than
-        fu_compare.result(0) <= comp_less_ff and (not (snan_v or qnan_v)); -- result is zero if either input is NaN
+        fu_compare.نتیجہ(0) <= comp_less_ff and (not (snan_v or qnan_v)); -- result is zero if either input is NaN
         -- if one of the operands is unordered (q/sNAN) the compare operation must signal NV per 754.
         if ((snan_v or qnan_v) = '1') then
           fu_compare.flags(fp_exc_nv_c) <= '1';
         end if;
       when "10" => -- FEQ: equal
-        fu_compare.result(0) <= comp_equal_ff and (not (snan_v or qnan_v)); -- result is zero if either input is NaN
+        fu_compare.نتیجہ(0) <= comp_equal_ff and (not (snan_v or qnan_v)); -- result is zero if either input is NaN
         -- if one of the operands in the compare operation is a sNAN we must signal NV per 754.
         -- for equal compares we do not need to consider un-ordred NAN
         if ((snan_v) = '1') then
           fu_compare.flags(fp_exc_nv_c) <= '1';
         end if;
       when others => -- undefined
-        fu_compare.result(0) <= '0';
+        fu_compare.نتیجہ(0) <= '0';
     end case;
   end process;
 
@@ -608,7 +608,7 @@ begin
   -- Min/Max Select (FMIN/FMAX) -------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   min_max_select: process(fpu_operands, comp_less_ff, ctrl_i)
-    variable cond_v : std_ulogic_vector(2 downto 0);
+    variable cond_v : std_ulogic_سمتیہ(2 downto 0);
   begin
     -- comparison result - check for special cases: -0 is less than +0
     if (not FPU_SUBNORMAL_SUPPORT) then -- if we do not support subnormals we need to expand the compare with +/- denorm as if it was a +/- zero.
@@ -648,11 +648,11 @@ begin
 
     -- data output --
     case cond_v is
-      when "000"         => fu_min_max.result <= fpu_operands.rs1;
-      when "001"         => fu_min_max.result <= fpu_operands.rs2;
-      when "010" | "011" => fu_min_max.result <= fpu_operands.rs1; -- if one input is NaN output the non-NaN one
-      when "100" | "101" => fu_min_max.result <= fpu_operands.rs2; -- if one input is NaN output the non-NaN one
-      when others        => fu_min_max.result <= fp_single_qnan_c; -- output quiet NaN if both inputs are NaN
+      when "000"         => fu_min_max.نتیجہ <= fpu_operands.rs1;
+      when "001"         => fu_min_max.نتیجہ <= fpu_operands.rs2;
+      when "010" | "011" => fu_min_max.نتیجہ <= fpu_operands.rs1; -- if one input is NaN output the non-NaN one
+      when "100" | "101" => fu_min_max.نتیجہ <= fpu_operands.rs2; -- if one input is NaN output the non-NaN one
+      when others        => fu_min_max.نتیجہ <= fp_single_qnan_c; -- output quiet NaN if both inputs are NaN
     end case;
   end process;
 
@@ -670,7 +670,7 @@ begin
     -- control --
     clk_i      => clk_i,                          -- global clock, rising edge
     rstn_i     => rstn_i,                         -- global reset, low-active, async
-    start_i    => fu_conv_f2i.start,              -- trigger operation
+    آغاز_i    => fu_conv_f2i.آغاز,              -- trigger operation
     abort_i    => ctrl_i.cpu_trap,                -- abort current operation
     rmode_i    => fpu_operands.frm,               -- rounding mode
     funct_i    => ctrl_i.ir_funct12(0),           -- 0=signed, 1=unsigned
@@ -680,9 +680,9 @@ begin
     mantissa_i => fpu_operands.rs1(22 downto 0),  -- mantissa
     class_i    => fpu_operands.rs1_class,         -- operand class
     -- output --
-    result_o   => fu_conv_f2i.result,             -- integer result
+    نتیجہ_o   => fu_conv_f2i.نتیجہ,             -- integer result
     flags_o    => fu_conv_f2i.flags,              -- exception flags
-    done_o     => fu_conv_f2i.done                -- operation done
+    مکمل_o     => fu_conv_f2i.مکمل                -- operation done
   );
 
 
@@ -691,21 +691,21 @@ begin
   sign_injector: process(ctrl_i, fpu_operands, rs1_i)
   begin
     case ctrl_i.ir_funct3(1 downto 0) is
-      when "00"   => fu_sign_inject.result(31) <= fpu_operands.rs2(31); -- FSGNJ
-      when "01"   => fu_sign_inject.result(31) <= not fpu_operands.rs2(31); -- FSGNJN
-      when "10"   => fu_sign_inject.result(31) <= fpu_operands.rs1(31) xor fpu_operands.rs2(31); -- FSGNJX
-      when others => fu_sign_inject.result(31) <= fpu_operands.rs2(31); -- undefined
+      when "00"   => fu_sign_inject.نتیجہ(31) <= fpu_operands.rs2(31); -- FSGNJ
+      when "01"   => fu_sign_inject.نتیجہ(31) <= not fpu_operands.rs2(31); -- FSGNJN
+      when "10"   => fu_sign_inject.نتیجہ(31) <= fpu_operands.rs1(31) xor fpu_operands.rs2(31); -- FSGNJX
+      when others => fu_sign_inject.نتیجہ(31) <= fpu_operands.rs2(31); -- undefined
     end case;
     if (not FPU_SUBNORMAL_SUPPORT) then -- if we do not have subnormal support we need to use the input operand and not then converted operand
-      fu_sign_inject.result(30 downto 0) <= rs1_i(30 downto 0);
+      fu_sign_inject.نتیجہ(30 downto 0) <= rs1_i(30 downto 0);
     else
-      fu_sign_inject.result(30 downto 0) <= fpu_operands.rs1(30 downto 0);
+      fu_sign_inject.نتیجہ(30 downto 0) <= fpu_operands.rs1(30 downto 0);
     end if;
     fu_sign_inject.flags <= (others => '0'); -- does not generate flags
   end process;
 
   -- latency --
-  fu_sign_inject.done <= fu_sign_inject.start;
+  fu_sign_inject.مکمل <= fu_sign_inject.آغاز;
 
 
   -- Convert: [unsigned] Integer to Float (FCVT.W.S) ----------------------------------------
@@ -715,18 +715,18 @@ begin
     -- this process only computes the absolute input value
     -- the actual conversion is done by the normalizer
     if (rstn_i = '0') then
-      fu_conv_i2f.result <= (others => '0');
+      fu_conv_i2f.نتیجہ <= (others => '0');
       fu_conv_i2f.sign   <= '0';
-      fu_conv_i2f.done   <= '0';
-    elsif rising_edge(clk_i) then
+      fu_conv_i2f.مکمل   <= '0';
+    elsif rising_کنارہ(clk_i) then
       if (ctrl_i.ir_funct12(0) = '0') and (rs1_i(31) = '1') then -- convert signed integer
-        fu_conv_i2f.result <= std_ulogic_vector(0 - unsigned(rs1_i));
+        fu_conv_i2f.نتیجہ <= std_ulogic_سمتیہ(0 - unsigned(rs1_i));
         fu_conv_i2f.sign   <= rs1_i(31); -- original sign
       else -- convert unsigned integer
-        fu_conv_i2f.result <= rs1_i;
+        fu_conv_i2f.نتیجہ <= rs1_i;
         fu_conv_i2f.sign   <= '0';
       end if;
-      fu_conv_i2f.done <= fu_conv_i2f.start; -- actual conversion is done by the normalizer unit
+      fu_conv_i2f.مکمل <= fu_conv_i2f.آغاز; -- actual conversion is done by the normalizer unit
     end if;
   end process;
 
@@ -740,7 +740,7 @@ begin
       multiplier.exp_res <= (others => '0');
       multiplier.flags   <= (others => '0');
       multiplier.latency <= (others => '0');
-    elsif rising_edge(clk_i) then
+    elsif rising_کنارہ(clk_i) then
       multiplier.sign <= fpu_operands.rs1(31) xor fpu_operands.rs2(31); -- resulting sign
       if ((fpu_operands.rs1_class(fp_class_pos_zero_c)   or fpu_operands.rs1_class(fp_class_neg_zero_c)   or
            fpu_operands.rs2_class(fp_class_pos_zero_c)   or fpu_operands.rs2_class(fp_class_neg_zero_c)   or
@@ -748,12 +748,12 @@ begin
            fpu_operands.rs2_class(fp_class_pos_denorm_c) or fpu_operands.rs2_class(fp_class_neg_denorm_c)) = '1') then
         multiplier.exp_res <= (others => '0'); -- if the input to the multiplier is +/- zero or +/- denorm the result will always be +/- zero
       else
-        multiplier.exp_res <= std_ulogic_vector(unsigned('0' & multiplier.exp_sum) - 127);
+        multiplier.exp_res <= std_ulogic_سمتیہ(unsigned('0' & multiplier.exp_مجموع) - 127);
       end if;
 
       -- exponent computation --
       -- assume we are exact and the operation hasn't over/under flown
-      multiplier.flags(fp_exc_of_c) <= '0';
+      multiplier.flags(fp_exc_کا_c) <= '0';
       multiplier.flags(fp_exc_uf_c) <= '0';
       multiplier.flags(fp_exc_nx_c) <= '0';
 
@@ -764,11 +764,11 @@ begin
            fpu_operands.rs1_class(fp_class_snan_c)    or fpu_operands.rs2_class(fp_class_snan_c)    or
            fpu_operands.rs1_class(fp_class_qnan_c)    or fpu_operands.rs2_class(fp_class_qnan_c)) = '0') then
         if (multiplier.exp_res(multiplier.exp_res'left) = '1') then -- underflow (exp_res is "negative")
-          multiplier.flags(fp_exc_of_c) <= '0';
+          multiplier.flags(fp_exc_کا_c) <= '0';
           multiplier.flags(fp_exc_uf_c) <= '1';
           multiplier.flags(fp_exc_nx_c) <= '1'; -- when over or underflow is set the result is also inexact
         elsif (multiplier.exp_res(multiplier.exp_res'left-1) = '1') then -- overflow
-          multiplier.flags(fp_exc_of_c) <= '1';
+          multiplier.flags(fp_exc_کا_c) <= '1';
           multiplier.flags(fp_exc_uf_c) <= '0';
           multiplier.flags(fp_exc_nx_c) <= '1'; -- when over or underflow is set the result is also inexact
         end if;
@@ -800,7 +800,7 @@ begin
       multiplier.flags(fp_exc_dz_c) <= '0'; -- division by zero: not possible here
 
       -- latency shift register --
-      multiplier.latency <= multiplier.latency(multiplier.latency'left-1 downto 0) & multiplier.start;
+      multiplier.latency <= multiplier.latency(multiplier.latency'بایاں-1 downto 0) & multiplier.آغاز;
     end if;
   end process;
 
@@ -813,23 +813,23 @@ begin
     -- global control --
     clk_i  => clk_i,
     -- data path --
-    en_i   => multiplier.start,
+    en_i   => multiplier.آغاز,
     opa_i  => multiplier.opa,
     opas_i => '0',
     opb_i  => multiplier.opb,
     opbs_i => '0',
-    res_o  => multiplier.product
+    res_o  => multiplier.حاصل_ضرب
   );
   multiplier.opa <= '1' & fpu_operands.rs1(22 downto 0); -- append hidden one to mantissa
   multiplier.opb <= '1' & fpu_operands.rs2(22 downto 0); -- append hidden one to mantissa
 
   -- exponent sum --
-  multiplier.exp_sum <= std_ulogic_vector(unsigned('0' & fpu_operands.rs1(30 downto 23)) + unsigned('0' & fpu_operands.rs2(30 downto 23)));
+  multiplier.exp_مجموع <= std_ulogic_سمتیہ(unsigned('0' & fpu_operands.rs1(30 downto 23)) + unsigned('0' & fpu_operands.rs2(30 downto 23)));
 
   -- latency --
-  multiplier.start <= fu_mul.start;
-  multiplier.done  <= multiplier.latency(multiplier.latency'left);
-  fu_mul.done      <= multiplier.done;
+  multiplier.آغاز <= fu_mul.آغاز;
+  multiplier.مکمل  <= multiplier.latency(multiplier.latency'بایاں);
+  fu_mul.مکمل      <= multiplier.مکمل;
 
 
   -- result class --
@@ -842,7 +842,7 @@ begin
   begin
     if (rstn_i = '0') then
       multiplier.res_class <= (others => '0');
-    elsif rising_edge(clk_i) then
+    elsif rising_کنارہ(clk_i) then
       -- shortcuts --
       a_pos_norm_v := fpu_operands.rs1_class(fp_class_pos_norm_c);
       b_pos_norm_v := fpu_operands.rs2_class(fp_class_pos_norm_c);
@@ -1003,7 +1003,7 @@ begin
   end process;
 
   -- unused --
-  fu_mul.result <= (others => '0');
+  fu_mul.نتیجہ <= (others => '0');
   fu_mul.flags  <= (others => '0');
 
 
@@ -1020,15 +1020,15 @@ begin
       addsub.man_r_ext          <= '0';
       addsub.man_s_ext          <= '0';
       addsub.man_comp           <= '0';
-      addsub.add_stage          <= (others => '0');
+      addsub.جوڑو_stage          <= (others => '0');
       addsub.res_sign           <= '0';
       addsub.flags(fp_exc_nv_c) <= '0';
-    elsif rising_edge(clk_i) then
+    elsif rising_کنارہ(clk_i) then
       -- arbitration / latency --
       if (ctrl_engine.state = S_IDLE) then -- hacky "reset"
         addsub.latency <= (others => '0');
       else
-        addsub.latency(0) <= addsub.start; -- input comparator delay
+        addsub.latency(0) <= addsub.آغاز; -- input comparator delay
         if (addsub.latency(0) = '1') then
           addsub.latency(1) <= '1';
           addsub.latency(2) <= '0';
@@ -1090,16 +1090,16 @@ begin
           -- set s_ext to 1 as it will always be 1 from the implied 1 being shifted out.
           addsub.man_s_ext <= '1';
           -- if man_sreg is 0 set s_ext to 0 as there is no 1 that will be shifted out.
-          if (to_integer(unsigned(addsub.man_sreg)) = 0) then
+          if (مقصد_integer(unsigned(addsub.man_sreg)) = 0) then
             addsub.man_s_ext <= '0';
           end if;
           addsub.exp_cnt(7 downto 0) <= addsub.large_exp(7 downto 0);
         else
-          addsub.man_sreg  <= '0' & addsub.man_sreg(addsub.man_sreg'left downto 1);
+          addsub.man_sreg  <= '0' & addsub.man_sreg(addsub.man_sreg'بایاں downto 1);
           addsub.man_g_ext <= addsub.man_sreg(0);
           addsub.man_r_ext <= addsub.man_g_ext;
           addsub.man_s_ext <= addsub.man_s_ext or addsub.man_r_ext; -- sticky bit
-          addsub.exp_cnt   <= std_ulogic_vector(unsigned(addsub.exp_cnt) + 1);
+          addsub.exp_cnt   <= std_ulogic_سمتیہ(unsigned(addsub.exp_cnt) + 1);
         end if;
       end if;
 
@@ -1112,9 +1112,9 @@ begin
 
       -- actual addition/subtraction (incl. overflow) --
       if ((ctrl_i.ir_funct12(7) xor (fpu_operands.rs1(31) xor fpu_operands.rs2(31))) = '0') then -- add
-        addsub.add_stage <= std_ulogic_vector(unsigned('0' & addsub.man_l) + unsigned('0' & addsub.man_s));
+        addsub.جوڑو_stage <= std_ulogic_سمتیہ(unsigned('0' & addsub.man_l) + unsigned('0' & addsub.man_s));
       else -- sub
-        addsub.add_stage <= std_ulogic_vector(unsigned('0' & addsub.man_l) - unsigned('0' & addsub.man_s));
+        addsub.جوڑو_stage <= std_ulogic_سمتیہ(unsigned('0' & addsub.man_l) - unsigned('0' & addsub.man_s));
       end if;
 
       -- result sign --
@@ -1122,7 +1122,7 @@ begin
         if (fpu_operands.rs1(31) = fpu_operands.rs2(31)) then -- identical signs
           addsub.res_sign <= fpu_operands.rs1(31);
         else -- different signs; if the result is not 0.0 set the sign normally
-          if ((to_integer(unsigned(addsub.add_stage))) /= 0 ) then
+          if ((مقصد_integer(unsigned(addsub.جوڑو_stage))) /= 0 ) then
             if (addsub.exp_comp(1) = '1') then -- exp are equal (also check relation of mantissas)
               addsub.res_sign <= fpu_operands.rs1(31) xor (not addsub.man_comp);
             else
@@ -1139,7 +1139,7 @@ begin
       else -- sub
         -- identical signs; if the result is not 0.0 set the sign normally
         if (fpu_operands.rs1(31) = fpu_operands.rs2(31)) then
-          if ((to_integer(unsigned(addsub.add_stage))) /= 0 ) then
+          if ((مقصد_integer(unsigned(addsub.جوڑو_stage))) /= 0 ) then
             if (addsub.exp_comp(1) = '1') then -- exp are equal (also check relation of mantissas)
               addsub.res_sign <= fpu_operands.rs1(31) xor (not addsub.man_comp);
             else
@@ -1197,7 +1197,7 @@ begin
 
   -- exceptions - unused --
   addsub.flags(fp_exc_dz_c) <= '0'; -- division by zero -> not possible
-  addsub.flags(fp_exc_of_c) <= '0'; -- not possible here (but may occur in normalizer)
+  addsub.flags(fp_exc_کا_c) <= '0'; -- not possible here (but may occur in normalizer)
   addsub.flags(fp_exc_uf_c) <= '0'; -- not possible here (but may occur in normalizer)
   addsub.flags(fp_exc_nx_c) <= '0'; -- not possible here (but may occur in normalizer)
 
@@ -1212,12 +1212,12 @@ begin
   addsub.man_l <= (addsub.large_man & "000") when (addsub.man_comp = '1') else (addsub.man_sreg & addsub.man_g_ext & addsub.man_r_ext & addsub.man_s_ext);
 
   -- latency --
-  addsub.start   <= fu_addsub.start;
-  addsub.done    <= addsub.latency(addsub.latency'left);
-  fu_addsub.done <= addsub.done;
+  addsub.آغاز   <= fu_addsub.آغاز;
+  addsub.مکمل    <= addsub.latency(addsub.latency'بایاں);
+  fu_addsub.مکمل <= addsub.مکمل;
 
   -- mantissa result --
-  addsub.res_sum <= addsub.add_stage(27 downto 0);
+  addsub.res_مجموع <= addsub.جوڑو_stage(27 downto 0);
 
 
   -- result class --
@@ -1230,7 +1230,7 @@ begin
   begin
     if (rstn_i = '0') then
       addsub.res_class <= (others => '0');
-    elsif rising_edge(clk_i) then
+    elsif rising_کنارہ(clk_i) then
       -- shortcuts --
       a_pos_norm_v := fpu_operands.rs1_class(fp_class_pos_norm_c);
       b_pos_norm_v := fpu_operands.rs2_class(fp_class_pos_norm_c);
@@ -1383,7 +1383,7 @@ begin
   end process;
 
   -- unused --
-  fu_addsub.result <= (others => '0');
+  fu_addsub.نتیجہ <= (others => '0');
   fu_addsub.flags  <= (others => '0');
 
 
@@ -1393,33 +1393,33 @@ begin
 
   -- Normalizer Input -----------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  normalizer_input_select: process(funct_ff, addsub, multiplier, fu_conv_i2f)
+  normalizer_داخلہ_select: process(funct_ff, addsub, multiplier, fu_conv_i2f)
   begin
     case funct_ff is
       when op_addsub_c => -- addition/subtraction
-        normalizer.mode      <= '0'; -- normalization
+        normalizer.منوال      <= '0'; -- normalization
         normalizer.sign      <= addsub.res_sign;
         normalizer.xexp      <= addsub.exp_cnt;
-        normalizer.xmantissa <= addsub.res_sum(27 downto 1) & x"00000" & addsub.res_sum(0);
+        normalizer.xmantissa <= addsub.res_مجموع(27 downto 1) & x"00000" & addsub.res_مجموع(0);
         normalizer.class     <= addsub.res_class;
-        normalizer.flags_in  <= addsub.flags;
-        normalizer.start     <= addsub.done;
+        normalizer.flags_اندر  <= addsub.flags;
+        normalizer.آغاز     <= addsub.مکمل;
       when op_mul_c => -- multiplication
-        normalizer.mode      <= '0'; -- normalization
+        normalizer.منوال      <= '0'; -- normalization
         normalizer.sign      <= multiplier.sign;
         normalizer.xexp      <= '0' & multiplier.exp_res(7 downto 0);
-        normalizer.xmantissa <= multiplier.product;
+        normalizer.xmantissa <= multiplier.حاصل_ضرب;
         normalizer.class     <= multiplier.res_class;
-        normalizer.flags_in  <= multiplier.flags;
-        normalizer.start     <= multiplier.done;
+        normalizer.flags_اندر  <= multiplier.flags;
+        normalizer.آغاز     <= multiplier.مکمل;
       when others => -- op_i2f_c
-        normalizer.mode      <= '1'; -- int_to_float
+        normalizer.منوال      <= '1'; -- int_to_float
         normalizer.sign      <= fu_conv_i2f.sign;
         normalizer.xexp      <= "001111111"; -- bias = 127
         normalizer.xmantissa <= (others => '0'); -- don't care
         normalizer.class     <= (others => '0'); -- don't care
-        normalizer.flags_in  <= (others => '0'); -- no flags yet
-        normalizer.start     <= fu_conv_i2f.done;
+        normalizer.flags_اندر  <= (others => '0'); -- no flags yet
+        normalizer.آغاز     <= fu_conv_i2f.مکمل;
     end case;
   end process;
 
@@ -1434,21 +1434,21 @@ begin
     -- control --
     clk_i      => clk_i,                -- global clock, rising edge
     rstn_i     => rstn_i,               -- global reset, low-active, async
-    start_i    => normalizer.start,     -- trigger operation
+    آغاز_i    => normalizer.آغاز,     -- trigger operation
     abort_i    => ctrl_i.cpu_trap,      -- abort current operation
     rmode_i    => fpu_operands.frm,     -- rounding mode
-    funct_i    => normalizer.mode,      -- operation mode
+    funct_i    => normalizer.منوال,      -- operation mode
     -- input --
     sign_i     => normalizer.sign,      -- sign
     exponent_i => normalizer.xexp,      -- extended exponent
     mantissa_i => normalizer.xmantissa, -- extended mantissa
-    integer_i  => fu_conv_i2f.result,   -- integer input
+    integer_i  => fu_conv_i2f.نتیجہ,   -- integer input
     class_i    => normalizer.class,     -- input number class
-    flags_i    => normalizer.flags_in,  -- exception flags input
+    flags_i    => normalizer.flags_اندر,  -- exception flags input
     -- output --
-    result_o   => normalizer.result,    -- result (float or int)
-    flags_o    => normalizer.flags_out, -- exception flags
-    done_o     => normalizer.done       -- operation done
+    نتیجہ_o   => normalizer.نتیجہ,    -- result (float or int)
+    flags_o    => normalizer.flags_برآمد, -- exception flags
+    مکمل_o     => normalizer.مکمل       -- operation done
   );
 
 
@@ -1463,36 +1463,36 @@ begin
     if (rstn_i = '0') then
       res_o  <= (others => '0');
       fflags <= (others => '0');
-    elsif rising_edge(clk_i) then
+    elsif rising_کنارہ(clk_i) then
       res_o  <= (others => '0');
       fflags <= (others => '0');
       if (ctrl_engine.valid = '1') then
         case funct_ff is
           when op_class_c =>
-            res_o  <= fu_classify.result;
+            res_o  <= fu_classify.نتیجہ;
             fflags <= fu_classify.flags;
           when op_comp_c =>
-            res_o  <= fu_compare.result;
+            res_o  <= fu_compare.نتیجہ;
             fflags <= fu_compare.flags;
           when op_f2i_c =>
-            res_o  <= fu_conv_f2i.result;
+            res_o  <= fu_conv_f2i.نتیجہ;
             fflags <= fu_conv_f2i.flags;
           when op_sgnj_c =>
-            res_o  <= fu_sign_inject.result;
+            res_o  <= fu_sign_inject.نتیجہ;
             fflags <= fu_sign_inject.flags;
           when op_minmax_c =>
-            res_o  <= fu_min_max.result;
+            res_o  <= fu_min_max.نتیجہ;
             fflags <= fu_min_max.flags;
           when others => -- op_mul_c, op_addsub_c, op_i2f_c, ...
-            res_o  <= normalizer.result;
-            fflags <= normalizer.flags_out;
+            res_o  <= normalizer.نتیجہ;
+            fflags <= normalizer.flags_برآمد;
         end case;
       end if;
     end if;
   end process;
 
   -- operation done --
-  fu_core_done <= fu_compare.done or fu_classify.done or fu_sign_inject.done or fu_min_max.done or normalizer.done or fu_conv_f2i.done;
+  fu_core_مکمل <= fu_compare.مکمل or fu_classify.مکمل or fu_sign_inject.مکمل or fu_min_max.مکمل or normalizer.مکمل or fu_conv_f2i.مکمل;
 
 end architecture;
 
@@ -1524,51 +1524,51 @@ entity neorv32_cpu_alu_fpu_normalizer is
     -- control --
     clk_i      : in  std_ulogic;                     -- global clock, rising edge
     rstn_i     : in  std_ulogic;                     -- global reset, low-active, async
-    start_i    : in  std_ulogic;                     -- trigger operation
+    آغاز_i    : in  std_ulogic;                     -- trigger operation
     abort_i    : in  std_ulogic;                     -- abort current operation
-    rmode_i    : in  std_ulogic_vector(2 downto 0);  -- rounding mode
+    rmode_i    : in  std_ulogic_سمتیہ(2 downto 0);  -- rounding mode
     funct_i    : in  std_ulogic;                     -- operating mode (0=norm&round, 1=int-to-float)
     -- input --
     sign_i     : in  std_ulogic;                     -- sign
-    exponent_i : in  std_ulogic_vector(8 downto 0);  -- extended exponent
-    mantissa_i : in  std_ulogic_vector(47 downto 0); -- extended mantissa
-    integer_i  : in  std_ulogic_vector(31 downto 0); -- integer input
-    class_i    : in  std_ulogic_vector(9 downto 0);  -- input number class
-    flags_i    : in  std_ulogic_vector(4 downto 0);  -- exception flags input
+    exponent_i : in  std_ulogic_سمتیہ(8 downto 0);  -- extended exponent
+    mantissa_i : in  std_ulogic_سمتیہ(47 downto 0); -- extended mantissa
+    integer_i  : in  std_ulogic_سمتیہ(31 downto 0); -- integer input
+    class_i    : in  std_ulogic_سمتیہ(9 downto 0);  -- input number class
+    flags_i    : in  std_ulogic_سمتیہ(4 downto 0);  -- exception flags input
     -- output --
-    result_o   : out std_ulogic_vector(31 downto 0); -- float result
-    flags_o    : out std_ulogic_vector(4 downto 0);  -- exception flags output
-    done_o     : out std_ulogic                      -- operation done
+    نتیجہ_o   : out std_ulogic_سمتیہ(31 downto 0); -- float result
+    flags_o    : out std_ulogic_سمتیہ(4 downto 0);  -- exception flags output
+    مکمل_o     : out std_ulogic                      -- operation done
   );
 end entity;
 
 architecture neorv32_cpu_alu_fpu_normalizer_rtl of neorv32_cpu_alu_fpu_normalizer is
 
   -- controller --
-  type ctrl_engine_state_t is (S_IDLE, S_PREPARE_I2F, S_CHECK_I2F, S_PREPARE_NORM, S_PREPARE_SHIFT, S_NORMALIZE_BUSY, S_ROUND, S_CHECK, S_FINALIZE);
+  type ctrl_engine_state_t is (S_IDLE, S_PREPARE_I2F, S_CHECK_I2F, S_PREPARE_NORM, S_PREPARE_سرکاؤ, S_NORMALIZE_BUSY, S_باری, S_CHECK, S_FINALIZE);
   type ctrl_t is record
     state   : ctrl_engine_state_t; -- current state
     norm_r  : std_ulogic; -- normalization round 0 or 1
-    cnt     : std_ulogic_vector(8 downto 0); -- iteration counter/exponent (incl. overflow)
-    cnt_pre : std_ulogic_vector(8 downto 0);
-    cnt_of  : std_ulogic; -- counter overflow
+    cnt     : std_ulogic_سمتیہ(8 downto 0); -- iteration counter/exponent (incl. overflow)
+    cnt_pre : std_ulogic_سمتیہ(8 downto 0);
+    cnt_کا  : std_ulogic; -- counter overflow
     cnt_uf  : std_ulogic; -- counter underflow
     rounded : std_ulogic; -- output is rounded
     res_sgn : std_ulogic;
-    res_exp : std_ulogic_vector(7 downto 0);
-    res_man : std_ulogic_vector(22 downto 0);
-    class   : std_ulogic_vector(9 downto 0);
-    flags   : std_ulogic_vector(4 downto 0);
+    res_exp : std_ulogic_سمتیہ(7 downto 0);
+    res_man : std_ulogic_سمتیہ(22 downto 0);
+    class   : std_ulogic_سمتیہ(9 downto 0);
+    flags   : std_ulogic_سمتیہ(4 downto 0);
   end record;
   signal ctrl : ctrl_t;
 
   -- normalization shift register --
   type sreg_t is record
-    done  : std_ulogic;
+    مکمل  : std_ulogic;
     dir   : std_ulogic; -- shift direction: 0=right, 1=left
     zero  : std_ulogic;
-    upper : std_ulogic_vector(31 downto 0);
-    lower : std_ulogic_vector(22 downto 0);
+    بالائی : std_ulogic_سمتیہ(31 downto 0);
+    زیریں : std_ulogic_سمتیہ(22 downto 0);
     ext_g : std_ulogic; -- guard bit
     ext_r : std_ulogic; -- round bit
     ext_s : std_ulogic; -- sticky bit
@@ -1576,12 +1576,12 @@ architecture neorv32_cpu_alu_fpu_normalizer_rtl of neorv32_cpu_alu_fpu_normalize
   signal sreg : sreg_t;
 
   -- rounding unit --
-  type round_t is record
+  type باری_t is record
     en     : std_ulogic; -- enable rounding
     sub    : std_ulogic; -- 0=decrement, 1=increment
-    output : std_ulogic_vector(24 downto 0); -- mantissa size + hidden one + 1
+    output : std_ulogic_سمتیہ(24 downto 0); -- mantissa size + hidden one + 1
   end record;
-  signal round : round_t;
+  signal باری : باری_t;
 
 begin
 
@@ -1594,7 +1594,7 @@ begin
       ctrl.norm_r  <= '0';
       ctrl.cnt     <= (others => '0');
       ctrl.cnt_pre <= (others => '0');
-      ctrl.cnt_of  <= '0';
+      ctrl.cnt_کا  <= '0';
       ctrl.cnt_uf  <= '0';
       ctrl.rounded <= '0';
       ctrl.res_exp <= (others => '0');
@@ -1603,22 +1603,22 @@ begin
       ctrl.class   <= (others => '0');
       ctrl.flags   <= (others => '0');
       --
-      sreg.upper   <= (others => '0');
-      sreg.lower   <= (others => '0');
+      sreg.بالائی   <= (others => '0');
+      sreg.زیریں   <= (others => '0');
       sreg.dir     <= '0';
       sreg.ext_g   <= '0';
       sreg.ext_r   <= '0';
       sreg.ext_s   <= '0';
       --
-      done_o       <= '0';
-    elsif rising_edge(clk_i) then
+      مکمل_o       <= '0';
+    elsif rising_کنارہ(clk_i) then
       -- defaults --
       ctrl.cnt_pre <= ctrl.cnt;
-      done_o       <= '0';
+      مکمل_o       <= '0';
 
       -- exponent counter underflow/overflow --
       if ((ctrl.cnt_pre(8 downto 7) = "01") and (ctrl.cnt(8 downto 7) = "10")) then -- overflow
-        ctrl.cnt_of <= '1';
+        ctrl.cnt_کا <= '1';
       elsif (ctrl.cnt_pre(8 downto 7) = "00") and (ctrl.cnt(8 downto 7) = "11") then -- underflow
         ctrl.cnt_uf <= '1';
       end if;
@@ -1630,10 +1630,10 @@ begin
         -- ------------------------------------------------------------
           ctrl.norm_r  <= '0'; -- start with first normalization
           ctrl.rounded <= '0'; -- not rounded yet
-          ctrl.cnt_of  <= '0';
+          ctrl.cnt_کا  <= '0';
           ctrl.cnt_uf  <= '0';
           --
-          if (start_i = '1') then
+          if (آغاز_i = '1') then
             ctrl.cnt     <= exponent_i;
             ctrl.res_sgn <= sign_i;
             ctrl.class   <= class_i;
@@ -1658,8 +1658,8 @@ begin
 
         when S_PREPARE_I2F => -- prepare integer-to-float conversion
         -- ------------------------------------------------------------
-          sreg.upper <= integer_i;
-          sreg.lower <= (others => '0');
+          sreg.بالائی <= integer_i;
+          sreg.زیریں <= (others => '0');
           sreg.ext_g <= '0';
           sreg.ext_r <= '0';
           sreg.ext_s <= '0';
@@ -1677,9 +1677,9 @@ begin
 
         when S_PREPARE_NORM => -- prepare "normal" normalization & rounding
         -- ------------------------------------------------------------
-          sreg.upper(31 downto 2) <= (others => '0');
-          sreg.upper(1 downto 0)  <= mantissa_i(47 downto 46);
-          sreg.lower <= mantissa_i(45 downto 23);
+          sreg.بالائی(31 downto 2) <= (others => '0');
+          sreg.بالائی(1 downto 0)  <= mantissa_i(47 downto 46);
+          sreg.زیریں <= mantissa_i(45 downto 23);
           sreg.ext_g <= mantissa_i(22);
           sreg.ext_r <= mantissa_i(21);
           if (or_reduce_f(mantissa_i(20 downto 0)) = '1') then
@@ -1693,7 +1693,7 @@ begin
                ctrl.class(fp_class_neg_denorm_c) or ctrl.class(fp_class_pos_denorm_c) or -- subnormal
                ctrl.class(fp_class_neg_inf_c)    or ctrl.class(fp_class_pos_inf_c)    or -- infinity
                ctrl.flags(fp_exc_uf_c) or -- underflow
-               ctrl.flags(fp_exc_of_c) or -- overflow
+               ctrl.flags(fp_exc_کا_c) or -- overflow
                ctrl.flags(fp_exc_nv_c)) = '1') then -- invalid
             ctrl.state <= S_FINALIZE;
           -- The normalizer only checks the class of the inputs and not the result.
@@ -1705,10 +1705,10 @@ begin
             ctrl.cnt <= (others => '0');
             ctrl.state <= S_FINALIZE;
           else
-            ctrl.state <= S_PREPARE_SHIFT;
+            ctrl.state <= S_PREPARE_سرکاؤ;
           end if;
 
-        when S_PREPARE_SHIFT => -- prepare shift direction (for "normal" normalization only)
+        when S_PREPARE_سرکاؤ => -- prepare shift direction (for "normal" normalization only)
         -- ------------------------------------------------------------
           if (sreg.zero = '0') then -- number < 1.0
             sreg.dir <= '0'; -- shift right
@@ -1720,45 +1720,45 @@ begin
         when S_NORMALIZE_BUSY => -- running normalization cycle
         -- ------------------------------------------------------------
           -- shift until normalized or exception --
-          if (sreg.done = '1') or (ctrl.cnt_uf = '1') or (ctrl.cnt_of = '1') then
+          if (sreg.مکمل = '1') or (ctrl.cnt_uf = '1') or (ctrl.cnt_کا = '1') then
             -- normalization control --
             ctrl.norm_r <= '1';
             if (ctrl.norm_r = '0') then -- first normalization cycle done
-              ctrl.state <= S_ROUND;
+              ctrl.state <= S_باری;
             else -- second normalization cycle done
               ctrl.state <= S_CHECK;
             end if;
           else
             if (sreg.dir = '0') then -- shift right
-              ctrl.cnt   <= std_ulogic_vector(unsigned(ctrl.cnt) + 1);
-              sreg.upper <= '0' & sreg.upper(sreg.upper'left downto 1);
-              sreg.lower <= sreg.upper(0) & sreg.lower(sreg.lower'left downto 1);
-              sreg.ext_g <= sreg.lower(0);
+              ctrl.cnt   <= std_ulogic_سمتیہ(unsigned(ctrl.cnt) + 1);
+              sreg.بالائی <= '0' & sreg.بالائی(sreg.بالائی'بایاں downto 1);
+              sreg.زیریں <= sreg.بالائی(0) & sreg.زیریں(sreg.زیریں'بایاں downto 1);
+              sreg.ext_g <= sreg.زیریں(0);
               sreg.ext_r <= sreg.ext_g;
               sreg.ext_s <= sreg.ext_r or sreg.ext_s; -- sticky bit
             else -- shift left
-              ctrl.cnt   <= std_ulogic_vector(unsigned(ctrl.cnt) - 1);
-              sreg.upper <= sreg.upper(sreg.upper'left-1 downto 0) & sreg.lower(sreg.lower'left);
-              sreg.lower <= sreg.lower(sreg.lower'left-1 downto 0) & sreg.ext_g;
+              ctrl.cnt   <= std_ulogic_سمتیہ(unsigned(ctrl.cnt) - 1);
+              sreg.بالائی <= sreg.بالائی(sreg.بالائی'left-1 downto 0) & sreg.lower(sreg.lower'بایاں);
+              sreg.زیریں <= sreg.زیریں(sreg.زیریں'بایاں-1 downto 0) & sreg.ext_g;
               sreg.ext_g <= sreg.ext_r;
               sreg.ext_r <= sreg.ext_s;
               sreg.ext_s <= sreg.ext_s; -- sticky bit
             end if;
           end if;
 
-        when S_ROUND => -- rounding cycle (after first normalization)
+        when S_باری => -- rounding cycle (after first normalization)
         -- ------------------------------------------------------------
-          ctrl.rounded <= ctrl.rounded or round.en;
-          sreg.upper(31 downto 2) <= (others => '0');
-          sreg.upper(1 downto 0)  <= round.output(24 downto 23);
-          sreg.lower <= round.output(22 downto 0);
+          ctrl.rounded <= ctrl.rounded or باری.en;
+          sreg.بالائی(31 downto 2) <= (others => '0');
+          sreg.بالائی(1 downto 0)  <= باری.output(24 downto 23);
+          sreg.زیریں <= باری.output(22 downto 0);
           -- If after the first shift we get a bit in any of the guard bits then independent of rounding mode
           -- the end result will be inexact as we are truncating away information
           ctrl.flags(fp_exc_nx_c) <= sreg.ext_g or sreg.ext_r or sreg.ext_s;
           sreg.ext_g <= '0';
           sreg.ext_r <= '0';
           sreg.ext_s <= '0';
-          ctrl.state <= S_PREPARE_SHIFT;
+          ctrl.state <= S_PREPARE_سرکاؤ;
 
         when S_CHECK => -- check for overflow/underflow
         -- ------------------------------------------------------------
@@ -1768,8 +1768,8 @@ begin
             -- only signalled when the result is tiny and inexact. In such a case,
             -- both the underflow and inexact flags are raised.
             ctrl.flags(fp_exc_nx_c) <= '1';
-          elsif (ctrl.cnt_of = '1') then -- overflow
-            ctrl.flags(fp_exc_of_c) <= '1';
+          elsif (ctrl.cnt_کا = '1') then -- overflow
+            ctrl.flags(fp_exc_کا_c) <= '1';
             -- As is defined in '754, under default exception handling, overflow is
             -- only signalled when the result is large and inexact. In such a case,
             -- both the underflow and inexact flags are raised.
@@ -1781,7 +1781,7 @@ begin
             -- both the underflow and inexact flags are raised.
             ctrl.flags(fp_exc_nx_c) <= '1';
           elsif (ctrl.cnt(7 downto 0) = x"FF") then -- infinity
-            ctrl.flags(fp_exc_of_c) <= '1';
+            ctrl.flags(fp_exc_کا_c) <= '1';
             -- As is defined in '754, under default exception handling, overflow is
             -- only signalled when the result is large and inexact. In such a case,
             -- both the underflow and inexact flags are raised.
@@ -1797,17 +1797,17 @@ begin
             ctrl.res_exp <= fp_single_qnan_c(30 downto 23);
             ctrl.res_man <= fp_single_qnan_c(22 downto 0);
           elsif (ctrl.class(fp_class_neg_inf_c) = '1') or (ctrl.class(fp_class_pos_inf_c) = '1') or -- infinity
-                (ctrl.flags(fp_exc_of_c) = '1') then -- overflow
+                (ctrl.flags(fp_exc_کا_c) = '1') then -- overflow
             -- if rounding mode is towards 0 we cannot generate an infinity instead we need to generate +MAX
-            if ((rmode_i = "001") and (ctrl.flags(fp_exc_of_c) = '1')) then
+            if ((rmode_i = "001") and (ctrl.flags(fp_exc_کا_c) = '1')) then
               ctrl.res_exp <= fp_single_pos_max_c(30 downto 23); -- keep original sign
               ctrl.res_man <= fp_single_pos_max_c(22 downto 0);
             -- if rounding mode is towards -inf we cannot generate a positive infinity instead we need to generate +MAX
-            elsif ((rmode_i = "010") and (ctrl.flags(fp_exc_of_c) = '1') and (sign_i = '0')) then
+            elsif ((rmode_i = "010") and (ctrl.flags(fp_exc_کا_c) = '1') and (sign_i = '0')) then
               ctrl.res_exp <= fp_single_pos_max_c(30 downto 23); -- keep original sign
               ctrl.res_man <= fp_single_pos_max_c(22 downto 0);
             -- if rounding mode is towards +inf we cannot generate a negative infinity instead we need to generate -MAX
-            elsif ((rmode_i = "011") and (ctrl.flags(fp_exc_of_c) = '1') and (sign_i = '1')) then
+            elsif ((rmode_i = "011") and (ctrl.flags(fp_exc_کا_c) = '1') and (sign_i = '1')) then
               ctrl.res_exp <= fp_single_neg_max_c(30 downto 23); -- keep original sign
               ctrl.res_man <= fp_single_neg_max_c(22 downto 0);
             else
@@ -1824,13 +1824,13 @@ begin
             ctrl.res_man <= fp_single_pos_zero_c(22 downto 0);
           else -- result is fine as it is
             ctrl.res_exp <= ctrl.cnt(7 downto 0);
-            ctrl.res_man <= sreg.lower;
+            ctrl.res_man <= sreg.زیریں;
           end if;
           -- generate exception flags --
           ctrl.flags(fp_exc_nv_c) <= ctrl.flags(fp_exc_nv_c) or ctrl.class(fp_class_snan_c); -- invalid if input is SIGNALING NaN
           ctrl.flags(fp_exc_nx_c) <= ctrl.flags(fp_exc_nx_c) or ctrl.rounded; -- inexact if result is rounded
           -- processing done --
-          done_o     <= '1';
+          مکمل_o     <= '1';
           ctrl.state <= S_IDLE;
 
         when others => -- undefined
@@ -1847,20 +1847,20 @@ begin
   end process;
 
   -- stop shifting when normalized --
-  sreg.done <= '1' when (or_reduce_f(sreg.upper(sreg.upper'left downto 1)) = '0') and (sreg.upper(0) = '1') else '0'; -- input is zero, hidden one is set
+  sreg.مکمل <= '1' when (or_reduce_f(sreg.بالائی(sreg.بالائی'left downto 1)) = '0') and (sreg.upper(0) = '1') else '0'; -- input is zero, hidden one is set
 
   -- all-zero including hidden bit --
-  sreg.zero <= '1' when (or_reduce_f(sreg.upper) = '0') else '0';
+  sreg.zero <= '1' when (or_reduce_f(sreg.بالائی) = '0') else '0';
 
   -- result --
-  result_o(31)           <= ctrl.res_sgn;
-  result_o(30 downto 23) <= ctrl.res_exp;
-  result_o(22 downto 0)  <= ctrl.res_man;
+  نتیجہ_o(31)           <= ctrl.res_sgn;
+  نتیجہ_o(30 downto 23) <= ctrl.res_exp;
+  نتیجہ_o(22 downto 0)  <= ctrl.res_man;
 
   -- exception flags --
   flags_o(fp_exc_nv_c) <= ctrl.flags(fp_exc_nv_c); -- invalid operation
   flags_o(fp_exc_dz_c) <= ctrl.flags(fp_exc_dz_c); -- divide by zero
-  flags_o(fp_exc_of_c) <= ctrl.flags(fp_exc_of_c); -- overflow
+  flags_o(fp_exc_کا_c) <= ctrl.flags(fp_exc_کا_c); -- overflow
   flags_o(fp_exc_uf_c) <= ctrl.flags(fp_exc_uf_c); -- underflow
   flags_o(fp_exc_nx_c) <= ctrl.flags(fp_exc_nx_c); -- inexact
 
@@ -1870,63 +1870,63 @@ begin
   rounding_unit_ctrl: process(rmode_i, sreg, sign_i)
   begin
     -- defaults --
-    round.en  <= '0';
-    round.sub <= '0';
+    باری.en  <= '0';
+    باری.sub <= '0';
     -- rounding mode --
     case rmode_i(2 downto 0) is
       when "000" => -- round to nearest, ties to even
         if (sreg.ext_g = '0') then
-          round.en <= '0'; -- round down (do nothing)
+          باری.en <= '0'; -- round down (do nothing)
         else
           if (sreg.ext_r = '0') and (sreg.ext_s = '0') then -- tie!
-            round.en <= sreg.lower(0); -- round up if LSB of mantissa is set
+            باری.en <= sreg.زیریں(0); -- round up if LSB of mantissa is set
           else
-            round.en <= '1'; -- round up
+            باری.en <= '1'; -- round up
           end if;
         end if;
-        round.sub <= '0'; -- increment
+        باری.sub <= '0'; -- increment
       when "001" => -- round towards zero
-        round.en <= '0'; -- no rounding -> just truncate
+        باری.en <= '0'; -- no rounding -> just truncate
       when "010" => -- round down (towards -infinity)
         if (sign_i = '0') then -- if the number is positive truncate to round down towards -inf
-          round.en <= '0'; -- truncate
+          باری.en <= '0'; -- truncate
         else -- if the number is negative and we have a remainder increment to round up towards -inf
-          round.en  <= sreg.ext_g or sreg.ext_r or sreg.ext_s;
-          round.sub <= '0'; -- decrement
+          باری.en  <= sreg.ext_g or sreg.ext_r or sreg.ext_s;
+          باری.sub <= '0'; -- decrement
         end if;
       when "011" => -- round up (towards +infinity)
         if (sign_i = '1') then -- if the number is negative truncate to round down towards +inf
-          round.en <= '0'; -- truncate
+          باری.en <= '0'; -- truncate
         else -- if the number is positive and we have a remainder increment to round up towards +inf
-          round.en  <= sreg.ext_g or sreg.ext_r or sreg.ext_s;
-          round.sub <= '0'; -- increment
+          باری.en  <= sreg.ext_g or sreg.ext_r or sreg.ext_s;
+          باری.sub <= '0'; -- increment
         end if;
       when "100" => -- round to nearest, ties to max magnitude; similar to round to nearest, ties to even. This is basically "classic" round
         if (sreg.ext_g = '0') then-- if the remainder is <0.5 (g = 0) we truncate
-          round.en <= '0'; -- round down (do nothing)
+          باری.en <= '0'; -- round down (do nothing)
         else -- the remaind is >= 0.5 (g = 1) we round up
-          round.en <= '1'; -- round up
+          باری.en <= '1'; -- round up
         end if;
-        round.sub <= '0'; -- increment
+        باری.sub <= '0'; -- increment
       when others => -- undefined
-        round.en <= '0';
+        باری.en <= '0';
     end case;
   end process;
 
 
   -- increment/decrement --
-  rounding_unit_add: process(round, sreg)
-    variable tmp_v : std_ulogic_vector(24 downto 0);
+  rounding_unit_جوڑو: process(باری, sreg)
+    variable tmp_v : std_ulogic_سمتیہ(24 downto 0);
   begin
-    tmp_v := '0' & sreg.upper(0) & sreg.lower;
-    if (round.en = '1') then
-      if (round.sub = '0') then -- increment
-        round.output <= std_ulogic_vector(unsigned(tmp_v) + 1);
+    tmp_v := '0' & sreg.بالائی(0) & sreg.زیریں;
+    if (باری.en = '1') then
+      if (باری.sub = '0') then -- increment
+        باری.output <= std_ulogic_سمتیہ(unsigned(tmp_v) + 1);
       else -- decrement
-        round.output <= std_ulogic_vector(unsigned(tmp_v) - 1);
+        باری.output <= std_ulogic_سمتیہ(unsigned(tmp_v) - 1);
       end if;
     else -- do nothing
-      round.output <= tmp_v;
+      باری.output <= tmp_v;
     end if;
   end process;
 
@@ -1958,45 +1958,45 @@ entity neorv32_cpu_alu_fpu_f2i is
     -- control --
     clk_i      : in  std_ulogic; -- global clock, rising edge
     rstn_i     : in  std_ulogic; -- global reset, low-active, async
-    start_i    : in  std_ulogic; -- trigger operation
+    آغاز_i    : in  std_ulogic; -- trigger operation
     abort_i    : in  std_ulogic; -- abort current operation
-    rmode_i    : in  std_ulogic_vector(2 downto 0); -- rounding mode
+    rmode_i    : in  std_ulogic_سمتیہ(2 downto 0); -- rounding mode
     funct_i    : in  std_ulogic; -- 0=signed, 1=unsigned
     -- input --
     sign_i     : in  std_ulogic; -- sign
-    exponent_i : in  std_ulogic_vector(7 downto 0); -- exponent
-    mantissa_i : in  std_ulogic_vector(22 downto 0); -- mantissa
-    class_i    : in  std_ulogic_vector(9 downto 0); -- operand class
+    exponent_i : in  std_ulogic_سمتیہ(7 downto 0); -- exponent
+    mantissa_i : in  std_ulogic_سمتیہ(22 downto 0); -- mantissa
+    class_i    : in  std_ulogic_سمتیہ(9 downto 0); -- operand class
     -- output --
-    result_o   : out std_ulogic_vector(31 downto 0); -- integer result
-    flags_o    : out std_ulogic_vector(4 downto 0); -- exception flags
-    done_o     : out std_ulogic -- operation done
+    نتیجہ_o   : out std_ulogic_سمتیہ(31 downto 0); -- integer result
+    flags_o    : out std_ulogic_سمتیہ(4 downto 0); -- exception flags
+    مکمل_o     : out std_ulogic -- operation done
   );
 end entity;
 
 architecture neorv32_cpu_alu_fpu_f2i_rtl of neorv32_cpu_alu_fpu_f2i is
 
   -- controller --
-  type ctrl_engine_state_t is (S_IDLE, S_PREPARE_F2I, S_NORMALIZE_BUSY, S_ROUND, S_FINALIZE);
+  type ctrl_engine_state_t is (S_IDLE, S_PREPARE_F2I, S_NORMALIZE_BUSY, S_باری, S_FINALIZE);
   type ctrl_t is record
     state      : ctrl_engine_state_t; -- current state
     unsign     : std_ulogic;
-    cnt        : std_ulogic_vector(7 downto 0); -- iteration counter/exponent
+    cnt        : std_ulogic_سمتیہ(7 downto 0); -- iteration counter/exponent
     sign       : std_ulogic;
-    class      : std_ulogic_vector(9 downto 0);
+    class      : std_ulogic_سمتیہ(9 downto 0);
     rounded    : std_ulogic; -- output is rounded
     over       : std_ulogic; -- output is overflowing
     under      : std_ulogic; -- output in underflowing
-    result_tmp : std_ulogic_vector(31 downto 0);
-    result     : std_ulogic_vector(31 downto 0);
-    flags      : std_ulogic_vector(4 downto 0); -- we need to generate flags during the normalizing processes
+    نتیجہ_tmp : std_ulogic_سمتیہ(31 downto 0);
+    نتیجہ     : std_ulogic_سمتیہ(31 downto 0);
+    flags      : std_ulogic_سمتیہ(4 downto 0); -- we need to generate flags during the normalizing processes
   end record;
   signal ctrl : ctrl_t;
 
   -- conversion shift register --
   type sreg_t is record
-    int   : std_ulogic_vector(31 downto 0); -- including hidden-zero
-    mant  : std_ulogic_vector(22 downto 0);
+    int   : std_ulogic_سمتیہ(31 downto 0); -- including hidden-zero
+    mant  : std_ulogic_سمتیہ(22 downto 0);
     ext_g : std_ulogic; -- guard bit
     ext_r : std_ulogic; -- round bit
     ext_s : std_ulogic; -- sticky bit
@@ -2004,12 +2004,12 @@ architecture neorv32_cpu_alu_fpu_f2i_rtl of neorv32_cpu_alu_fpu_f2i is
   signal sreg : sreg_t;
 
   -- rounding unit --
-  type round_t is record
+  type باری_t is record
     en     : std_ulogic; -- enable rounding
     sub    : std_ulogic; -- 0=decrement, 1=increment
-    output : std_ulogic_vector(32 downto 0); -- result + overflow
+    output : std_ulogic_سمتیہ(32 downto 0); -- result + overflow
   end record;
-  signal round : round_t;
+  signal باری : باری_t;
 
 begin
 
@@ -2026,8 +2026,8 @@ begin
       ctrl.over       <= '0';
       ctrl.under      <= '0';
       ctrl.unsign     <= '0';
-      ctrl.result     <= (others => '0');
-      ctrl.result_tmp <= (others => '0');
+      ctrl.نتیجہ     <= (others => '0');
+      ctrl.نتیجہ_tmp <= (others => '0');
       -- clear the flags
       ctrl.flags      <= (others => '0');
       sreg.int        <= (others => '0');
@@ -2035,10 +2035,10 @@ begin
       sreg.ext_g      <= '0';
       sreg.ext_r      <= '0';
       sreg.ext_s      <= '0';
-      done_o          <= '0';
-    elsif rising_edge(clk_i) then
+      مکمل_o          <= '0';
+    elsif rising_کنارہ(clk_i) then
       -- defaults --
-      done_o <= '0';
+      مکمل_o <= '0';
 
       -- fsm --
       case ctrl.state is
@@ -2053,7 +2053,7 @@ begin
           sreg.ext_g   <= '0';
           sreg.ext_r   <= '0';
           sreg.ext_s   <= '0'; -- init
-          if (start_i = '1') then
+          if (آغاز_i = '1') then
             ctrl.cnt    <= exponent_i;
             ctrl.sign   <= sign_i;
             ctrl.class  <= class_i;
@@ -2068,23 +2068,23 @@ begin
           -- if the exponent is small enough only S will be set, assuming the number is not 0
           if (unsigned(ctrl.cnt) < 125) then -- less than 0.5
             sreg.int    <= (others => '0');
-            sreg.mant   <= "001" & sreg.mant(sreg.mant'left downto 3);
+            sreg.mant   <= "001" & sreg.mant(sreg.mant'بایاں downto 3);
             ctrl.under  <= '1'; -- this is an underflow!
             ctrl.cnt    <= (others => '0');
           elsif (unsigned(ctrl.cnt) = 125) then -- less than 0.5
             sreg.int    <= (others => '0');
-            sreg.mant   <= "01" & sreg.mant(sreg.mant'left downto 2);
+            sreg.mant   <= "01" & sreg.mant(sreg.mant'بایاں downto 2);
             ctrl.under  <= '1'; -- this is an underflow!
             ctrl.cnt    <= (others => '0');
           elsif (unsigned(ctrl.cnt) = 126) then -- num < 1.0 but num >= 0.5
             sreg.int    <= (others => '0');
-            sreg.mant   <= '1' & sreg.mant(sreg.mant'left downto 1);
+            sreg.mant   <= '1' & sreg.mant(sreg.mant'بایاں downto 1);
             ctrl.under  <= '1'; -- as the number cannot be represented correctly it will be an underflow
             ctrl.cnt    <= (others => '0');
           else
             sreg.int    <= (others => '0');
             sreg.int(0) <= '1'; -- hidden one
-            ctrl.cnt    <= std_ulogic_vector(unsigned(ctrl.cnt) - 127); -- remove bias to get raw number of left shifts
+            ctrl.cnt    <= std_ulogic_سمتیہ(unsigned(ctrl.cnt) - 127); -- remove bias to get raw number of left shifts
           end if;
           -- check terminal cases --
           if ((ctrl.class(fp_class_neg_inf_c)  or ctrl.class(fp_class_pos_inf_c) or
@@ -2113,30 +2113,30 @@ begin
         when S_NORMALIZE_BUSY => -- running normalization cycle
         -- ------------------------------------------------------------
           if (or_reduce_f(ctrl.cnt(ctrl.cnt'left-1 downto 0)) = '0') then -- if we are at the last step of a normal shift right update the G, R and S
-            sreg.ext_g <= sreg.mant(sreg.mant'left);
-            sreg.ext_r <= sreg.mant(sreg.mant'left-1);
+            sreg.ext_g <= sreg.mant(sreg.mant'بایاں);
+            sreg.ext_r <= sreg.mant(sreg.mant'بایاں-1);
             if (or_reduce_f(sreg.mant(sreg.mant'left-2 downto 0)) = '1') then
               sreg.ext_s <= '1'; -- sticky bit
             end if;
             if (ctrl.unsign = '0') then -- signed conversion
-              ctrl.over <= ctrl.over or sreg.int(sreg.int'left); -- update overrun flag again to check for numerical overflow into sign bit
+              ctrl.over <= ctrl.over or sreg.int(sreg.int'بایاں); -- update overrun flag again to check for numerical overflow into sign bit
             end if;
-            ctrl.state <= S_ROUND;
+            ctrl.state <= S_باری;
           else -- shift left
-            ctrl.cnt  <= std_ulogic_vector(unsigned(ctrl.cnt) - 1);
-            sreg.int  <= sreg.int(sreg.int'left-1 downto 0) & sreg.mant(sreg.mant'left);
+            ctrl.cnt  <= std_ulogic_سمتیہ(unsigned(ctrl.cnt) - 1);
+            sreg.int  <= sreg.int(sreg.int'left-1 downto 0) & sreg.mant(sreg.mant'بایاں);
             sreg.mant <= sreg.mant(sreg.mant'left-1 downto 0) & '0';
-            ctrl.over <= ctrl.over or sreg.int(sreg.int'left);
+            ctrl.over <= ctrl.over or sreg.int(sreg.int'بایاں);
             sreg.ext_g <= '0'; -- as we are shifting left these will always be 0
             sreg.ext_r <= '0'; -- as we are shifting left these will always be 0
             sreg.ext_s <= '0'; -- sticky bit
           end if;
 
-        when S_ROUND => -- rounding cycle
+        when S_باری => -- rounding cycle
         -- ------------------------------------------------------------
-          ctrl.rounded    <= ctrl.rounded or round.en;
-          ctrl.over       <= ctrl.over or round.output(round.output'left); -- overflow after rounding
-          ctrl.result_tmp <= round.output(round.output'left-1 downto 0);
+          ctrl.rounded    <= ctrl.rounded or باری.en;
+          ctrl.over       <= ctrl.over or باری.output(باری.output'بایاں); -- overflow after rounding
+          ctrl.نتیجہ_tmp <= باری.output(باری.output'بایاں-1 downto 0);
           ctrl.state      <= S_FINALIZE;
           -- If after the round we get bits in the guard band
           -- the end result will be inexact as we are truncating away information
@@ -2155,85 +2155,85 @@ begin
           if (ctrl.unsign = '1') then -- unsigned conversion
             if (ctrl.class(fp_class_snan_c) = '1') or (ctrl.class(fp_class_qnan_c) = '1') or (ctrl.class(fp_class_pos_inf_c) = '1') or -- NaN or +inf
                ((ctrl.sign = '0') and (ctrl.over = '1')) then -- positive out-of-range
-              ctrl.result <= x"ffffffff";
+              ctrl.نتیجہ <= x"ffffffff";
               -- As we are saturating the result is also NV but never NX
               ctrl.flags(fp_exc_nv_c) <= '1';
               ctrl.flags(fp_exc_nx_c) <= '0';
             -- split to better handle the subnormal case and infinity case
             elsif (ctrl.class(fp_class_neg_inf_c) = '1') then -- -inf
-              ctrl.result <= x"00000000";
+              ctrl.نتیجہ <= x"00000000";
               -- As we are saturating the result is also NV but never NX
               ctrl.flags(fp_exc_nv_c) <= '1';
               ctrl.flags(fp_exc_nx_c) <= '0';
             elsif (ctrl.class(fp_class_neg_zero_c) = '1') or (ctrl.class(fp_class_pos_zero_c) = '1') then -- zero
-              ctrl.result <= x"00000000";
+              ctrl.نتیجہ <= x"00000000";
             elsif (not FPU_SUBNORMAL_SUPPORT) and ((ctrl.class(fp_class_neg_denorm_c) = '1') or (ctrl.class(fp_class_pos_denorm_c) = '1')) then -- subnormal
-              ctrl.result <= x"00000000";
-            elsif (ctrl.under = '1') and (ctrl.result_tmp(0) = '0') then -- +/- underflow
-              ctrl.result <= x"00000000";
+              ctrl.نتیجہ <= x"00000000";
+            elsif (ctrl.under = '1') and (ctrl.نتیجہ_tmp(0) = '0') then -- +/- underflow
+              ctrl.نتیجہ <= x"00000000";
               -- if we had an underflow we are inexact
               ctrl.flags(fp_exc_nx_c) <= '1';
             elsif (ctrl.sign = '1') then -- negative out-of-range
-              ctrl.result <= x"00000000";
+              ctrl.نتیجہ <= x"00000000";
               -- As we are saturating the result is also NV but never NX
               ctrl.flags(fp_exc_nv_c) <= '1';
               ctrl.flags(fp_exc_nx_c) <= '0';
             -- if underflow is set the number is too small, but the rounding mode can cause the LSB to be
             -- set and thus we still have a valid result
             else
-              ctrl.result <= ctrl.result_tmp;
+              ctrl.نتیجہ <= ctrl.نتیجہ_tmp;
             end if;
 
           else -- signed conversion
             if (ctrl.class(fp_class_snan_c) = '1') or (ctrl.class(fp_class_qnan_c) = '1') then -- NaN
               -- Split up the potential causes for +MAX to better manage flags
-              ctrl.result <= x"7fffffff";
+              ctrl.نتیجہ <= x"7fffffff";
               -- if NAN the number is not-valid but never inexact
               ctrl.flags(fp_exc_nv_c) <= '1';
               ctrl.flags(fp_exc_nx_c) <= '0';
             elsif (ctrl.class(fp_class_pos_inf_c) = '1') then -- +inf
-              ctrl.result <= x"7fffffff";
+              ctrl.نتیجہ <= x"7fffffff";
               -- if INF the number is not-valid but never inexact
               ctrl.flags(fp_exc_nv_c) <= '1';
               ctrl.flags(fp_exc_nx_c) <= '0';
             elsif (ctrl.class(fp_class_neg_inf_c) = '1') then -- -inf
-              ctrl.result <= x"80000000";
+              ctrl.نتیجہ <= x"80000000";
               -- Split up negative infinity to better generate flags
               ctrl.flags(fp_exc_nv_c) <= '1';
               ctrl.flags(fp_exc_nx_c) <= '0';
             elsif (ctrl.sign = '0') and (ctrl.over = '1') then -- positive out-of-range
-              ctrl.result <= x"7fffffff";
+              ctrl.نتیجہ <= x"7fffffff";
               -- if we had are out of range we are not-valid but never inexact
               ctrl.flags(fp_exc_nv_c) <= '1';
               ctrl.flags(fp_exc_nx_c) <= '0';
             elsif (ctrl.sign = '1') and (ctrl.over = '1') then -- negative out-of-range
-              ctrl.result <= x"80000000";
+              ctrl.نتیجہ <= x"80000000";
               -- if we had a negative out of range we are not valid but never inexact
               ctrl.flags(fp_exc_nv_c) <= '1';
               ctrl.flags(fp_exc_nx_c) <= '0';
             elsif (ctrl.class(fp_class_neg_zero_c) = '1') or (ctrl.class(fp_class_pos_zero_c) = '1') then -- zero
               -- Split up all the potential causes for 0 generation to better manage flags
-              ctrl.result <= x"00000000";
+              ctrl.نتیجہ <= x"00000000";
             elsif (not FPU_SUBNORMAL_SUPPORT) and ((ctrl.class(fp_class_neg_denorm_c) = '1') or (ctrl.class(fp_class_pos_denorm_c) = '1')) then -- subnormal
               -- if we do no support subnormal treat them as +/- zero
-              ctrl.result <= x"00000000";
-            elsif (ctrl.under = '1') and (ctrl.result_tmp(0) = '0') then -- underflow
+              ctrl.نتیجہ <= x"00000000";
+            elsif (ctrl.under = '1') and (ctrl.نتیجہ_tmp(0) = '0') then -- underflow
               -- if underflow is set the number is too small, but the rounding mode can cause the LSB to be
               -- set and thus we still have a valid result
-              ctrl.result <= x"00000000";
+              ctrl.نتیجہ <= x"00000000";
               -- if we had an underflow we are inexact as we are still within the legal range
               ctrl.flags(fp_exc_nx_c) <= '1';
             else -- result is OK, make sign adaption
               -- if we rounded we are inexact, but need to remember if we had remainders in the guard bits
               ctrl.flags(fp_exc_nx_c) <= ctrl.flags(fp_exc_nx_c) or ctrl.rounded;
               if (ctrl.sign = '1') then
-                ctrl.result <= std_ulogic_vector(0 - unsigned(ctrl.result_tmp)); -- abs()
+                ctrl.نتیجہ <= std_ulogic_سمتیہ(0 - unsigned(ctrl.نتیجہ_tmp)); -- abs()
               else
-                ctrl.result <= ctrl.result_tmp;
+                ctrl.نتیجہ <= ctrl.نتیجہ_tmp;
               end if;
             end if;
           end if;
-          done_o     <= '1';
+          مکمل_o     <= '1';
           ctrl.state <= S_IDLE;
 
         when others => -- undefined
@@ -2250,13 +2250,13 @@ begin
   end process;
 
   -- result --
-  result_o <= ctrl.result;
+  نتیجہ_o <= ctrl.نتیجہ;
 
   -- exception flags --
   -- add generated flags
   flags_o(fp_exc_nv_c) <= ctrl.flags(fp_exc_nv_c); -- invalid operation
   flags_o(fp_exc_dz_c) <= '0'; -- divide by zero - not possible here
-  flags_o(fp_exc_of_c) <= '0'; -- overflow not possible as overflow is flagged as NV ctrl.flags(fp_exc_of_c) or ctrl.over or ctrl.class(fp_class_pos_inf_c) or ctrl.class(fp_class_neg_inf_c); -- overflow
+  flags_o(fp_exc_کا_c) <= '0'; -- overflow not possible as overflow is flagged as NV ctrl.flags(fp_exc_of_c) or ctrl.over or ctrl.class(fp_class_pos_inf_c) or ctrl.class(fp_class_neg_inf_c); -- overflow
   flags_o(fp_exc_uf_c) <= '0'; -- underflow is not possible as it will either be NV if out of range or inexact. ctrl.flags(fp_exc_uf_c) or ctrl.under; -- underflow
   flags_o(fp_exc_nx_c) <= ctrl.flags(fp_exc_nx_c); -- inexact if result was rounded
 
@@ -2266,66 +2266,66 @@ begin
   rounding_unit_ctrl: process(rmode_i, sreg, sign_i)
   begin
     -- defaults --
-    round.en  <= '0';
-    round.sub <= '0';
+    باری.en  <= '0';
+    باری.sub <= '0';
     -- rounding mode --
     case rmode_i(2 downto 0) is
       when "000" => -- round to nearest, ties to even
         if (sreg.ext_g = '0') then
-          round.en <= '0'; -- round down (do nothing)
+          باری.en <= '0'; -- round down (do nothing)
         else
           if (sreg.ext_r = '0') and (sreg.ext_s = '0') then -- tie!
-            round.en <= sreg.int(0); -- round up if LSB of integer is set
+            باری.en <= sreg.int(0); -- round up if LSB of integer is set
           else
-            round.en <= '1'; -- round up
+            باری.en <= '1'; -- round up
           end if;
         end if;
-        round.sub <= '0'; -- increment
+        باری.sub <= '0'; -- increment
       when "001" => -- round towards zero
-        round.en <= '0'; -- no rounding -> just truncate
+        باری.en <= '0'; -- no rounding -> just truncate
       when "010" => -- round down (towards -infinity)
         -- If the number is positive truncate to round down towards -inf
         if (sign_i = '0') then
-          round.en <= '0'; -- truncate
+          باری.en <= '0'; -- truncate
         else -- if the number is negative and we have a remainder increment to round up towards -inf
-          round.en  <= sreg.ext_g or sreg.ext_r or sreg.ext_s;
-          round.sub <= '0'; -- decrement
+          باری.en  <= sreg.ext_g or sreg.ext_r or sreg.ext_s;
+          باری.sub <= '0'; -- decrement
         end if;
       when "011" => -- round up (towards +infinity)
         -- if the number is negative truncate to round down towards +inf
         if (sign_i = '1') then
-          round.en <= '0'; -- truncate
+          باری.en <= '0'; -- truncate
         else -- if the number is positive and we have a remainder increment to round up towards +inf
-          round.en  <= sreg.ext_g or sreg.ext_r or sreg.ext_s;
-          round.sub <= '0'; -- increment
+          باری.en  <= sreg.ext_g or sreg.ext_r or sreg.ext_s;
+          باری.sub <= '0'; -- increment
         end if;
       when "100" => -- round to nearest, ties to max magnitude
         -- similar to round to nearest, ties to even. This is basically "classic" round
         -- if the remainder is <0.5 (g = 0) we truncate
         if (sreg.ext_g = '0') then
-          round.en <= '0'; -- round down (do nothing)
+          باری.en <= '0'; -- round down (do nothing)
         else -- the remainder is >= 0.5 (g = 1) we round up
-          round.en <= '1'; -- round up
+          باری.en <= '1'; -- round up
         end if;
-        round.sub <= '0'; -- increment
+        باری.sub <= '0'; -- increment
       when others => -- undefined
-        round.en <= '0';
+        باری.en <= '0';
     end case;
   end process;
 
   -- increment/decrement --
-  rounding_unit_add: process(round, sreg)
-    variable tmp_v : std_ulogic_vector(32 downto 0); -- including overflow
+  rounding_unit_جوڑو: process(باری, sreg)
+    variable tmp_v : std_ulogic_سمتیہ(32 downto 0); -- including overflow
   begin
     tmp_v := '0' & sreg.int;
-    if (round.en = '1') then
-      if (round.sub = '0') then -- increment
-        round.output <= std_ulogic_vector(unsigned(tmp_v) + 1);
+    if (باری.en = '1') then
+      if (باری.sub = '0') then -- increment
+        باری.output <= std_ulogic_سمتیہ(unsigned(tmp_v) + 1);
       else -- decrement
-        round.output <= std_ulogic_vector(unsigned(tmp_v) - 1);
+        باری.output <= std_ulogic_سمتیہ(unsigned(tmp_v) - 1);
       end if;
     else -- do nothing
-      round.output <= tmp_v;
+      باری.output <= tmp_v;
     end if;
   end process;
 

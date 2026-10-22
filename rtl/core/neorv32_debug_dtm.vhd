@@ -18,9 +18,9 @@ use neorv32.neorv32_package.all;
 
 entity neorv32_debug_dtm is
   generic (
-    IDCODE_VERSION : std_ulogic_vector(3 downto 0);  -- version
-    IDCODE_PARTID  : std_ulogic_vector(15 downto 0); -- part number
-    IDCODE_MANID   : std_ulogic_vector(10 downto 0)  -- manufacturer id
+    IDCODE_نسخہ : std_ulogic_سمتیہ(3 downto 0);  -- version
+    IDCODE_PARTID  : std_ulogic_سمتیہ(15 downto 0); -- part number
+    IDCODE_MANID   : std_ulogic_سمتیہ(10 downto 0)  -- manufacturer id
   );
   port (
     -- global control --
@@ -40,26 +40,26 @@ end entity;
 architecture neorv32_debug_dtm_rtl of neorv32_debug_dtm is
 
   -- tap data registers --
-  constant addr_idcode_c : std_ulogic_vector(4 downto 0) := "00001";
-  constant addr_dtmcs_c  : std_ulogic_vector(4 downto 0) := "10000";
-  constant addr_dmi_c    : std_ulogic_vector(4 downto 0) := "10001";
-  constant addr_bypass_c : std_ulogic_vector(4 downto 0) := "11111";
-  constant size_idcode_c : natural := 32;
-  constant size_dtmcs_c  : natural := 32;
-  constant size_dmi_c    : natural := 7+32+2; -- 7-bit address + 32-bit data + 2-bit operation/status
-  constant size_bypass_c : natural := 1;
+  constant addr_idcode_c : std_ulogic_سمتیہ(4 downto 0) := "00001";
+  constant addr_dtmcs_c  : std_ulogic_سمتیہ(4 downto 0) := "10000";
+  constant addr_dmi_c    : std_ulogic_سمتیہ(4 downto 0) := "10001";
+  constant addr_bypass_c : std_ulogic_سمتیہ(4 downto 0) := "11111";
+  constant سائز_idcode_c : natural := 32;
+  constant سائز_dtmcs_c  : natural := 32;
+  constant سائز_dmi_c    : natural := 7+32+2; -- 7-bit address + 32-bit data + 2-bit operation/status
+  constant سائز_bypass_c : natural := 1;
 
   -- JTAG synchronizer --
-  signal tck_ff : std_ulogic_vector(2 downto 0);
-  signal tdi_ff, tms_ff : std_ulogic_vector(1 downto 0);
+  signal tck_ff : std_ulogic_سمتیہ(2 downto 0);
+  signal tdi_ff, tms_ff : std_ulogic_سمتیہ(1 downto 0);
   signal tck_rise, tck_fall, tdi, tms : std_ulogic;
 
   -- JTAG tap --
-  type state_t is (LOGIC_RESET, DR_SCAN, DR_CAPTURE, DR_SHIFT, DR_EXIT1, DR_PAUSE, DR_EXIT2, DR_UPDATE,
-                      RUN_IDLE, IR_SCAN, IR_CAPTURE, IR_SHIFT, IR_EXIT1, IR_PAUSE, IR_EXIT2, IR_UPDATE);
+  type state_t is (LOGIC_RESET, DR_جائزہ, DR_CAPTURE, DR_سرکاؤ, DR_EXIT1, DR_PAUSE, DR_EXIT2, DR_UPDATE,
+                      تسلسل_IDLE, IR_جائزہ, IR_CAPTURE, IR_سرکاؤ, IR_EXIT1, IR_PAUSE, IR_EXIT2, IR_UPDATE);
   signal state : state_t;
-  signal ireg : std_ulogic_vector(4 downto 0);
-  signal dreg : std_ulogic_vector(size_dmi_c-1 downto 0); -- max size (= dmi size)
+  signal ireg : std_ulogic_سمتیہ(4 downto 0);
+  signal dreg : std_ulogic_سمتیہ(سائز_dmi_c-1 downto 0); -- max size (= dmi size)
 
   -- misc --
   signal dmi : dmi_req_t;
@@ -71,7 +71,7 @@ begin
   -- -------------------------------------------------------------------------------------------
   tap_synchronizer: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_کنارہ(clk_i) then
       tck_ff <= tck_ff(1 downto 0) & jtag_tck_i;
       tdi_ff <= tdi_ff(0) & jtag_tdi_i;
       tms_ff <= tms_ff(0) & jtag_tms_i;
@@ -93,26 +93,26 @@ begin
     if (rstn_i = '0') then
       state  <= LOGIC_RESET;
       update <= '0';
-    elsif rising_edge(clk_i) then
+    elsif rising_کنارہ(clk_i) then
       update <= '0';
       if (tck_rise = '1') then -- clock pulse (evaluate TMS on the rising edge of TCK)
         case state is -- JTAG state machine
-          when LOGIC_RESET => if (tms = '0') then state <= RUN_IDLE;   else state <= LOGIC_RESET; end if;
-          when RUN_IDLE    => if (tms = '0') then state <= RUN_IDLE;   else state <= DR_SCAN;     end if;
-          when DR_SCAN     => if (tms = '0') then state <= DR_CAPTURE; else state <= IR_SCAN;     end if;
-          when DR_CAPTURE  => if (tms = '0') then state <= DR_SHIFT;   else state <= DR_EXIT1;    end if;
-          when DR_SHIFT    => if (tms = '0') then state <= DR_SHIFT;   else state <= DR_EXIT1;    end if;
+          when LOGIC_RESET => if (tms = '0') then state <= تسلسل_IDLE;   else state <= LOGIC_RESET; end if;
+          when تسلسل_IDLE    => if (tms = '0') then state <= تسلسل_IDLE;   else state <= DR_جائزہ;     end if;
+          when DR_جائزہ     => if (tms = '0') then state <= DR_CAPTURE; else state <= IR_جائزہ;     end if;
+          when DR_CAPTURE  => if (tms = '0') then state <= DR_سرکاؤ;   else state <= DR_EXIT1;    end if;
+          when DR_سرکاؤ    => if (tms = '0') then state <= DR_سرکاؤ;   else state <= DR_EXIT1;    end if;
           when DR_EXIT1    => if (tms = '0') then state <= DR_PAUSE;   else state <= DR_UPDATE;   end if;
           when DR_PAUSE    => if (tms = '0') then state <= DR_PAUSE;   else state <= DR_EXIT2;    end if;
-          when DR_EXIT2    => if (tms = '0') then state <= DR_SHIFT;   else state <= DR_UPDATE;   end if;
-          when DR_UPDATE   => if (tms = '0') then state <= RUN_IDLE;   else state <= DR_SCAN;     end if;
-          when IR_SCAN     => if (tms = '0') then state <= IR_CAPTURE; else state <= LOGIC_RESET; end if;
-          when IR_CAPTURE  => if (tms = '0') then state <= IR_SHIFT;   else state <= IR_EXIT1;    end if;
-          when IR_SHIFT    => if (tms = '0') then state <= IR_SHIFT;   else state <= IR_EXIT1;    end if;
+          when DR_EXIT2    => if (tms = '0') then state <= DR_سرکاؤ;   else state <= DR_UPDATE;   end if;
+          when DR_UPDATE   => if (tms = '0') then state <= تسلسل_IDLE;   else state <= DR_جائزہ;     end if;
+          when IR_جائزہ     => if (tms = '0') then state <= IR_CAPTURE; else state <= LOGIC_RESET; end if;
+          when IR_CAPTURE  => if (tms = '0') then state <= IR_سرکاؤ;   else state <= IR_EXIT1;    end if;
+          when IR_سرکاؤ    => if (tms = '0') then state <= IR_سرکاؤ;   else state <= IR_EXIT1;    end if;
           when IR_EXIT1    => if (tms = '0') then state <= IR_PAUSE;   else state <= IR_UPDATE;   end if;
           when IR_PAUSE    => if (tms = '0') then state <= IR_PAUSE;   else state <= IR_EXIT2;    end if;
-          when IR_EXIT2    => if (tms = '0') then state <= IR_SHIFT;   else state <= IR_UPDATE;   end if;
-          when IR_UPDATE   => if (tms = '0') then state <= RUN_IDLE;   else state <= DR_SCAN;     end if;
+          when IR_EXIT2    => if (tms = '0') then state <= IR_سرکاؤ;   else state <= IR_UPDATE;   end if;
+          when IR_UPDATE   => if (tms = '0') then state <= تسلسل_IDLE;   else state <= DR_جائزہ;     end if;
           when others      => state <= LOGIC_RESET;
         end case;
         if (state = DR_UPDATE) then -- register update pulse
@@ -130,34 +130,34 @@ begin
       ireg       <= (others => '0');
       dreg       <= (others => '0');
       jtag_tdo_o <= '0';
-    elsif rising_edge(clk_i) then
+    elsif rising_کنارہ(clk_i) then
       -- instruction register input --
       if (state = LOGIC_RESET) or (state = IR_CAPTURE) then -- capture phase
         ireg <= addr_idcode_c;
-      elsif (state = IR_SHIFT) and (tck_rise = '1') then -- access phase; [JTAG-SYNC] evaluate TDI on rising edge of TCK
-        ireg <= tdi & ireg(ireg'left downto 1);
+      elsif (state = IR_سرکاؤ) and (tck_rise = '1') then -- access phase; [JTAG-SYNC] evaluate TDI on rising edge of TCK
+        ireg <= tdi & ireg(ireg'بایاں downto 1);
       end if;
       -- data register input --
       if (state = DR_CAPTURE) then -- capture phase
         case ireg is -- [NOTE] make data MSB-aligned and fill with zeros
-          when addr_idcode_c => dreg <= IDCODE_VERSION & IDCODE_PARTID & IDCODE_MANID & '1' & "000000000";
+          when addr_idcode_c => dreg <= IDCODE_نسخہ & IDCODE_PARTID & IDCODE_MANID & '1' & "000000000";
           when addr_dtmcs_c  => dreg <= x"00000071" & "000000000";
-          when addr_dmi_c    => dreg <= dmi.addr & dmi.data & err & err;
+          when addr_dmi_c    => dreg <= dmi.addr & dmi.ڈیٹا & err & err;
           when others        => dreg <= (others => '0');
         end case;
-      elsif (state = DR_SHIFT) and (tck_rise = '1') then -- access phase; [JTAG-SYNC] evaluate TDI on rising edge of TCK
-        dreg <= tdi & dreg(dreg'left downto 1);
+      elsif (state = DR_سرکاؤ) and (tck_rise = '1') then -- access phase; [JTAG-SYNC] evaluate TDI on rising edge of TCK
+        dreg <= tdi & dreg(dreg'بایاں downto 1);
       end if;
       -- output --
       if (tck_fall = '1') then -- [JTAG-SYNC] update TDO on falling edge of TCK
-        if (state = IR_SHIFT) then
+        if (state = IR_سرکاؤ) then
           jtag_tdo_o <= ireg(0);
-        elsif (state = DR_SHIFT) then
+        elsif (state = DR_سرکاؤ) then
           case ireg is -- data is MSB-aligned so select the logical LSB as output
-            when addr_idcode_c => jtag_tdo_o <= dreg(dreg'left-(size_idcode_c-1));
-            when addr_dtmcs_c  => jtag_tdo_o <= dreg(dreg'left-(size_dtmcs_c-1));
-            when addr_dmi_c    => jtag_tdo_o <= dreg(dreg'left-(size_dmi_c-1));
-            when others        => jtag_tdo_o <= dreg(dreg'left-(size_bypass_c-1));
+            when addr_idcode_c => jtag_tdo_o <= dreg(dreg'بایاں-(سائز_idcode_c-1));
+            when addr_dtmcs_c  => jtag_tdo_o <= dreg(dreg'بایاں-(سائز_dtmcs_c-1));
+            when addr_dmi_c    => jtag_tdo_o <= dreg(dreg'بایاں-(سائز_dmi_c-1));
+            when others        => jtag_tdo_o <= dreg(dreg'بایاں-(سائز_bypass_c-1));
           end case;
         end if;
       end if;
@@ -176,7 +176,7 @@ begin
       err  <= '0';
       busy <= '0';
       dmi  <= dmi_req_terminate_c;
-    elsif rising_edge(clk_i) then
+    elsif rising_کنارہ(clk_i) then
       -- sticky error: access attempt while DMI is busy --
       if (dmireset = '1') or (dmihardreset = '1') then
         err <= '0';
@@ -188,12 +188,12 @@ begin
       if (busy = '0') then -- idle: waiting for new request
         if (update = '1') and (ireg = addr_dmi_c) then
           dmi.addr <= dreg(40 downto 34);
-          dmi.data <= dreg(33 downto 2);
+          dmi.ڈیٹا <= dreg(33 downto 2);
           dmi.op   <= dreg(1 downto 0);
           busy     <= or_reduce_f(dreg(1 downto 0));
         end if;
       elsif (dmi_rsp_i.ack = '1') or (dmihardreset = '1') then -- busy: wait for access termination
-        dmi.data <= dmi_rsp_i.data;
+        dmi.ڈیٹا <= dmi_rsp_i.ڈیٹا;
         busy     <= '0';
       end if;
     end if;
