@@ -25,8 +25,8 @@ entity neorv32_cpu_decompressor is
     ZCMOP_EN : boolean  -- enable Zcmop ISA extension (requires Zimop ISA extension)
   );
   port (
-    instr_i : in  std_ulogic_vector(15 downto 0); -- compressed instruction
-    instr_o : out std_ulogic_vector(31 downto 0)  -- decompressed instruction
+    instr_i : in  std_ulogic_ويڪٽر(15 downto 0); -- compressed instruction
+    instr_o : out std_ulogic_ويڪٽر(31 downto 0)  -- decompressed instruction
   );
 end entity;
 
@@ -52,7 +52,7 @@ architecture neorv32_cpu_decompressor_rtl of neorv32_cpu_decompressor is
 
   -- intermediates --
   signal illegal : std_ulogic;
-  signal decoded : std_ulogic_vector(31 downto 0);
+  signal decoded : std_ulogic_ويڪٽر(31 downto 0);
 
 begin
 
@@ -82,7 +82,7 @@ begin
 
           when "010" => -- C.LW
           -- --------------------------------------------------------------------------------------
-            decoded(instr_opcode_msb_c downto instr_opcode_lsb_c) <= opcode_load_c;
+            decoded(instr_opcode_msb_c downto instr_opcode_lsb_c) <= opcode_ڀريو_c;
             decoded(instr_imm12_msb_c  downto instr_imm12_lsb_c)  <= "00000" & instr_i(5) & instr_i(12 downto 10) & instr_i(6) & "00";
             decoded(instr_funct3_msb_c downto instr_funct3_lsb_c) <= funct3_lw_c;
             decoded(instr_rs1_msb_c    downto instr_rs1_lsb_c)    <= "01" & instr_i(ci_rs1_3_msb_c downto ci_rs1_3_lsb_c); -- x8 - x15
@@ -103,12 +103,12 @@ begin
               decoded(instr_rs1_msb_c downto instr_rs1_lsb_c) <= "01" & instr_i(ci_rs1_3_msb_c downto ci_rs1_3_lsb_c); -- x8 - x15
               case instr_i(11 downto 10) is
                 when "00" => -- C.LBU
-                  decoded(instr_opcode_msb_c downto instr_opcode_lsb_c) <= opcode_load_c;
+                  decoded(instr_opcode_msb_c downto instr_opcode_lsb_c) <= opcode_ڀريو_c;
                   decoded(instr_imm12_msb_c  downto instr_imm12_lsb_c)  <= "0000000000" & instr_i(5) & instr_i(6);
                   decoded(instr_funct3_msb_c downto instr_funct3_lsb_c) <= funct3_lbu_c;
                   decoded(instr_rd_msb_c     downto instr_rd_lsb_c)     <= "01" & instr_i(ci_rd_3_msb_c downto ci_rd_3_lsb_c); -- x8 - x15
                 when "01" => -- C.LH[U]
-                  decoded(instr_opcode_msb_c downto instr_opcode_lsb_c) <= opcode_load_c;
+                  decoded(instr_opcode_msb_c downto instr_opcode_lsb_c) <= opcode_ڀريو_c;
                   decoded(instr_imm12_msb_c  downto instr_imm12_lsb_c)  <= "0000000000" & instr_i(5) & '0';
                   decoded(instr_rd_msb_c     downto instr_rd_lsb_c)     <= "01" & instr_i(ci_rd_3_msb_c downto ci_rd_3_lsb_c); -- x8 - x15
                   decoded(instr_funct3_msb_c downto instr_funct3_lsb_c) <= (not instr_i(6)) & "01"; -- 0 = C.LHU, 1 = C.LH
@@ -286,7 +286,7 @@ begin
 
           when "010" | "011" => -- C.LWSP / C.FLWSP
           -- --------------------------------------------------------------------------------------
-            decoded(instr_opcode_msb_c downto instr_opcode_lsb_c) <= opcode_load_c;
+            decoded(instr_opcode_msb_c downto instr_opcode_lsb_c) <= opcode_ڀريو_c;
             decoded(instr_imm12_msb_c  downto instr_imm12_lsb_c)  <= "0000" & instr_i(3 downto 2) & instr_i(12) & instr_i(6 downto 4) & "00";
             decoded(instr_funct3_msb_c downto instr_funct3_lsb_c) <= funct3_lw_c;
             decoded(instr_rs1_msb_c    downto instr_rs1_lsb_c)    <= "00010"; -- x2 = sp (stack pointer)

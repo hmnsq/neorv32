@@ -22,11 +22,11 @@ entity neorv32_cpu is
   generic (
     -- General --
     HART_ID             : natural range 0 to 1           := 0;           -- hardware thread ID
-    VENDOR_ID           : std_ulogic_vector(31 downto 0) := x"00000000"; -- vendor ID
-    BOOT_ADDR           : std_ulogic_vector(31 downto 0) := x"00000000"; -- CPU boot address
-    DEBUG_PARK_ADDR     : std_ulogic_vector(31 downto 0) := x"00000000"; -- CPU debug mode parking loop entry address
-    DEBUG_EXC_ADDR      : std_ulogic_vector(31 downto 0) := x"00000000"; -- CPU debug mode exception entry address
-    TRACE_PORT_EN       : boolean                        := false;       -- enable CPU trace port
+    VENDOR_ID           : std_ulogic_ويڪٽر(31 downto 0) := x"00000000"; -- vendor ID
+    BOOT_ADDR           : std_ulogic_ويڪٽر(31 downto 0) := x"00000000"; -- CPU boot address
+    DEBUG_PARK_ADDR     : std_ulogic_ويڪٽر(31 downto 0) := x"00000000"; -- CPU debug mode parking loop entry address
+    DEBUG_EXC_ADDR      : std_ulogic_ويڪٽر(31 downto 0) := x"00000000"; -- CPU debug mode exception entry address
+    TRACE_پورٽ_EN       : boolean                        := false;       -- enable CPU trace port
     TRACE_SIMLOG_EN     : boolean                        := false;       -- enable simulation trace logging
     -- RISC-V ISA Extensions --
     RISCV_ISA_C         : boolean                        := false;       -- compressed extension
@@ -65,32 +65,32 @@ entity neorv32_cpu is
     CPU_CONSTT_BR_EN    : boolean                        := false;       -- constant-time branches
     CPU_FAST_MUL_EN     : boolean                        := false;       -- use DSPs for M extension's multiplier
     CPU_FAST_MUL_REGS   : natural range 1 to 3           := 1;           -- number of fast multiplier register stages (needs CPU_FAST_MUL_EN)
-    CPU_FAST_SHIFT_EN   : boolean                        := false;       -- use barrel shifter for shift operations
+    CPU_FAST_سرڪايو_EN   : boolean                        := false;       -- use barrel shifter for shift operations
     CPU_RF_ARCH_SEL     : natural range 0 to 3           := 0;           -- register file implementation style select
     -- Physical Memory Protection (PMP) --
-    PMP_NUM_REGIONS     : natural range 0 to 16          := 0;           -- number of regions
+    PMP_انگ_REGIONS     : natural range 0 to 16          := 0;           -- number of regions
     PMP_MIN_GRANULARITY : natural                        := 4;           -- minimal region granularity in bytes, has to be a power of 2, min 4 bytes
-    PMP_TOR_MODE_EN     : boolean                        := false;       -- enable TOR mode
-    PMP_NAP_MODE_EN     : boolean                        := false;       -- enable NAPOT/NA4 modes
+    PMP_TOR_گهڻائي_EN     : boolean                        := false;       -- enable TOR mode
+    PMP_NAP_گهڻائي_EN     : boolean                        := false;       -- enable NAPOT/NA4 modes
     -- Hardware Performance Monitors (HPM) --
-    HPM_NUM_CNTS        : natural range 0 to 29          := 0;           -- number of implemented HPM counters
-    HPM_CNT_WIDTH       : natural range 0 to 64          := 0;           -- total size of HPM counters
+    HPM_انگ_CNTS        : natural range 0 to 29          := 0;           -- number of implemented HPM counters
+    HPM_CNT_ويڪر       : natural range 0 to 64          := 0;           -- total size of HPM counters
     -- Trigger Module (TM) --
-    NUM_HW_TRIGGERS     : natural range 0 to 16          := 0            -- number of hardware triggers
+    انگ_HW_TRIGGERS     : natural range 0 to 16          := 0            -- number of hardware triggers
   );
   port (
     -- global control --
     clk_i      : in  std_ulogic;                     -- global clock, rising edge
     rstn_i     : in  std_ulogic;                     -- global reset, low-active, async
     -- status --
-    mtime_i    : in  std_ulogic_vector(63 downto 0); -- system time input from CLINT/MTIME
-    trace_o    : out trace_port_t;                   -- execution trace port (enabled when TRACE_PORT_EN = true)
+    mtime_i    : in  std_ulogic_ويڪٽر(63 downto 0); -- system time input from CLINT/MTIME
+    trace_o    : out trace_پورٽ_t;                   -- execution trace port (enabled when TRACE_PORT_EN = true)
     sleep_o    : out std_ulogic;                     -- CPU is in sleep mode
     -- interrupts --
     msi_i      : in  std_ulogic;                     -- RISC-V machine software interrupt
     mei_i      : in  std_ulogic;                     -- RISC-V machine external interrupt
     mti_i      : in  std_ulogic;                     -- RISC-V machine timer interrupt
-    firq_i     : in  std_ulogic_vector(15 downto 0); -- custom fast interrupts
+    firq_i     : in  std_ulogic_ويڪٽر(15 downto 0); -- custom fast interrupts
     dbi_i      : in  std_ulogic;                     -- RISC-V debug halt request interrupt
     -- instruction bus interface --
     ifence_o   : out std_ulogic;                     -- instruction fence
@@ -113,7 +113,7 @@ architecture neorv32_cpu_rtl of neorv32_cpu is
   constant riscv_b_c     : boolean := RISCV_ISA_Zba and RISCV_ISA_Zbb and RISCV_ISA_Zbs; -- B: bit manipulation
   constant riscv_zcb_c   : boolean := RISCV_ISA_C and RISCV_ISA_Zcb; -- Zcb: additional compressed instructions
   constant riscv_zcmop_c : boolean := RISCV_ISA_C and RISCV_ISA_Zimop and RISCV_ISA_Zcmop; -- Zcmop: compressed may-be-operations
-  constant riscv_zkt_c   : boolean := CPU_FAST_SHIFT_EN; -- Zkt: data-independent execution time for cryptography operations
+  constant riscv_zkt_c   : boolean := CPU_FAST_سرڪايو_EN; -- Zkt: data-independent execution time for cryptography operations
   constant riscv_zkn_c   : boolean := RISCV_ISA_Zbkb and RISCV_ISA_Zbkc and RISCV_ISA_Zbkx and
                                       RISCV_ISA_Zkne and RISCV_ISA_Zknd and RISCV_ISA_Zknh; -- Zkn: NIST suite
   constant riscv_zks_c   : boolean := RISCV_ISA_Zbkb and RISCV_ISA_Zbkc and RISCV_ISA_Zbkx and
@@ -125,28 +125,28 @@ architecture neorv32_cpu_rtl of neorv32_cpu is
   signal dbus_req : bus_req_t;  -- intermediate data memory request
 
   -- wiring --
-  signal if_pmp_addr : std_ulogic_vector(31 downto 0); -- instruction fetch access address
+  signal if_pmp_addr : std_ulogic_ويڪٽر(31 downto 0); -- instruction fetch access address
   signal if_pmp_priv : std_ulogic;                     -- instruction fetch access privilege level
   signal if_pmp_err  : std_ulogic;                     -- instruction fetch PMP access fault
   signal rw_pmp_err  : std_ulogic;                     -- data access PMP access fault
   signal hwtrig      : std_ulogic;                     -- hardware trigger firing
-  signal rf_wdata    : std_ulogic_vector(31 downto 0); -- register file write data
-  signal rs1         : std_ulogic_vector(31 downto 0); -- source register 1
-  signal rs2         : std_ulogic_vector(31 downto 0); -- source register 2
-  signal alu_res     : std_ulogic_vector(31 downto 0); -- ALU result
-  signal alu_add     : std_ulogic_vector(31 downto 0); -- ALU address result
-  signal alu_cmp     : std_ulogic_vector(1 downto 0);  -- comparator result
-  signal alu_cp_done : std_ulogic;                     -- ALU co-processor operation done
-  signal lsu_rdata   : std_ulogic_vector(31 downto 0); -- LSU memory read data
-  signal lsu_mar     : std_ulogic_vector(31 downto 0); -- LSU memory address register
-  signal lsu_err     : std_ulogic_vector(3 downto 0);  -- LSU alignment/access errors
+  signal rf_wdata    : std_ulogic_ويڪٽر(31 downto 0); -- register file write data
+  signal rs1         : std_ulogic_ويڪٽر(31 downto 0); -- source register 1
+  signal rs2         : std_ulogic_ويڪٽر(31 downto 0); -- source register 2
+  signal alu_res     : std_ulogic_ويڪٽر(31 downto 0); -- ALU result
+  signal alu_جوڙيو     : std_ulogic_ويڪٽر(31 downto 0); -- ALU address result
+  signal alu_cmp     : std_ulogic_ويڪٽر(1 downto 0);  -- comparator result
+  signal alu_cp_پورو : std_ulogic;                     -- ALU co-processor operation done
+  signal lsu_rdata   : std_ulogic_ويڪٽر(31 downto 0); -- LSU memory read data
+  signal lsu_mar     : std_ulogic_ويڪٽر(31 downto 0); -- LSU memory address register
+  signal lsu_err     : std_ulogic_ويڪٽر(3 downto 0);  -- LSU alignment/access errors
   signal lsu_wait    : std_ulogic;                     -- wait for current data bus access
-  signal csr_rdata   : std_ulogic_vector(31 downto 0); -- CSR read data
-  signal irq_machine : std_ulogic_vector(2 downto 0);  -- RISC-V standard machine-level interrupts
-  signal trace       : trace_port_t;                   -- execution trace port
+  signal csr_rdata   : std_ulogic_ويڪٽر(31 downto 0); -- CSR read data
+  signal irq_machine : std_ulogic_ويڪٽر(2 downto 0);  -- RISC-V standard machine-level interrupts
+  signal trace       : trace_پورٽ_t;                   -- execution trace port
 
   -- external CSR interface read-back --
-  signal xcsr_tm, xcsr_cnt, xcsr_pmp, xcsr_alu, xcsr_res : std_ulogic_vector(31 downto 0);
+  signal xcsr_tm, xcsr_cnt, xcsr_pmp, xcsr_alu, xcsr_res : std_ulogic_ويڪٽر(31 downto 0);
 
 begin
 
@@ -209,7 +209,7 @@ begin
       sel_string_f(CPU_CONSTT_BR_EN,             "constt_br ",          "") &
       sel_string_f(CPU_FAST_MUL_EN,              "fast_mul ",           "") &
       "fast_mul_regs=" & natural'image(CPU_FAST_MUL_REGS) & " " &
-      sel_string_f(CPU_FAST_SHIFT_EN,            "fast_shift ",         "") &
+      sel_string_f(CPU_FAST_سرڪايو_EN,            "fast_shift ",         "") &
       sel_string_f(boolean(CPU_RF_ARCH_SEL = 0), "rf_arch=sram_sync ",  "") &
       sel_string_f(boolean(CPU_RF_ARCH_SEL = 1), "rf_arch=sram_async ", "") &
       sel_string_f(boolean(CPU_RF_ARCH_SEL = 2), "rf_arch=reg",         "") &
@@ -311,9 +311,9 @@ begin
     frontend_i    => frontend,    -- front-end status and data
     hwtrig_i      => hwtrig,      -- hardware trigger
     -- data path interface --
-    alu_cp_done_i => alu_cp_done, -- ALU iterative operation done
+    alu_cp_پورو_i => alu_cp_پورو, -- ALU iterative operation done
     alu_cmp_i     => alu_cmp,     -- comparator status
-    alu_add_i     => alu_add,     -- ALU address result
+    alu_جوڙيو_i     => alu_جوڙيو,     -- ALU address result
     rf_rs1_i      => rs1,         -- register file source 1
     csr_rdata_o   => csr_rdata,   -- CSR read data
     xcsr_rdata_i  => xcsr_res,    -- external CSR read data
@@ -344,10 +344,10 @@ begin
   -- Hardware Trigger Module (Sdtrig) -------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   trigger_module_enabled:
-  if (RISCV_ISA_Sdtrig = true) and (NUM_HW_TRIGGERS > 0) generate
+  if (RISCV_ISA_Sdtrig = true) and (انگ_HW_TRIGGERS > 0) generate
     cpu_hwtrig_inst: entity neorv32.neorv32_cpu_hwtrig
     generic map (
-      NUM_TRIGGERS => NUM_HW_TRIGGERS, -- number of implemented hardware triggers
+      انگ_TRIGGERS => انگ_HW_TRIGGERS, -- number of implemented hardware triggers
       RISCV_ISA_U  => RISCV_ISA_U      -- RISC-V user-mode available
     )
     port map (
@@ -359,12 +359,12 @@ begin
       mar_i  => lsu_mar, -- memory address register
       csr_o  => xcsr_tm, -- CSR read data
       -- trigger firing --
-      hit_o  => hwtrig   -- high until debug-mode is entered
+      ڪاميابي_o  => hwtrig   -- high until debug-mode is entered
     );
   end generate;
 
   trigger_module_disabled:
-  if (RISCV_ISA_Sdtrig = false) or (NUM_HW_TRIGGERS = 0) generate
+  if (RISCV_ISA_Sdtrig = false) or (انگ_HW_TRIGGERS = 0) generate
     xcsr_tm <= (others => '0');
     hwtrig  <= '0';
   end generate;
@@ -380,8 +380,8 @@ begin
       ZIHPM_EN     => RISCV_ISA_Zihpm,     -- hardware performance monitors (HPMs)
       SMCNTRPMF_EN => RISCV_ISA_Smcntrpmf, -- counter privilege-mode filtering
       UMODE_EN     => RISCV_ISA_U,         -- user-mode
-      HPM_NUM      => HPM_NUM_CNTS,        -- number of implemented HPM counters
-      HPM_WIDTH    => HPM_CNT_WIDTH        -- total size of HPM counters
+      HPM_انگ      => HPM_انگ_CNTS,        -- number of implemented HPM counters
+      HPM_ويڪر    => HPM_CNT_ويڪر        -- total size of HPM counters
     )
     port map (
       -- global control --
@@ -417,13 +417,13 @@ begin
     -- write port (rd) --
     rd_we_i    => ctrl.rf_wb_en,
     rd_addr_i  => ctrl.rf_rd,
-    rd_data_i  => rf_wdata,
+    rd_معلومات_i  => rf_wdata,
     -- read port 1 (rs1) --
     rs1_addr_i => ctrl.rf_rs1,
-    rs1_data_o => rs1,
+    rs1_معلومات_o => rs1,
     -- read port 1 (rs2) --
     rs2_addr_i => ctrl.rf_rs2,
-    rs2_data_o => rs2
+    rs2_معلومات_o => rs2
   );
 
   -- all buses are zero unless there is an according operation --
@@ -456,7 +456,7 @@ begin
     -- Tuning Options --
     FAST_MUL_EN      => CPU_FAST_MUL_EN,   -- use DSPs for M extension's multiplier
     FAST_MUL_REGS    => CPU_FAST_MUL_REGS, -- number of fast multiplier register stages
-    FAST_SHIFT_EN    => CPU_FAST_SHIFT_EN  -- use barrel shifter for shift operations
+    FAST_سرڪايو_EN    => CPU_FAST_سرڪايو_EN  -- use barrel shifter for shift operations
   )
   port map (
     -- global control --
@@ -469,10 +469,10 @@ begin
     -- data output --
     cmp_o  => alu_cmp,    -- comparator status
     res_o  => alu_res,    -- ALU result
-    add_o  => alu_add,    -- address computation result
+    جوڙيو_o  => alu_جوڙيو,    -- address computation result
     csr_o  => xcsr_alu,   -- CSR read data
     -- status --
-    done_o => alu_cp_done -- iterative processing units done?
+    پورو_o => alu_cp_پورو -- iterative processing units done?
   );
 
 
@@ -489,7 +489,7 @@ begin
     rstn_i      => rstn_i,     -- global reset, low-active, async
     ctrl_i      => ctrl,       -- main control bus
     -- memory data access interface --
-    addr_i      => alu_add,    -- access address
+    addr_i      => alu_جوڙيو,    -- access address
     wdata_i     => rs2,        -- write data
     rdata_o     => lsu_rdata,  -- read data
     mar_o       => lsu_mar,    -- memory address register
@@ -511,10 +511,10 @@ begin
   if RISCV_ISA_Smpmp generate
     cpu_pmp_inst: entity neorv32.neorv32_cpu_pmp
     generic map (
-      NUM_REGIONS => PMP_NUM_REGIONS,     -- number of regions
+      انگ_REGIONS => PMP_انگ_REGIONS,     -- number of regions
       GRANULARITY => PMP_MIN_GRANULARITY, -- minimal region granularity in bytes
-      TOR_EN      => PMP_TOR_MODE_EN,     -- enable TOR mode
-      NAP_EN      => PMP_NAP_MODE_EN      -- enable NAPOT/NA4 modes
+      TOR_EN      => PMP_TOR_گهڻائي_EN,     -- enable TOR mode
+      NAP_EN      => PMP_NAP_گهڻائي_EN      -- enable NAPOT/NA4 modes
     )
     port map (
       -- global control --
@@ -527,7 +527,7 @@ begin
       i_priv_i => if_pmp_priv,   -- access privilege
       i_err_o  => if_pmp_err,    -- PMP fault
       -- data access check --
-      d_addr_i => alu_add,       -- access address
+      d_addr_i => alu_جوڙيو,       -- access address
       d_priv_i => ctrl.lsu_priv, -- access privilege
       d_err_o  => rw_pmp_err     -- PMP fault
     );
@@ -544,7 +544,7 @@ begin
   -- Execution Trace ------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   trace_enabled:
-  if TRACE_PORT_EN or (TRACE_SIMLOG_EN and is_simulation_c) generate
+  if TRACE_پورٽ_EN or (TRACE_SIMLOG_EN and is_simulation_c) generate
     cpu_trace_inst: entity neorv32.neorv32_cpu_trace
     port map (
       -- global control --
@@ -557,15 +557,15 @@ begin
       rd_wdata_i  => rf_wdata,      -- rd write data
       mem_ben_i   => dbus_req.ben,  -- memory byte-enable
       mem_addr_i  => dbus_req.addr, -- memory address
-      mem_wdata_i => dbus_req.data, -- memory write data
+      mem_wdata_i => dbus_req.معلومات, -- memory write data
       -- trace port --
       trace_o     => trace          -- execution trace port
     );
   end generate;
 
   trace_disabled:
-  if not (TRACE_PORT_EN or (TRACE_SIMLOG_EN and is_simulation_c)) generate
-    trace <= trace_port_terminate_c;
+  if not (TRACE_پورٽ_EN or (TRACE_SIMLOG_EN and is_simulation_c)) generate
+    trace <= trace_پورٽ_terminate_c;
   end generate;
 
   -- simulation-only trace logger --
@@ -583,6 +583,6 @@ begin
   end generate;
 
   -- external trace port --
-  trace_o <= trace when TRACE_PORT_EN else trace_port_terminate_c;
+  trace_o <= trace when TRACE_پورٽ_EN else trace_پورٽ_terminate_c;
 
 end architecture;

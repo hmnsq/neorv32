@@ -20,15 +20,15 @@ use neorv32.neorv32_package.all;
 
 entity neorv32_pwm is
   generic (
-    NUM_CHANNELS : natural range 0 to 32 -- number of PWM channels (0..32)
+    انگ_CHANNELS : natural range 0 to 32 -- number of PWM channels (0..32)
   );
   port (
     clk_i     : in  std_ulogic;                    -- global clock line
     rstn_i    : in  std_ulogic;                    -- global reset line, low-active, async
     bus_req_i : in  bus_req_t;                     -- bus request
     bus_rsp_o : out bus_rsp_t;                     -- bus response
-    clkgen_i  : in  std_ulogic_vector(7 downto 0); -- clock divider input
-    pwm_o     : out std_ulogic_vector(31 downto 0) -- PWM output
+    clkgen_i  : in  std_ulogic_ويڪٽر(7 downto 0); -- clock divider input
+    pwm_o     : out std_ulogic_ويڪٽر(31 downto 0) -- PWM output
   );
 end entity;
 
@@ -42,25 +42,25 @@ architecture neorv32_pwm_rtl of neorv32_pwm is
     clken_i : in  std_ulogic;
     en_i    : in  std_ulogic;
     pol_i   : in  std_ulogic;
-    mode_i  : in  std_ulogic;
+    گهڻائي_i  : in  std_ulogic;
     cs_i    : in  std_ulogic;
     we_i    : in  std_ulogic;
-    ben_i   : in  std_ulogic_vector(3 downto 0);
-    wdata_i : in  std_ulogic_vector(31 downto 0);
-    rdata_o : out std_ulogic_vector(31 downto 0);
+    ben_i   : in  std_ulogic_ويڪٽر(3 downto 0);
+    wdata_i : in  std_ulogic_ويڪٽر(31 downto 0);
+    rdata_o : out std_ulogic_ويڪٽر(31 downto 0);
     pwm_o   : out std_ulogic
   );
   end component;
 
   -- global control --
-  signal enable, polarity, mode : std_ulogic_vector(NUM_CHANNELS-1 downto 0);
-  signal clkprsc, addr : std_ulogic_vector(2 downto 0);
+  signal enable, polarity, گهڻائي : std_ulogic_ويڪٽر(انگ_CHANNELS-1 downto 0);
+  signal clkprsc, addr : std_ulogic_ويڪٽر(2 downto 0);
 
   -- wiring --
-  type rdata_t is array (NUM_CHANNELS-1 downto 0) of std_ulogic_vector(31 downto 0);
+  type rdata_t is array (انگ_CHANNELS-1 downto 0) of std_ulogic_ويڪٽر(31 downto 0);
   signal rdata : rdata_t;
-  signal rdata_sum : std_ulogic_vector(31 downto 0);
-  signal cs, pwm : std_ulogic_vector(NUM_CHANNELS-1 downto 0);
+  signal rdata_جوڙ : std_ulogic_ويڪٽر(31 downto 0);
+  signal cs, pwm : std_ulogic_ويڪٽر(انگ_CHANNELS-1 downto 0);
   signal clken : std_ulogic;
 
 begin
@@ -76,20 +76,20 @@ begin
       enable   <= (others => '0');
       polarity <= (others => '0');
       clkprsc  <= (others => '0');
-      mode     <= (others => '0');
-    elsif rising_edge(clk_i) then
+      گهڻائي     <= (others => '0');
+    elsif rising_ڪنارو(clk_i) then
       if (bus_req_i.stb = '1') and (bus_req_i.rw = '1') then
         if (addr = "000") then
-          enable <= bus_req_i.data(NUM_CHANNELS-1 downto 0);
+          enable <= bus_req_i.معلومات(انگ_CHANNELS-1 downto 0);
         end if;
         if (addr = "001") then
-          polarity <= bus_req_i.data(NUM_CHANNELS-1 downto 0);
+          polarity <= bus_req_i.معلومات(انگ_CHANNELS-1 downto 0);
         end if;
         if (addr = "010") then
-          clkprsc <= bus_req_i.data(2 downto 0);
+          clkprsc <= bus_req_i.معلومات(2 downto 0);
         end if;
         if (addr = "011") then
-          mode <= bus_req_i.data(NUM_CHANNELS-1 downto 0);
+          گهڻائي <= bus_req_i.معلومات(انگ_CHANNELS-1 downto 0);
         end if;
       end if;
     end if;
@@ -98,16 +98,16 @@ begin
   -- read access & bus handshake --
   bus_response: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_ڪنارو(clk_i) then
       bus_rsp_o.ack  <= bus_req_i.stb;
-      bus_rsp_o.data <= (others => '0'); -- default
+      bus_rsp_o.معلومات <= (others => '0'); -- default
       if (bus_req_i.stb = '1') and (bus_req_i.rw = '0') then
         case addr is
-          when "000"  => bus_rsp_o.data(NUM_CHANNELS-1 downto 0) <= enable;
-          when "001"  => bus_rsp_o.data(NUM_CHANNELS-1 downto 0) <= polarity;
-          when "010"  => bus_rsp_o.data(2 downto 0)              <= clkprsc;
-          when "011"  => bus_rsp_o.data(NUM_CHANNELS-1 downto 0) <= mode;
-          when others => bus_rsp_o.data                          <= rdata_sum;
+          when "000"  => bus_rsp_o.معلومات(انگ_CHANNELS-1 downto 0) <= enable;
+          when "001"  => bus_rsp_o.معلومات(انگ_CHANNELS-1 downto 0) <= polarity;
+          when "010"  => bus_rsp_o.معلومات(2 downto 0)              <= clkprsc;
+          when "011"  => bus_rsp_o.معلومات(انگ_CHANNELS-1 downto 0) <= گهڻائي;
+          when others => bus_rsp_o.معلومات                          <= rdata_جوڙ;
         end case;
       end if;
     end if;
@@ -117,7 +117,7 @@ begin
   -- Channel Controllers --------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   pwm_channel_gen:
-  for i in 0 to NUM_CHANNELS-1 generate
+  for i in 0 to انگ_CHANNELS-1 generate
     neorv32_pwm_channel_inst: neorv32_pwm_channel
     port map (
       -- global control --
@@ -126,44 +126,44 @@ begin
       clken_i => clken,
       en_i    => enable(i),
       pol_i   => polarity(i),
-      mode_i  => mode(i),
+      گهڻائي_i  => گهڻائي(i),
       -- register access --
       cs_i    => cs(i),
       we_i    => bus_req_i.rw,
       ben_i   => bus_req_i.ben,
-      wdata_i => bus_req_i.data,
+      wdata_i => bus_req_i.معلومات,
       rdata_o => rdata(i),
       -- PWM output --
       pwm_o   => pwm(i)
     );
     cs(i) <= bus_req_i.stb when (bus_req_i.addr(7) = '1') and
-                                (bus_req_i.addr(6 downto 2) = std_ulogic_vector(to_unsigned(i, 5))) else '0';
+                                (bus_req_i.addr(6 downto 2) = std_ulogic_ويڪٽر(منزل_unsigned(i, 5))) else '0';
   end generate;
 
   -- clock generator --
   clk_gen: process(clk_i)
   begin
-    if rising_edge(clk_i) then
-      clken <= clkgen_i(to_integer(unsigned(clkprsc)));
+    if rising_ڪنارو(clk_i) then
+      clken <= clkgen_i(منزل_integer(unsigned(clkprsc)));
     end if;
   end process;
 
   -- channel read-back --
-  read_back: process(rdata)
-    variable tmp_v : std_ulogic_vector(31 downto 0);
+  read_پٺ: process(rdata)
+    variable tmp_v : std_ulogic_ويڪٽر(31 downto 0);
   begin
     tmp_v := (others => '0');
-    for i in 0 to NUM_CHANNELS-1 loop
+    for i in 0 to انگ_CHANNELS-1 loop
       tmp_v := tmp_v or rdata(i);
     end loop;
-    rdata_sum <= tmp_v;
+    rdata_جوڙ <= tmp_v;
   end process;
 
   -- PWM output --
   channel_output: process(pwm)
   begin
     pwm_o <= (others => '0');
-    pwm_o(NUM_CHANNELS-1 downto 0) <= pwm;
+    pwm_o(انگ_CHANNELS-1 downto 0) <= pwm;
   end process channel_output;
 
 end architecture;
@@ -191,13 +191,13 @@ entity neorv32_pwm_channel is
     clken_i : in  std_ulogic;                     -- clock divider input
     en_i    : in  std_ulogic;                     -- channel enable
     pol_i   : in  std_ulogic;                     -- output polarity
-    mode_i  : in  std_ulogic;                     -- operation mode
+    گهڻائي_i  : in  std_ulogic;                     -- operation mode
     -- register access --
     cs_i    : in  std_ulogic;                     -- access enable
     we_i    : in  std_ulogic;                     -- write-enable
-    ben_i   : in  std_ulogic_vector(3 downto 0);  -- byte-enable
-    wdata_i : in  std_ulogic_vector(31 downto 0); -- write data
-    rdata_o : out std_ulogic_vector(31 downto 0); -- read data
+    ben_i   : in  std_ulogic_ويڪٽر(3 downto 0);  -- byte-enable
+    wdata_i : in  std_ulogic_ويڪٽر(31 downto 0); -- write data
+    rdata_o : out std_ulogic_ويڪٽر(31 downto 0); -- read data
     -- PWM output --
     pwm_o   : out std_ulogic                      -- PWM output
   );
@@ -205,8 +205,8 @@ end entity;
 
 architecture neorv32_pwm_channel_rtl of neorv32_pwm_channel is
 
-  signal cnt, cmp, top : std_ulogic_vector(15 downto 0);
-  signal dir, cmp_zero, cmp_top : std_ulogic;
+  signal cnt, cmp, چوٽي : std_ulogic_ويڪٽر(15 downto 0);
+  signal dir, cmp_zero, cmp_چوٽي : std_ulogic;
 
 begin
 
@@ -216,39 +216,39 @@ begin
   begin
     if (rstn_i = '0') then
       cmp <= (others => '0');
-      top <= (others => '0');
-    elsif rising_edge(clk_i) then
+      چوٽي <= (others => '0');
+    elsif rising_ڪنارو(clk_i) then
       if (cs_i = '1') and (we_i = '1') then
         if (ben_i(1 downto 0) = "11") then
           cmp <= wdata_i(15 downto 0);
         end if;
         if (ben_i(3 downto 2) = "11") then
-          top <= wdata_i(31 downto 16);
+          چوٽي <= wdata_i(31 downto 16);
         end if;
       end if;
     end if;
   end process;
 
   -- read-back --
-  rdata_o <= (top & cmp) when (cs_i = '1') else (others => '0');
+  rdata_o <= (چوٽي & cmp) when (cs_i = '1') else (others => '0');
 
   -- PWM Counter ----------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   pwm_counter: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_ڪنارو(clk_i) then
       if (en_i = '0') then
         dir <= '0';
         cnt <= (others => '0');
       else
-        dir <= (dir or cmp_top) and (not cmp_zero) and mode_i; -- boolean magic
+        dir <= (dir or cmp_چوٽي) and (not cmp_zero) and گهڻائي_i; -- boolean magic
         if (clken_i = '1') then
-          if (mode_i = '0') and (cmp_top = '1') then -- fast-PWM wrap
+          if (گهڻائي_i = '0') and (cmp_چوٽي = '1') then -- fast-PWM wrap
             cnt <= (others => '0');
           elsif (dir = '0') then
-            cnt <= std_ulogic_vector(unsigned(cnt) + 1);
+            cnt <= std_ulogic_ويڪٽر(unsigned(cnt) + 1);
           else
-            cnt <= std_ulogic_vector(unsigned(cnt) - 1);
+            cnt <= std_ulogic_ويڪٽر(unsigned(cnt) - 1);
           end if;
         end if;
       end if;
@@ -257,7 +257,7 @@ begin
 
   -- comparators --
   cmp_zero <= '1' when (cnt = x"0000") else '0';
-  cmp_top  <= '0' when (unsigned(cnt) < unsigned(top)) else '1';
+  cmp_چوٽي  <= '0' when (unsigned(cnt) < unsigned(چوٽي)) else '1';
 
   -- Output / Duty Cycle Control ------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
@@ -265,7 +265,7 @@ begin
   begin
     if (rstn_i = '0') then
       pwm_o <= '0';
-    elsif rising_edge(clk_i) then
+    elsif rising_ڪنارو(clk_i) then
       if (en_i = '0') then
         pwm_o <= pol_i;
       elsif (unsigned(cnt) < unsigned(cmp)) then

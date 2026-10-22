@@ -36,10 +36,10 @@ entity neorv32_cpu_alu_crypto is
     rstn_i  : in  std_ulogic; -- global reset, low-active, async
     ctrl_i  : in  ctrl_bus_t; -- main control bus
     -- data input --
-    rs1_i   : in  std_ulogic_vector(31 downto 0); -- rf source 1
-    rs2_i   : in  std_ulogic_vector(31 downto 0); -- rf source 2
+    rs1_i   : in  std_ulogic_ويڪٽر(31 downto 0); -- rf source 1
+    rs2_i   : in  std_ulogic_ويڪٽر(31 downto 0); -- rf source 2
     -- result and status --
-    res_o   : out std_ulogic_vector(31 downto 0); -- operation result
+    res_o   : out std_ulogic_ويڪٽر(31 downto 0); -- operation result
     valid_o : out std_ulogic                      -- data output valid
   );
 end entity;
@@ -50,8 +50,8 @@ architecture neorv32_cpu_alu_crypto_rtl of neorv32_cpu_alu_crypto is
   -- look-up tables (ROMs)
   -- ----------------------------------------------------------------------------------------
 
-  type rom512x8_t is array (0 to 511) of std_ulogic_vector(7 downto 0);
-  type rom256x8_t is array (0 to 255) of std_ulogic_vector(7 downto 0);
+  type rom512x8_t is array (0 to 511) of std_ulogic_ويڪٽر(7 downto 0);
+  type rom256x8_t is array (0 to 255) of std_ulogic_ويڪٽر(7 downto 0);
 
   -- AES s-box --
   constant aes_sbox_c : rom512x8_t := (
@@ -116,48 +116,48 @@ architecture neorv32_cpu_alu_crypto_rtl of neorv32_cpu_alu_crypto is
   -- ----------------------------------------------------------------------------------------
 
   -- logical shift left --
-  function lsl_f(data : std_ulogic_vector(31 downto 0); shamt : natural range 0 to 31) return std_ulogic_vector is
-    variable res_v : std_ulogic_vector(31 downto 0);
+  function lsl_f(معلومات : std_ulogic_ويڪٽر(31 downto 0); shamt : natural range 0 to 31) return std_ulogic_ويڪٽر is
+    variable res_v : std_ulogic_ويڪٽر(31 downto 0);
   begin
-    res_v := std_ulogic_vector(shift_left(unsigned(data), shamt));
+    res_v := std_ulogic_ويڪٽر(سرڪايو_کاٻو(unsigned(معلومات), shamt));
     return res_v;
   end function;
 
   -- logical shift right --
-  function lsr_f(data : std_ulogic_vector(31 downto 0); shamt : natural range 0 to 31) return std_ulogic_vector is
-    variable res_v : std_ulogic_vector(31 downto 0);
+  function lsr_f(معلومات : std_ulogic_ويڪٽر(31 downto 0); shamt : natural range 0 to 31) return std_ulogic_ويڪٽر is
+    variable res_v : std_ulogic_ويڪٽر(31 downto 0);
   begin
-    res_v := std_ulogic_vector(shift_right(unsigned(data), shamt));
+    res_v := std_ulogic_ويڪٽر(سرڪايو_ساڄو(unsigned(معلومات), shamt));
     return res_v;
   end function;
 
   -- rotate right --
-  function ror_f(data : std_ulogic_vector(31 downto 0); shamt : natural range 0 to 31) return std_ulogic_vector is
-    variable res_v : std_ulogic_vector(31 downto 0);
+  function ror_f(معلومات : std_ulogic_ويڪٽر(31 downto 0); shamt : natural range 0 to 31) return std_ulogic_ويڪٽر is
+    variable res_v : std_ulogic_ويڪٽر(31 downto 0);
   begin
-    res_v := std_ulogic_vector(rotate_right(unsigned(data), shamt));
+    res_v := std_ulogic_ويڪٽر(rotate_ساڄو(unsigned(معلومات), shamt));
     return res_v;
   end function;
 
   -- rotate left --
-  function rol_f(data : std_ulogic_vector(31 downto 0); shamt : natural range 0 to 31) return std_ulogic_vector is
-    variable res_v : std_ulogic_vector(31 downto 0);
+  function rol_f(معلومات : std_ulogic_ويڪٽر(31 downto 0); shamt : natural range 0 to 31) return std_ulogic_ويڪٽر is
+    variable res_v : std_ulogic_ويڪٽر(31 downto 0);
   begin
-    res_v := std_ulogic_vector(rotate_left(unsigned(data), shamt));
+    res_v := std_ulogic_ويڪٽر(rotate_کاٻو(unsigned(معلومات), shamt));
     return res_v;
   end function;
 
   -- multiply by 2 in Galois field (2^8) --
-  function xt2_f(a : std_ulogic_vector(7 downto 0)) return std_ulogic_vector is
-    variable res_v : std_ulogic_vector(7 downto 0);
+  function xt2_f(a : std_ulogic_ويڪٽر(7 downto 0)) return std_ulogic_ويڪٽر is
+    variable res_v : std_ulogic_ويڪٽر(7 downto 0);
   begin
     res_v := (a(6 downto 0) & '0') xor ("000" & a(7) & a(7) & '0' & a(7) & a(7)); -- XOR with 0x1B if a(7) is set
     return res_v;
   end function;
 
   -- multiply 8-bit field element by 4-bit value for AES MixCols step --
-  function gfmul_f(x : std_ulogic_vector(7 downto 0); y : std_ulogic_vector(3 downto 0)) return std_ulogic_vector is
-    variable a_v, b_v, c_v, d_v, res_v : std_ulogic_vector(7 downto 0);
+  function gfmul_f(x : std_ulogic_ويڪٽر(7 downto 0); y : std_ulogic_ويڪٽر(3 downto 0)) return std_ulogic_ويڪٽر is
+    variable a_v, b_v, c_v, d_v, res_v : std_ulogic_ويڪٽر(7 downto 0);
   begin
     if (y(0) = '1') then a_v := x;                      else a_v := x"00"; end if;
     if (y(1) = '1') then b_v := xt2_f(x);               else b_v := x"00"; end if;
@@ -179,36 +179,36 @@ architecture neorv32_cpu_alu_crypto_rtl of neorv32_cpu_alu_crypto is
   constant cmd_sm3_c    : natural := 4;
   constant cmd_sm4_c    : natural := 5;
   --
-  signal cmd       : std_ulogic_vector(5 downto 0);
+  signal cmd       : std_ulogic_ويڪٽر(5 downto 0);
   signal cmd_valid : std_ulogic;
 
   -- controller --
-  type state_t is (S_IDLE, S_BUSY, S_DONE);
+  type state_t is (S_IDLE, S_BUSY, S_پورو);
   signal state   : state_t;
-  signal done    : std_ulogic;
-  signal rs1     : std_ulogic_vector(31 downto 0);
-  signal rs2     : std_ulogic_vector(31 downto 0);
-  signal funct12 : std_ulogic_vector(11 downto 0);
+  signal پورو    : std_ulogic;
+  signal rs1     : std_ulogic_ويڪٽر(31 downto 0);
+  signal rs2     : std_ulogic_ويڪٽر(31 downto 0);
+  signal funct12 : std_ulogic_ويڪٽر(11 downto 0);
 
   -- helper logic --
-  signal rs2_sel : std_ulogic_vector(7 downto 0);
-  signal rol_in  : std_ulogic_vector(31 downto 0);
-  signal rol_res : std_ulogic_vector(31 downto 0);
-  signal blk_res : std_ulogic_vector(31 downto 0);
+  signal rs2_sel : std_ulogic_ويڪٽر(7 downto 0);
+  signal rol_اندريون  : std_ulogic_ويڪٽر(31 downto 0);
+  signal rol_res : std_ulogic_ويڪٽر(31 downto 0);
+  signal blk_res : std_ulogic_ويڪٽر(31 downto 0);
 
   -- AES core --
   signal aes_dec  : std_ulogic;
-  signal aes_so   : std_ulogic_vector(7 downto 0);
-  signal aes_mix1 : std_ulogic_vector(31 downto 0);
-  signal aes_mix2 : std_ulogic_vector(31 downto 0);
+  signal aes_so   : std_ulogic_ويڪٽر(7 downto 0);
+  signal aes_mix1 : std_ulogic_ويڪٽر(31 downto 0);
+  signal aes_mix2 : std_ulogic_ويڪٽر(31 downto 0);
 
   -- SHA core, SM3 core --
-  signal sha_res, sm3_res, hash_res : std_ulogic_vector(31 downto 0);
+  signal sha_res, sm3_res, hash_res : std_ulogic_ويڪٽر(31 downto 0);
 
   -- ShangMi core --
-  signal sm4_so1 : std_ulogic_vector(7 downto 0);
-  signal sm4_so2 : std_ulogic_vector(31 downto 0);
-  signal sm4_rnd : std_ulogic_vector(31 downto 0);
+  signal sm4_so1 : std_ulogic_ويڪٽر(7 downto 0);
+  signal sm4_so2 : std_ulogic_ويڪٽر(31 downto 0);
+  signal sm4_rnd : std_ulogic_ويڪٽر(31 downto 0);
 
 begin
 
@@ -241,10 +241,10 @@ begin
   control: process(rstn_i, clk_i)
   begin
     if (rstn_i = '0') then
-      done  <= '0';
+      پورو  <= '0';
       state <= S_IDLE;
-    elsif rising_edge(clk_i) then
-      done <= '0'; -- default
+    elsif rising_ڪنارو(clk_i) then
+      پورو <= '0'; -- default
       case state is
 
         -- wait for operation trigger --
@@ -253,18 +253,18 @@ begin
             if (cmd(cmd_aesenc_c) = '1') or (cmd(cmd_aesdec_c) = '1') or (cmd(cmd_sm4_c) = '1') then
               state <= S_BUSY;
             else
-              done  <= '1';
+              پورو  <= '1';
               state <= S_IDLE;
             end if;
           end if;
 
         -- delay cycle --
         when S_BUSY =>
-          state <= S_DONE;
+          state <= S_پورو;
 
         -- final step & output enable --
-        when S_DONE =>
-          done  <= '1';
+        when S_پورو =>
+          پورو  <= '1';
           state <= S_IDLE;
 
       end case;
@@ -272,12 +272,12 @@ begin
   end process;
 
   -- processing done (high one cycle before actual data output) --
-  valid_o <= done;
+  valid_o <= پورو;
 
   -- operand gating / buffering --
   op_buf: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_ڪنارو(clk_i) then
       if (cmd_valid = '1') then
         rs1     <= rs1_i;
         rs2     <= rs2_i;
@@ -289,11 +289,11 @@ begin
 
   -- Output Select --------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  result: process(clk_i)
+  نتيجو: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_ڪنارو(clk_i) then
       res_o <= (others => '0'); -- default
-      if (done = '1') then
+      if (پورو = '1') then
         if ((funct12(9 downto 8) = "10") and (funct12(5) = '1')) or
            ((funct12(9 downto 8) = "11") and (funct12(5) = '0')) then
           res_o <= blk_res;
@@ -353,7 +353,7 @@ begin
 
   -- Block Ciphers (AES/SM4) Helper Logic ---------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  block_ciphers_enabled:
+  بلاڪ_ciphers_enabled:
   if EN_ZKNE or EN_ZKND or EN_ZKSED generate
 
     -- select byte from rs2 via bs --
@@ -364,26 +364,26 @@ begin
       rs2(31 downto 24) when others;
 
     -- rotation input select --
-    rol_in <= aes_mix2 when (not EN_ZKSED) else
+    rol_اندريون <= aes_mix2 when (not EN_ZKSED) else
               sm4_rnd  when (not EN_ZKNE) and (not EN_ZKND) else
               aes_mix2 when (funct12(8) = '0') else sm4_rnd;
 
     -- rotate left by multiples of 8 via bs --
     with funct12(11 downto 10) select rol_res <=
-      rol_in(31 downto 0)                        when "00",
-      rol_in(23 downto 0) & rol_in(31 downto 24) when "01",
-      rol_in(15 downto 0) & rol_in(31 downto 16) when "10",
-      rol_in(07 downto 0) & rol_in(31 downto 08) when others;
+      rol_اندريون(31 downto 0)                        when "00",
+      rol_اندريون(23 downto 0) & rol_اندريون(31 downto 24) when "01",
+      rol_اندريون(15 downto 0) & rol_اندريون(31 downto 16) when "10",
+      rol_اندريون(07 downto 0) & rol_اندريون(31 downto 08) when others;
 
     -- block cipher result --
     blk_res <= rs1 xor rol_res;
 
   end generate;
 
-  block_ciphers_disabled:
+  بلاڪ_ciphers_disabled:
   if not (EN_ZKNE or EN_ZKND or EN_ZKSED) generate
     rs2_sel <= (others => '0');
-    rol_in  <= (others => '0');
+    rol_اندريون  <= (others => '0');
     rol_res <= (others => '0');
     blk_res <= (others => '0');
   end generate;
@@ -400,15 +400,15 @@ begin
     -- s-box look-up --
     aes_sbox_lookup: process(clk_i)
     begin
-      if rising_edge(clk_i) then -- ROM access; try to infer memory primitives
-        aes_so <= aes_sbox_c(to_integer(unsigned(aes_dec & rs2_sel))); -- aes_dec = 0 -> fwd-s-box, aes_dec = 1 -> inv-s-box
+      if rising_ڪنارو(clk_i) then -- ROM access; try to infer memory primitives
+        aes_so <= aes_sbox_c(منزل_integer(unsigned(aes_dec & rs2_sel))); -- aes_dec = 0 -> fwd-s-box, aes_dec = 1 -> inv-s-box
       end if;
     end process;
 
     -- mix columns --
     aes_mix_columns: process(clk_i)
     begin
-      if rising_edge(clk_i) then
+      if rising_ڪنارو(clk_i) then
         if (aes_dec = '1') then -- decrypt
           aes_mix1(31 downto 24) <= gfmul_f(aes_so, x"b");
           aes_mix1(23 downto 16) <= gfmul_f(aes_so, x"d");
@@ -445,8 +445,8 @@ begin
     -- s-box look-up --
     sm4_sbox_lookup: process(clk_i)
     begin
-      if rising_edge(clk_i) then -- ROM access; try to infer memory primitives
-        sm4_so1 <= sm4_sbox_c(to_integer(unsigned(rs2_sel)));
+      if rising_ڪنارو(clk_i) then -- ROM access; try to infer memory primitives
+        sm4_so1 <= sm4_sbox_c(منزل_integer(unsigned(rs2_sel)));
       end if;
     end process;
 
@@ -454,9 +454,9 @@ begin
     sm4_so2 <= x"000000" & sm4_so1;
 
     -- round update: encrypt/decrypt or key schedule --
-    sm4_round: process(clk_i)
+    sm4_ڦيرو: process(clk_i)
     begin
-      if rising_edge(clk_i) then
+      if rising_ڪنارو(clk_i) then
         if (funct12(6) = '0') then -- encrypt/decrypt
           sm4_rnd <= sm4_so2 xor lsl_f(sm4_so2, 8) xor lsl_f(sm4_so2, 2) xor lsl_f(sm4_so2, 18) xor
                                  lsl_f((sm4_so2 and x"0000003F"), 26) xor lsl_f((sm4_so2 and x"000000C0"), 10);
