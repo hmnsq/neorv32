@@ -26,7 +26,7 @@ entity neorv32_cpu_counters is
     ZIHPM_EN     : boolean;               -- hardware performance monitors
     SMCNTRPMF_EN : boolean;               -- counter privilege-mode filtering
     UMODE_EN     : boolean;               -- user-mode
-    HPM_NUM      : natural range 0 to 29; -- number of implemented HPM counters
+    HPM_لمب      : natural range 0 to 29; -- number of implemented HPM counters
     HPM_WIDTH    : natural range 0 to 64  -- total size of HPM counters
   );
   port (
@@ -107,7 +107,7 @@ begin
       end if;
       -- hardware performance monitors --
       for i in 3 to 31 loop
-        if ZIHPM_EN and ((i-3) < HPM_NUM) then
+        if ZIHPM_EN and ((i-3) < HPM_لمب) then
           if (inh_acc = '1') and (ctrl_i.csr_we = '1') then
             inhibit(i) <= ctrl_i.csr_wdata(i); -- [m]hpmcounter3..31[h]
           end if;
@@ -250,10 +250,10 @@ begin
   -- Hardware Performance Monitors (Zihpm) --------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   hpm_enabled:
-  if ZIHPM_EN and (HPM_NUM > 0) generate
+  if ZIHPM_EN and (HPM_لمب > 0) generate
 
     hpm_gen:
-    for i in 3 to (HPM_NUM + 3) - 1 generate
+    for i in 3 to (HPM_لمب + 3) - 1 generate
 
       -- [m]hpmcnt[3..31][h] --
       hpmcnt_inst: entity neorv32.neorv32_prim_cnt
@@ -287,7 +287,7 @@ begin
 
     -- terminate unused HPM slices --
     hpm_terminate_gen:
-    for i in HPM_NUM + 3 to 31 generate
+    for i in HPM_لمب + 3 to 31 generate
       hpmcnt_rd(i)   <= (others => '0');
       hpmevent(i)    <= (others => '0');
       hpmevent_rd(i) <= (others => '0');
@@ -308,7 +308,7 @@ begin
 
   -- HPMs disabled --
   hpm_disabled:
-  if (not ZIHPM_EN) or (HPM_NUM = 0) generate
+  if (not ZIHPM_EN) or (HPM_لمب = 0) generate
     hpmcnt_rd   <= (others => (others => '0'));
     hpmevent    <= (others => (others => '0'));
     hpmevent_rd <= (others => (others => '0'));
