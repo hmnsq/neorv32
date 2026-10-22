@@ -19,10 +19,10 @@ entity neorv32_cpu_control is
   generic (
     -- General --
     HART_ID             : natural range 0 to 1;           -- hardware thread ID
-    VENDOR_ID           : std_ulogic_vector(31 downto 0); -- vendor ID
-    BOOT_ADDR           : std_ulogic_vector(31 downto 0); -- boot address
-    DEBUG_PARK_ADDR     : std_ulogic_vector(31 downto 0); -- debug-mode parking loop entry address, 4-byte aligned
-    DEBUG_EXC_ADDR      : std_ulogic_vector(31 downto 0); -- debug-mode exception entry address, 4-byte aligned
+    VENDOR_ID           : std_ulogic_ਸਦਿਸ਼(31 downto 0); -- vendor ID
+    BOOT_ADDR           : std_ulogic_ਸਦਿਸ਼(31 downto 0); -- boot address
+    DEBUG_PARK_ADDR     : std_ulogic_ਸਦਿਸ਼(31 downto 0); -- debug-mode parking loop entry address, 4-byte aligned
+    DEBUG_EXC_ADDR      : std_ulogic_ਸਦਿਸ਼(31 downto 0); -- debug-mode exception entry address, 4-byte aligned
     -- RISC-V ISA Extensions --
     RISCV_ISA_A         : boolean; -- atomic memory operations extension
     RISCV_ISA_B         : boolean; -- bit-manipulation extension
@@ -73,20 +73,20 @@ entity neorv32_cpu_control is
     frontend_i    : in  if_bus_t;                       -- front-end status and data
     hwtrig_i      : in  std_ulogic;                     -- hardware trigger
     -- data path interface --
-    alu_cp_done_i : in  std_ulogic;                     -- ALU iterative operation done
-    alu_cmp_i     : in  std_ulogic_vector(1 downto 0);  -- comparator status
-    alu_add_i     : in  std_ulogic_vector(31 downto 0); -- ALU address result
-    rf_rs1_i      : in  std_ulogic_vector(31 downto 0); -- register file source 1
-    csr_rdata_o   : out std_ulogic_vector(31 downto 0); -- CSR read data
-    xcsr_rdata_i  : in  std_ulogic_vector(31 downto 0); -- external CSR read data
+    alu_cp_ਪੂਰਾ_i : in  std_ulogic;                     -- ALU iterative operation done
+    alu_cmp_i     : in  std_ulogic_ਸਦਿਸ਼(1 downto 0);  -- comparator status
+    alu_ਜੋੜੋ_i     : in  std_ulogic_ਸਦਿਸ਼(31 downto 0); -- ALU address result
+    rf_rs1_i      : in  std_ulogic_ਸਦਿਸ਼(31 downto 0); -- register file source 1
+    csr_rdata_o   : out std_ulogic_ਸਦਿਸ਼(31 downto 0); -- CSR read data
+    xcsr_rdata_i  : in  std_ulogic_ਸਦਿਸ਼(31 downto 0); -- external CSR read data
     -- interrupts --
     irq_dbg_i     : in  std_ulogic;                     -- debug mode (halt) request
-    irq_machine_i : in  std_ulogic_vector(2 downto 0);  -- RISC-V interrupts
-    irq_fast_i    : in  std_ulogic_vector(15 downto 0); -- fast interrupts
+    irq_machine_i : in  std_ulogic_ਸਦਿਸ਼(2 downto 0);  -- RISC-V interrupts
+    irq_fast_i    : in  std_ulogic_ਸਦਿਸ਼(15 downto 0); -- fast interrupts
     -- load/store unit interface --
     lsu_wait_i    : in  std_ulogic;                     -- wait for data bus
-    lsu_mar_i     : in  std_ulogic_vector(31 downto 0); -- memory address register
-    lsu_err_i     : in  std_ulogic_vector(3 downto 0)   -- alignment/access errors
+    lsu_mar_i     : in  std_ulogic_ਸਦਿਸ਼(31 downto 0); -- memory address register
+    lsu_err_i     : in  std_ulogic_ਸਦਿਸ਼(3 downto 0)   -- alignment/access errors
   );
 end entity;
 
@@ -97,21 +97,21 @@ architecture neorv32_cpu_control_rtl of neorv32_cpu_control is
                         S_ALU_WAIT, S_BRANCH, S_MEM_REQ, S_MEM_RSP, S_SYSTEM, S_SLEEP);
   type exec_t is record
     state : exec_state_t;
-    ir    : std_ulogic_vector(31 downto 0); -- instruction word being executed right now
-    irc   : std_ulogic_vector(15 downto 0); -- original 16-bit format of "ir"
+    ir    : std_ulogic_ਸਦਿਸ਼(31 downto 0); -- instruction word being executed right now
+    irc   : std_ulogic_ਸਦਿਸ਼(15 downto 0); -- original 16-bit format of "ir"
     ci    : std_ulogic;                     -- current instruction is decompressed instruction
-    pc    : std_ulogic_vector(31 downto 0); -- current PC (current instruction)
-    pc2   : std_ulogic_vector(31 downto 0); -- next PC (next linear instruction)
+    pc    : std_ulogic_ਸਦਿਸ਼(31 downto 0); -- current PC (current instruction)
+    pc2   : std_ulogic_ਸਦਿਸ਼(31 downto 0); -- next PC (next linear instruction)
   end record;
   signal exec, exec_nxt : exec_t; -- FSM
   signal ctrl, ctrl_nxt : ctrl_bus_t; -- CPU control bus
 
   -- trap logic --
-  signal exc_buf   : std_ulogic_vector(exc_width_c-1 downto 0); -- synchronous exception buffer (one bit per exception)
+  signal exc_buf   : std_ulogic_ਸਦਿਸ਼(exc_ਚੌੜਾਈ_c-1 downto 0); -- synchronous exception buffer (one bit per exception)
   signal exc_fire  : std_ulogic;                                -- set if there is a valid source in the exception buffer
-  signal irq_pnd   : std_ulogic_vector(irq_width_c-1 downto 0); -- pending interrupt
-  signal irq_buf   : std_ulogic_vector(irq_width_c-1 downto 0); -- asynchronous exception/interrupt buffer (one bit per interrupt)
-  signal irq_fire  : std_ulogic_vector(1 downto 0);             -- set if an interrupt is actually kicking in
+  signal irq_pnd   : std_ulogic_ਸਦਿਸ਼(irq_ਚੌੜਾਈ_c-1 downto 0); -- pending interrupt
+  signal irq_buf   : std_ulogic_ਸਦਿਸ਼(irq_ਚੌੜਾਈ_c-1 downto 0); -- asynchronous exception/interrupt buffer (one bit per interrupt)
+  signal irq_fire  : std_ulogic_ਸਦਿਸ਼(1 downto 0);             -- set if an interrupt is actually kicking in
   signal env_pend  : std_ulogic; -- pending start of trap environment
   signal env_enter : std_ulogic; -- enter trap environment
   signal env_exit  : std_ulogic; -- leave trap environment
@@ -120,8 +120,8 @@ architecture neorv32_cpu_control_rtl of neorv32_cpu_control is
   signal instr_il  : std_ulogic; -- illegal instruction
   signal ecall     : std_ulogic; -- ecall instruction
   signal ebreak    : std_ulogic; -- ebreak instruction
-  signal epc       : std_ulogic_vector(31 downto 0); -- trap program counter
-  signal ecause    : std_ulogic_vector(6 downto 0);  -- trap ID for cause CSRs
+  signal epc       : std_ulogic_ਸਦਿਸ਼(31 downto 0); -- trap program counter
+  signal ecause    : std_ulogic_ਸਦਿਸ਼(6 downto 0);  -- trap ID for cause CSRs
 
   -- control and status registers (CSR) --
   type csr_t is record
@@ -134,39 +134,39 @@ architecture neorv32_cpu_control_rtl of neorv32_cpu_control is
     mie_msi      : std_ulogic; -- machine software interrupt enable
     mie_mei      : std_ulogic; -- machine external interrupt enable
     mie_mti      : std_ulogic; -- machine timer interrupt enable
-    mie_firq     : std_ulogic_vector(15 downto 0); -- fast interrupt enable
-    mepc         : std_ulogic_vector(31 downto 0); -- machine exception PC
-    mcause       : std_ulogic_vector(5 downto 0);  -- machine trap cause
-    mtvec        : std_ulogic_vector(31 downto 0); -- machine trap-handler base address
-    mtval        : std_ulogic_vector(31 downto 0); -- machine bad address or instruction
-    mscratch     : std_ulogic_vector(31 downto 0); -- machine scratch register
-    mcounteren   : std_ulogic_vector(31 downto 0); -- machine counter access enable
+    mie_firq     : std_ulogic_ਸਦਿਸ਼(15 downto 0); -- fast interrupt enable
+    mepc         : std_ulogic_ਸਦਿਸ਼(31 downto 0); -- machine exception PC
+    mcause       : std_ulogic_ਸਦਿਸ਼(5 downto 0);  -- machine trap cause
+    mtvec        : std_ulogic_ਸਦਿਸ਼(31 downto 0); -- machine trap-handler base address
+    mtval        : std_ulogic_ਸਦਿਸ਼(31 downto 0); -- machine bad address or instruction
+    mscratch     : std_ulogic_ਸਦਿਸ਼(31 downto 0); -- machine scratch register
+    mcounteren   : std_ulogic_ਸਦਿਸ਼(31 downto 0); -- machine counter access enable
     dcsr_ebreakm : std_ulogic; -- behavior of ebreak instruction in m-mode
     dcsr_ebreaku : std_ulogic; -- behavior of ebreak instruction in u-mode
-    dcsr_step    : std_ulogic; -- single-step mode
+    dcsr_ਕਦਮ    : std_ulogic; -- single-step mode
     dcsr_prv     : std_ulogic; -- current privilege level when entering debug mode
-    dcsr_cause   : std_ulogic_vector(2 downto 0);  -- why was debug mode entered
-    dpc          : std_ulogic_vector(31 downto 0); -- mode program counter
-    dscratch0    : std_ulogic_vector(31 downto 0); -- debug mode scratch register 0
+    dcsr_cause   : std_ulogic_ਸਦਿਸ਼(2 downto 0);  -- why was debug mode entered
+    dpc          : std_ulogic_ਸਦਿਸ਼(31 downto 0); -- mode program counter
+    dscratch0    : std_ulogic_ਸਦਿਸ਼(31 downto 0); -- debug mode scratch register 0
   end record;
   signal csr : csr_t; -- register set
-  signal csr_wdata, csr_rdata, dcsr_rdata : std_ulogic_vector(31 downto 0); -- read/write data
+  signal csr_wdata, csr_rdata, dcsr_rdata : std_ulogic_ਸਦਿਸ਼(31 downto 0); -- read/write data
 
   -- debug-mode controller --
   type debug_ctrl_t is record
-    run, trig_halt, trig_hw, trig_break, trig_step : std_ulogic;
+    ਲੜੀਵਾਰ, trig_halt, trig_hw, trig_break, trig_ਕਦਮ : std_ulogic;
   end record;
   signal debug_ctrl : debug_ctrl_t;
 
   -- misc/helpers --
-  signal branch_taken : std_ulogic; -- branch condition true or unconditional jump
-  signal monitor_cnt  : std_ulogic_vector(alu_cp_tmo_c downto 0); -- execution monitor cycle counter
-  signal csr_valid    : std_ulogic_vector(2 downto 0); -- CSR access: [2] implemented, [1] r/w access, [0] privilege
+  signal branch_ਲਿਆ : std_ulogic; -- branch condition true or unconditional jump
+  signal monitor_cnt  : std_ulogic_ਸਦਿਸ਼(alu_cp_tmo_c downto 0); -- execution monitor cycle counter
+  signal csr_valid    : std_ulogic_ਸਦਿਸ਼(2 downto 0); -- CSR access: [2] implemented, [1] r/w access, [0] privilege
   signal illegal_cmd  : std_ulogic; -- illegal instruction check
-  signal cnt_event    : std_ulogic_vector(cnt_event_width_c-1 downto 0); -- counter events
+  signal cnt_event    : std_ulogic_ਸਦਿਸ਼(cnt_event_ਚੌੜਾਈ_c-1 downto 0); -- counter events
   signal ebreak_trig  : std_ulogic; -- environment break exception trigger
-  signal trap_env     : std_ulogic_vector(6 downto 0); -- environment call cause-value helper
-  signal retire_start : std_ulogic; -- start of instruction retire tracking
+  signal trap_env     : std_ulogic_ਸਦਿਸ਼(6 downto 0); -- environment call cause-value helper
+  signal retire_ਸ਼ੁਰੂ : std_ulogic; -- start of instruction retire tracking
   signal retired      : std_ulogic; -- tracked instruction has retired
 
 begin
@@ -181,12 +181,12 @@ begin
   begin
     if (exec.ir(instr_opcode_lsb_c+2) = '0') then -- conditional branch
       if (exec.ir(instr_funct3_msb_c) = '0') then -- beq / bne
-        branch_taken <= alu_cmp_i(0) xor exec.ir(instr_funct3_lsb_c);
+        branch_ਲਿਆ <= alu_cmp_i(0) xor exec.ir(instr_funct3_lsb_c);
       else -- blt(u) / bge(u)
-        branch_taken <= alu_cmp_i(1) xor exec.ir(instr_funct3_lsb_c);
+        branch_ਲਿਆ <= alu_cmp_i(1) xor exec.ir(instr_funct3_lsb_c);
       end if;
     else -- unconditional branch are always taken
-      branch_taken <= '1';
+      branch_ਲਿਆ <= '1';
     end if;
   end process;
 
@@ -203,7 +203,7 @@ begin
       exec.ci    <= '0';
       exec.pc    <= BOOT_ADDR(31 downto 2) & "00"; -- 32-bit-aligned boot address
       exec.pc2   <= BOOT_ADDR(31 downto 2) & "00";
-    elsif rising_edge(clk_i) then
+    elsif rising_ਕਿਨਾਰਾ(clk_i) then
       ctrl <= ctrl_nxt;
       exec <= exec_nxt;
     end if;
@@ -213,10 +213,10 @@ begin
   -- Execution Micro Sequencer Comb ---------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   exec_comb: process(exec, env_pend, exc_fire, ecause, exc_buf, irq_buf, debug_ctrl, hwtrig_i,
-                     frontend_i, csr, ctrl, alu_cp_done_i, lsu_wait_i, alu_add_i, branch_taken)
-    variable opcode_v : std_ulogic_vector(6 downto 0);
-    variable funct7_v : std_ulogic_vector(6 downto 0);
-    variable funct3_v : std_ulogic_vector(2 downto 0);
+                     frontend_i, csr, ctrl, alu_cp_ਪੂਰਾ_i, lsu_wait_i, alu_ਜੋੜੋ_i, branch_ਲਿਆ)
+    variable opcode_v : std_ulogic_ਸਦਿਸ਼(6 downto 0);
+    variable funct7_v : std_ulogic_ਸਦਿਸ਼(6 downto 0);
+    variable funct3_v : std_ulogic_ਸਦਿਸ਼(2 downto 0);
   begin
     -- shortcuts --
     opcode_v := exec.ir(instr_opcode_msb_c downto instr_opcode_lsb_c+2) & "11"; -- simplified rv32 opcode
@@ -300,7 +300,7 @@ begin
       -- ------------------------------------------------------------
         if (ecause(5) = '1') and RISCV_ISA_Sdext then -- debug mode entry
           exec_nxt.pc2 <= DEBUG_PARK_ADDR(31 downto 2) & "00"; -- start at "parking loop" <normal_entry>
-        elsif (debug_ctrl.run = '1') and RISCV_ISA_Sdext then -- any other trap INSIDE debug mode
+        elsif (debug_ctrl.ਲੜੀਵਾਰ = '1') and RISCV_ISA_Sdext then -- any other trap INSIDE debug mode
           exec_nxt.pc2 <= DEBUG_EXC_ADDR(31 downto 2) & "00"; -- start at "parking loop" <exception_entry>
         elsif (csr.mtvec(0) = '1') and (ecause(6) = '1') then -- M-mode trap: vectored mode and interrupt
           exec_nxt.pc2 <= csr.mtvec(31 downto 7) & ecause(4 downto 0) & "00"; -- PC = mtvec + 4 * mcause
@@ -312,7 +312,7 @@ begin
 
       when S_TRAP_EXIT => -- return from trap environment and jump to trap PC
       -- ------------------------------------------------------------
-        if (debug_ctrl.run = '1') and RISCV_ISA_Sdext then -- debug mode exit
+        if (debug_ctrl.ਲੜੀਵਾਰ = '1') and RISCV_ISA_Sdext then -- debug mode exit
           exec_nxt.pc2 <= csr.dpc(31 downto 1) & '0';
         else -- normal end of trap
           exec_nxt.pc2 <= csr.mepc(31 downto 1) & '0';
@@ -322,7 +322,7 @@ begin
 
       when S_EXECUTE => -- decode and prepare execution (FSM will be here for exactly 1 cycle in any case)
       -- ------------------------------------------------------------
-        exec_nxt.pc2 <= alu_add_i(31 downto 1) & '0'; -- next PC = PC + immediate
+        exec_nxt.pc2 <= alu_ਜੋੜੋ_i(31 downto 1) & '0'; -- next PC = PC + immediate
         case opcode_v is
 
           -- register/immediate ALU operation --
@@ -330,7 +330,7 @@ begin
 
             -- ALU core operation --
             case funct3_v is
-              when funct3_sadd_c => ctrl_nxt.alu_op <= alu_op_add_c; -- ADD(I), SUB
+              when funct3_sadd_c => ctrl_nxt.alu_op <= alu_op_ਜੋੜੋ_c; -- ADD(I), SUB
               when funct3_slt_c  => ctrl_nxt.alu_op <= alu_op_slt_c; -- SLT(I)
               when funct3_sltu_c => ctrl_nxt.alu_op <= alu_op_slt_c; -- SLTU(I)
               when funct3_xor_c  => ctrl_nxt.alu_op <= alu_op_xor_c; -- XOR(I)
@@ -366,12 +366,12 @@ begin
 
           -- add upper immediate to PC --
           when opcode_auipc_c =>
-            ctrl_nxt.alu_op   <= alu_op_add_c; -- add PC and immediate
+            ctrl_nxt.alu_op   <= alu_op_ਜੋੜੋ_c; -- add PC and immediate
             ctrl_nxt.rf_wb_en <= '1'; -- valid RF write-back (won't happen if exception)
             exec_nxt.state    <= S_DISPATCH;
 
           -- memory access --
-          when opcode_load_c | opcode_store_c | opcode_amo_c =>
+          when opcode_ਲੱਦੋ_c | opcode_store_c | opcode_amo_c =>
             if RISCV_ISA_Zaamo and (opcode_v(2) = opcode_amo_c(2)) and (exec.ir(instr_funct5_lsb_c+1) = '0') then -- atomic read-modify-write operation
               ctrl_nxt.lsu_rd <= '1';
               ctrl_nxt.lsu_wr <= '1';
@@ -419,19 +419,19 @@ begin
       when S_ALU_WAIT => -- wait for multi-cycle ALU co-processor operation to finish or trap
       -- ------------------------------------------------------------
         ctrl_nxt.alu_op   <= alu_op_cp_c;
-        ctrl_nxt.rf_wb_en <= alu_cp_done_i; -- valid RF write-back (won't happen if exception)
-        if (alu_cp_done_i = '1') or (or_reduce_f(exc_buf(exc_ialign_c downto exc_iaccess_c)) = '1') then
+        ctrl_nxt.rf_wb_en <= alu_cp_ਪੂਰਾ_i; -- valid RF write-back (won't happen if exception)
+        if (alu_cp_ਪੂਰਾ_i = '1') or (or_reduce_f(exc_buf(exc_ialign_c downto exc_iaccess_c)) = '1') then
           exec_nxt.state <= S_DISPATCH;
         end if;
 
       when S_BRANCH => -- update next-PC on taken branches and jumps
       -- ------------------------------------------------------------
-        if CPU_CONSTT_BR_EN or (branch_taken = '1') then
+        if CPU_CONSTT_BR_EN or (branch_ਲਿਆ = '1') then
           ctrl_nxt.if_reset <= '1'; -- reset instruction fetch to restart at next-PC (pc2)
         end if;
-        if (branch_taken = '1') then -- taken/unconditional branch
-          instr_ma     <= alu_add_i(1) and bool_to_ulogic_f(not RISCV_ISA_C); -- branch destination misaligned?
-          exec_nxt.pc2 <= alu_add_i(31 downto 1) & '0';
+        if (branch_ਲਿਆ = '1') then -- taken/unconditional branch
+          instr_ma     <= alu_ਜੋੜੋ_i(1) and bool_ਮੰਜ਼ਿਲ_ulogic_f(not RISCV_ISA_C); -- branch destination misaligned?
+          exec_nxt.pc2 <= alu_ਜੋੜੋ_i(31 downto 1) & '0';
         end if;
         if (exec.ir(instr_opcode_lsb_c+2) = '1') then -- is link operation
           ctrl_nxt.pc_ret   <= exec.pc2(31 downto 1) & '0'; -- output return address
@@ -536,7 +536,7 @@ begin
   ctrl_o.cpu_priv     <= csr.prv_level;
   ctrl_o.cpu_trap     <= env_enter;
   ctrl_o.cpu_sync_exc <= exc_fire;
-  ctrl_o.cpu_debug    <= debug_ctrl.run;
+  ctrl_o.cpu_debug    <= debug_ctrl.ਲੜੀਵਾਰ;
 
 
   -- Counter Events -------------------------------------------------------------------------
@@ -548,25 +548,25 @@ begin
   cnt_event(cnt_event_wait_alu_c) <= '1' when (exec.state = S_ALU_WAIT)                                  else '0'; -- multi-cycle ALU wait
   cnt_event(cnt_event_wait_lsu_c) <= '1' when (ctrl.lsu_req = '0') and (exec.state = S_MEM_RSP)          else '0'; -- load/store memory wait
   cnt_event(cnt_event_delta_c)    <= '1' when (ctrl.if_reset = '1') and (exec.ir(6 downto 2) /= "00011") else '0'; -- control flow transfer
-  cnt_event(cnt_event_load_c)     <= '1' when (ctrl.lsu_req = '1') and (ctrl.lsu_rd = '1')               else '0'; -- memory load
+  cnt_event(cnt_event_ਲੱਦੋ_c)     <= '1' when (ctrl.lsu_req = '1') and (ctrl.lsu_rd = '1')               else '0'; -- memory load
   cnt_event(cnt_event_store_c)    <= '1' when (ctrl.lsu_req = '1') and (ctrl.lsu_wr = '1')               else '0'; -- memory store
 
   -- retire tracking --
   retire_tracking: process(rstn_i, clk_i)
   begin
     if (rstn_i = '0') then
-      retire_start <= '0';
-    elsif rising_edge(clk_i) then
+      retire_ਸ਼ੁਰੂ <= '0';
+    elsif rising_ਕਿਨਾਰਾ(clk_i) then
       if (exec.state = S_DISPATCH) then -- instruction completed
-        retire_start <= '0';
+        retire_ਸ਼ੁਰੂ <= '0';
       elsif (exec.state = S_EXECUTE) then -- instruction started
-        retire_start <= '1';
+        retire_ਸ਼ੁਰੂ <= '1';
       end if;
     end if;
   end process;
 
   -- instruction has retired: execution completed without any sync. exception --
-  retired <= '1' when (retire_start = '1') and (exec.state = S_DISPATCH) and (exc_fire = '0') else '0';
+  retired <= '1' when (retire_ਸ਼ੁਰੂ = '1') and (exec.state = S_DISPATCH) and (exc_fire = '0') else '0';
 
 
   -- ****************************************************************************************************************************
@@ -584,7 +584,7 @@ begin
 
       -- floating-point-unit CSRs --
       when csr_fflags_c | csr_frm_c | csr_fcsr_c =>
-        csr_valid(2) <= bool_to_ulogic_f(RISCV_ISA_Zfinx);
+        csr_valid(2) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zfinx);
 
       -- machine trap setup/handling, environment/information registers, etc. --
       when csr_mstatus_c       | csr_mstatush_c  | csr_misa_c    | csr_mie_c    | csr_mtvec_c | csr_mhartid_c    |
@@ -594,7 +594,7 @@ begin
 
       -- machine-controlled user-mode CSRs --
       when csr_mcounteren_c | csr_menvcfg_c | csr_menvcfgh_c =>
-        csr_valid(2) <= bool_to_ulogic_f(RISCV_ISA_U);
+        csr_valid(2) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_U);
 
       -- physical memory protection (PMP) --
       when csr_pmpcfg0_c   | csr_pmpcfg1_c   | csr_pmpcfg2_c   | csr_pmpcfg3_c   | -- lowest 4 configuration registers only
@@ -602,7 +602,7 @@ begin
            csr_pmpaddr4_c  | csr_pmpaddr5_c  | csr_pmpaddr6_c  | csr_pmpaddr7_c  |
            csr_pmpaddr8_c  | csr_pmpaddr9_c  | csr_pmpaddr10_c | csr_pmpaddr11_c |
            csr_pmpaddr12_c | csr_pmpaddr13_c | csr_pmpaddr14_c | csr_pmpaddr15_c =>
-        csr_valid(2) <= bool_to_ulogic_f(RISCV_ISA_Smpmp);
+        csr_valid(2) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Smpmp);
 
       when csr_hpmcounter3_c    | csr_hpmcounter4_c    | csr_hpmcounter5_c    | csr_hpmcounter6_c    |
            csr_hpmcounter7_c    | csr_hpmcounter8_c    | csr_hpmcounter9_c    | csr_hpmcounter10_c   |
@@ -644,24 +644,24 @@ begin
            csr_mhpmevent23_c    | csr_mhpmevent24_c    | csr_mhpmevent25_c    | csr_mhpmevent26_c    |
            csr_mhpmevent27_c    | csr_mhpmevent28_c    | csr_mhpmevent29_c    | csr_mhpmevent30_c    |
            csr_mhpmevent31_c => -- machine event configuration (LOW-word only for RV32 without Sscofpmf)
-        csr_valid(2) <= bool_to_ulogic_f(RISCV_ISA_Zihpm);
+        csr_valid(2) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zihpm);
 
       -- counter and timer CSRs --
-      when csr_cycle_c  | csr_time_c  | csr_instret_c  | csr_mcycle_c  | csr_minstret_c |
+      when csr_ਚੱਕਰ_c  | csr_ਸਮਾਂ_c  | csr_instret_c  | csr_mcycle_c  | csr_minstret_c |
            csr_cycleh_c | csr_timeh_c | csr_instreth_c | csr_mcycleh_c | csr_minstreth_c =>
-        csr_valid(2) <= bool_to_ulogic_f(RISCV_ISA_Zicntr);
+        csr_valid(2) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zicntr);
 
       -- counter privilege-mode filtering CSRs --
       when csr_mcyclecfg_c | csr_minstretcfg_c | csr_mcyclecfgh_c | csr_minstretcfgh_c =>
-        csr_valid(2) <= bool_to_ulogic_f(RISCV_ISA_Smcntrpmf);
+        csr_valid(2) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Smcntrpmf);
 
       -- debug-mode CSRs --
       when csr_dcsr_c | csr_dpc_c | csr_dscratch0_c =>
-        csr_valid(2) <= bool_to_ulogic_f(RISCV_ISA_Sdext);
+        csr_valid(2) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Sdext);
 
       -- trigger module CSRs --
       when csr_tselect_c | csr_tdata1_c | csr_tdata2_c | csr_tdata3_c | csr_tinfo_c =>
-        csr_valid(2) <= bool_to_ulogic_f(RISCV_ISA_Sdtrig);
+        csr_valid(2) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Sdtrig);
 
       -- undefined / not implemented --
       when others =>
@@ -685,11 +685,11 @@ begin
     -- Privilege level
     -- --------------------------------------------------------------------
     if (ctrl.csr_addr(11 downto 4) = csr_dcsr_c(11 downto 4)) and -- debug-mode-only CSR?
-       RISCV_ISA_Sdext and (debug_ctrl.run = '0') then -- debug-mode implemented and not running?
+       RISCV_ISA_Sdext and (debug_ctrl.ਲੜੀਵਾਰ = '0') then -- debug-mode implemented and not running?
       csr_valid(0) <= '0'; -- invalid access
     elsif (RISCV_ISA_Zicntr or RISCV_ISA_Zihpm) and RISCV_ISA_U and (csr.prv_level = '0') and -- any user-mode counters available and in U-mode?
           (ctrl.csr_addr(11 downto 8) = "1100") and (ctrl.csr_addr(6 downto 5) = "00") and -- U-mode counter CSRs
-          (csr.mcounteren(to_integer(unsigned(ctrl.csr_addr(4 downto 0)))) = '0') then -- U-mode counter access not permitted by mcounteren
+          (csr.mcounteren(ਮੰਜ਼ਿਲ_integer(unsigned(ctrl.csr_addr(4 downto 0)))) = '0') then -- U-mode counter access not permitted by mcounteren
       csr_valid(0) <= '0'; -- invalid access
     elsif (ctrl.csr_addr(9 downto 8) /= "00") and (csr.prv_level = '0') then -- invalid privilege level
       csr_valid(0) <= '0'; -- invalid access
@@ -723,7 +723,7 @@ begin
         end if;
 
       -- memory load --
-      when opcode_load_c =>
+      when opcode_ਲੱਦੋ_c =>
         case exec.ir(instr_funct3_msb_c downto instr_funct3_lsb_c) is
           when funct3_lb_c | funct3_lh_c | funct3_lw_c | funct3_lbu_c | funct3_lhu_c => illegal_cmd <= '0';
           when others => illegal_cmd <= '1';
@@ -740,9 +740,9 @@ begin
       when opcode_amo_c =>
         if (exec.ir(instr_funct3_msb_c downto instr_funct3_lsb_c) = "010") then -- word-quantity only
           case exec.ir(instr_funct5_msb_c downto instr_funct5_lsb_c) is
-            when "00001" | "00000" | "00100" | "01100" | "01000" | "10000" | "10100" | "11000" | "11100" => illegal_cmd <= not bool_to_ulogic_f(RISCV_ISA_Zaamo);
-            when "00010" => illegal_cmd <= (not bool_to_ulogic_f(RISCV_ISA_Zalrsc)) or or_reduce_f(exec.ir(instr_rs2_msb_c downto instr_rs2_lsb_c)); -- LR
-            when "00011" => illegal_cmd <= not bool_to_ulogic_f(RISCV_ISA_Zalrsc); -- SC
+            when "00001" | "00000" | "00100" | "01100" | "01000" | "10000" | "10100" | "11000" | "11100" => illegal_cmd <= not bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zaamo);
+            when "00010" => illegal_cmd <= (not bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zalrsc)) or or_reduce_f(exec.ir(instr_rs2_msb_c downto instr_rs2_lsb_c)); -- LR
+            when "00011" => illegal_cmd <= not bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zalrsc); -- SC
             when others  => illegal_cmd <= '1';
           end case;
         end if;
@@ -764,8 +764,8 @@ begin
             case exec.ir(instr_imm12_msb_c downto instr_imm12_lsb_c) is
               when funct12_ecall_c  => illegal_cmd <= '0'; -- ecall is always allowed
               when funct12_ebreak_c => illegal_cmd <= '0'; -- ebreak is always allowed
-              when funct12_mret_c   => illegal_cmd <= (not csr.prv_level) or debug_ctrl.run; -- mret allowed in (real/non-debug) M-mode only
-              when funct12_dret_c   => illegal_cmd <= not debug_ctrl.run; -- dret allowed in debug mode only
+              when funct12_mret_c   => illegal_cmd <= (not csr.prv_level) or debug_ctrl.ਲੜੀਵਾਰ; -- mret allowed in (real/non-debug) M-mode only
+              when funct12_dret_c   => illegal_cmd <= not debug_ctrl.ਲੜੀਵਾਰ; -- dret allowed in debug mode only
               when funct12_wfi_c    => illegal_cmd <= (not csr.prv_level) and csr.mstatus_tw; -- wfi allowed in M-mode or if TW is zero
               when others           => illegal_cmd <= '1'; -- undefined
             end case;
@@ -790,11 +790,11 @@ begin
 
   -- Instruction Execution Monitor (trap if multi-cycle instruction does not complete) ------
   -- -------------------------------------------------------------------------------------------
-  multi_cycle_monitor: process(clk_i)
+  multi_ਚੱਕਰ_monitor: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_ਕਿਨਾਰਾ(clk_i) then
       if (exec.state = S_ALU_WAIT) then
-        monitor_cnt <= std_ulogic_vector(unsigned(monitor_cnt) + 1);
+        monitor_cnt <= std_ulogic_ਸਦਿਸ਼(unsigned(monitor_cnt) + 1);
       else
         monitor_cnt <= (others => '0');
       end if;
@@ -814,13 +814,13 @@ begin
 
   -- Trap Buffer ----------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  trap_buffer: process(rstn_i, clk_i)
+  trap_ਬਫਰ: process(rstn_i, clk_i)
   begin
     if (rstn_i = '0') then
       irq_pnd <= (others => '0');
       irq_buf <= (others => '0');
       exc_buf <= (others => '0');
-    elsif rising_edge(clk_i) then
+    elsif rising_ਕਿਨਾਰਾ(clk_i) then
       -- interrupt pending: synchronize requests --
       irq_pnd <= debug_ctrl.trig_halt & irq_fast_i & irq_machine_i;
       -- interrupt buffer: local feedback to ensure requests stay active until trap environment has started --
@@ -843,13 +843,13 @@ begin
       exc_buf(exc_laccess_c) <= (exc_buf(exc_laccess_c) or lsu_err_i(1))          and (not env_enter);
       exc_buf(exc_db_brkp_c) <= (exc_buf(exc_db_brkp_c) or debug_ctrl.trig_break) and (not env_enter);
       exc_buf(exc_db_trig_c) <= (exc_buf(exc_db_trig_c) or debug_ctrl.trig_hw)    and (not env_enter);
-      exc_buf(exc_db_step_c) <= (exc_buf(exc_db_step_c) or debug_ctrl.trig_step)  and (not env_enter);
+      exc_buf(exc_db_ਕਦਮ_c) <= (exc_buf(exc_db_ਕਦਮ_c) or debug_ctrl.trig_ਕਦਮ)  and (not env_enter);
     end if;
   end process;
 
   -- environment break exception trigger --
-  ebreak_trig <= (ebreak and (    csr.prv_level) and (not csr.dcsr_ebreakm) and (not debug_ctrl.run)) or -- M-mode trap on M-ebreak
-                 (ebreak and (not csr.prv_level) and (not csr.dcsr_ebreaku) and (not debug_ctrl.run));   -- M-mode trap on U-ebreak
+  ebreak_trig <= (ebreak and (    csr.prv_level) and (not csr.dcsr_ebreakm) and (not debug_ctrl.ਲੜੀਵਾਰ)) or -- M-mode trap on M-ebreak
+                 (ebreak and (not csr.prv_level) and (not csr.dcsr_ebreaku) and (not debug_ctrl.ਲੜੀਵਾਰ));   -- M-mode trap on U-ebreak
 
 
   -- Trap Triggers --------------------------------------------------------------------------
@@ -858,7 +858,7 @@ begin
   begin
     if (rstn_i = '0') then
       env_pend <= '0';
-    elsif rising_edge(clk_i) then
+    elsif rising_ਕਿਨਾਰਾ(clk_i) then
       if (env_enter = '1') then -- start of trap environment acknowledged by execute engine
         env_pend <= '0';
       elsif (exc_fire = '1') or (or_reduce_f(irq_fire) = '1') then -- trap trigger
@@ -874,8 +874,8 @@ begin
   irq_fire(0) <= '1' when
     ((exec.state = S_EXECUTE) or (exec.state = S_SLEEP)) and -- trigger system IRQ only in S_EXECUTE state or when in sleep mode
     (or_reduce_f(irq_buf(irq_firq_15_c downto irq_msi_irq_c)) = '1') and -- pending system IRQ
-    ((csr.mstatus_mie = '1') or (csr.prv_level = priv_mode_u_c)) and -- IRQ only when in M-mode and MIE=1 OR when in U-mode
-    (debug_ctrl.run = '0') and (csr.dcsr_step = '0') else '0'; -- no system IRQs when in debug-mode / during single-stepping
+    ((csr.mstatus_mie = '1') or (csr.prv_level = priv_ਬਹੁਲਕ_u_c)) and -- IRQ only when in M-mode and MIE=1 OR when in U-mode
+    (debug_ctrl.ਲੜੀਵਾਰ = '0') and (csr.dcsr_ਕਦਮ = '0') else '0'; -- no system IRQs when in debug-mode / during single-stepping
 
   -- debug halt request interrupt? --
   irq_fire(1) <= irq_buf(irq_db_halt_c) when RISCV_ISA_Sdext else '0';
@@ -898,7 +898,7 @@ begin
     trap_db_halt_c when (irq_buf(irq_db_halt_c) = '1') and RISCV_ISA_Sdext  else -- external halt request
     trap_db_trig_c when (exc_buf(exc_db_trig_c) = '1') and RISCV_ISA_Sdtrig else -- hardware trigger
     trap_db_brkp_c when (exc_buf(exc_db_brkp_c) = '1') and RISCV_ISA_Sdext  else -- breakpoint
-    trap_db_step_c when (exc_buf(exc_db_step_c) = '1') and RISCV_ISA_Sdext  else -- single stepping
+    trap_db_ਕਦਮ_c when (exc_buf(exc_db_ਕਦਮ_c) = '1') and RISCV_ISA_Sdext  else -- single stepping
     -- NEORV32-specific fast interrupts --
     trap_firq0_c   when (irq_buf(irq_firq_0_c)  = '1') else -- fast interrupt channel 0
     trap_firq1_c   when (irq_buf(irq_firq_1_c)  = '1') else -- fast interrupt channel 1
@@ -930,38 +930,38 @@ begin
 
   -- Debug-Mode Control ---------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  debug_mode_enabled:
+  debug_ਬਹੁਲਕ_enabled:
   if RISCV_ISA_Sdext generate
 
     -- debug mode active? --
     debug_control: process(rstn_i, clk_i)
     begin
       if (rstn_i = '0') then
-        debug_ctrl.run <= '0';
-      elsif rising_edge(clk_i) then
-        if (debug_ctrl.run = '0') and (env_enter = '1') and (ecause(5) = '1') then -- entry event
-          debug_ctrl.run <= '1';
+        debug_ctrl.ਲੜੀਵਾਰ <= '0';
+      elsif rising_ਕਿਨਾਰਾ(clk_i) then
+        if (debug_ctrl.ਲੜੀਵਾਰ = '0') and (env_enter = '1') and (ecause(5) = '1') then -- entry event
+          debug_ctrl.ਲੜੀਵਾਰ <= '1';
         elsif (env_exit = '1') then -- exit event
-          debug_ctrl.run <= '0';
+          debug_ctrl.ਲੜੀਵਾਰ <= '0';
         end if;
       end if;
     end process;
 
     -- debug mode entry triggers --
-    debug_ctrl.trig_halt  <= irq_dbg_i and (not debug_ctrl.run); -- external halt request (if not halted already)
-    debug_ctrl.trig_step  <= (csr.dcsr_step and (not debug_ctrl.run)) when (exec.state = S_EXECUTE) else '0'; -- single-step mode
-    debug_ctrl.trig_hw    <= hwtrig_i and (not debug_ctrl.run); -- enter debug-mode by HW trigger module
-    debug_ctrl.trig_break <= ebreak and (debug_ctrl.run or ((    csr.prv_level) and csr.dcsr_ebreakm) or -- debug on M-ebreak
+    debug_ctrl.trig_halt  <= irq_dbg_i and (not debug_ctrl.ਲੜੀਵਾਰ); -- external halt request (if not halted already)
+    debug_ctrl.trig_ਕਦਮ  <= (csr.dcsr_ਕਦਮ and (not debug_ctrl.ਲੜੀਵਾਰ)) when (exec.state = S_EXECUTE) else '0'; -- single-step mode
+    debug_ctrl.trig_hw    <= hwtrig_i and (not debug_ctrl.ਲੜੀਵਾਰ); -- enter debug-mode by HW trigger module
+    debug_ctrl.trig_break <= ebreak and (debug_ctrl.ਲੜੀਵਾਰ or ((    csr.prv_level) and csr.dcsr_ebreakm) or -- debug on M-ebreak
                                                            ((not csr.prv_level) and csr.dcsr_ebreaku));  -- debug on U-ebreak
 
   end generate;
 
   -- Sdext ISA extension not enabled --
-  debug_mode_disabled:
+  debug_ਬਹੁਲਕ_disabled:
   if not RISCV_ISA_Sdext generate
-    debug_ctrl.run        <= '0';
+    debug_ctrl.ਲੜੀਵਾਰ        <= '0';
     debug_ctrl.trig_halt  <= '0';
-    debug_ctrl.trig_step  <= '0';
+    debug_ctrl.trig_ਕਦਮ  <= '0';
     debug_ctrl.trig_hw    <= '0';
     debug_ctrl.trig_break <= '0';
   end generate;
@@ -982,7 +982,7 @@ begin
   dcsr_rdata(5)            <= '0'; -- reserved
   dcsr_rdata(4)            <= '1'; -- mprven: mstatus.mprv is also evaluated in debug mode
   dcsr_rdata(3)            <= '0'; -- nmip: no pending non-maskable interrupt
-  dcsr_rdata(2)            <= csr.dcsr_step; -- step: single-step mode
+  dcsr_rdata(2)            <= csr.dcsr_ਕਦਮ; -- step: single-step mode
   dcsr_rdata(1 downto 0)   <= (others => csr.dcsr_prv); -- prv: privilege level when debug mode was entered
 
 
@@ -993,7 +993,7 @@ begin
   -- CSR Write-Data ALU ---------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   csr_alu: process(exec.ir, rf_rs1_i, csr_rdata)
-    variable opb_v : std_ulogic_vector(31 downto 0);
+    variable opb_v : std_ulogic_ਸਦਿਸ਼(31 downto 0);
   begin
     if (exec.ir(instr_funct3_msb_c) = '0') then
       opb_v := rf_rs1_i;
@@ -1013,7 +1013,7 @@ begin
   csr_write_access: process(rstn_i, clk_i)
   begin
     if (rstn_i = '0') then
-      csr.prv_level    <= priv_mode_m_c;
+      csr.prv_level    <= priv_ਬਹੁਲਕ_m_c;
       csr.mstatus_mie  <= '0';
       csr.mstatus_mpie <= '0';
       csr.mstatus_mpp  <= '0';
@@ -1031,12 +1031,12 @@ begin
       csr.mcounteren   <= (others => '0');
       csr.dcsr_ebreakm <= '0';
       csr.dcsr_ebreaku <= '0';
-      csr.dcsr_step    <= '0';
+      csr.dcsr_ਕਦਮ    <= '0';
       csr.dcsr_prv     <= '0';
       csr.dcsr_cause   <= (others => '0');
       csr.dpc          <= (others => '0');
       csr.dscratch0    <= (others => '0');
-    elsif rising_edge(clk_i) then
+    elsif rising_ਕਿਨਾਰਾ(clk_i) then
 
       -- --------------------------------------------------------------------
       -- Software CSR access
@@ -1080,7 +1080,7 @@ begin
             csr.mtval <= csr_wdata;
 
           when csr_dcsr_c => -- debug mode control and status
-            csr.dcsr_step    <= csr_wdata(2);
+            csr.dcsr_ਕਦਮ    <= csr_wdata(2);
             csr.dcsr_ebreaku <= csr_wdata(12);
             csr.dcsr_ebreakm <= csr_wdata(15);
             csr.dcsr_prv     <= and_reduce_f(csr_wdata(1 downto 0)); -- everything != M will fall back to U
@@ -1100,14 +1100,14 @@ begin
       -- Hardware CSR access: trap enter
       -- --------------------------------------------------------------------
       elsif (env_enter = '1') then
-        if (debug_ctrl.run = '0') then -- no CSR update when in debug-mode
+        if (debug_ctrl.ਲੜੀਵਾਰ = '0') then -- no CSR update when in debug-mode
           if RISCV_ISA_Sdext and (ecause(5) = '1') then -- trap to debug-mode
-            csr.prv_level  <= priv_mode_m_c;
+            csr.prv_level  <= priv_ਬਹੁਲਕ_m_c;
             csr.dcsr_cause <= ecause(2 downto 0);
             csr.dcsr_prv   <= csr.prv_level;
             csr.dpc        <= epc(31 downto 1) & '0';
           else -- trap to machine-mode
-            csr.prv_level    <= priv_mode_m_c;
+            csr.prv_level    <= priv_ਬਹੁਲਕ_m_c;
             csr.mstatus_mpp  <= csr.prv_level;
             csr.mstatus_mie  <= '0';
             csr.mstatus_mpie <= csr.mstatus_mie;
@@ -1137,17 +1137,17 @@ begin
       -- Hardware CSR access: trap exit
       -- --------------------------------------------------------------------
       elsif (env_exit = '1') then
-        if RISCV_ISA_Sdext and (debug_ctrl.run = '1') then -- return from debug-mode
+        if RISCV_ISA_Sdext and (debug_ctrl.ਲੜੀਵਾਰ = '1') then -- return from debug-mode
           csr.prv_level <= csr.dcsr_prv;
-          if (csr.dcsr_prv /= priv_mode_m_c) then
+          if (csr.dcsr_prv /= priv_ਬਹੁਲਕ_m_c) then
             csr.mstatus_mprv <= '0'; -- clear if return to priv. level less than M
           end if;
         else -- return from machine-mode trap
           csr.prv_level <= csr.mstatus_mpp;
-          if (csr.mstatus_mpp /= priv_mode_m_c) then
+          if (csr.mstatus_mpp /= priv_ਬਹੁਲਕ_m_c) then
             csr.mstatus_mprv <= '0'; -- clear if return to priv. level less than M
           end if;
-          csr.mstatus_mpp  <= priv_mode_u_c; -- set to least-privileged level that is supported
+          csr.mstatus_mpp  <= priv_ਬਹੁਲਕ_u_c; -- set to least-privileged level that is supported
           csr.mstatus_mie  <= csr.mstatus_mpie;
           csr.mstatus_mpie <= '1';
         end if;
@@ -1166,8 +1166,8 @@ begin
       end if;
       -- no user mode --
       if not RISCV_ISA_U then
-        csr.prv_level    <= priv_mode_m_c;
-        csr.mstatus_mpp  <= priv_mode_m_c;
+        csr.prv_level    <= priv_ਬਹੁਲਕ_m_c;
+        csr.mstatus_mpp  <= priv_ਬਹੁਲਕ_m_c;
         csr.mstatus_mprv <= '0';
         csr.mstatus_tw   <= '0';
         csr.dcsr_ebreaku <= '0';
@@ -1177,9 +1177,9 @@ begin
       -- no debug mode --
       if not RISCV_ISA_Sdext then
         csr.dcsr_ebreakm <= '0';
-        csr.dcsr_step    <= '0';
+        csr.dcsr_ਕਦਮ    <= '0';
         csr.dcsr_ebreaku <= '0';
-        csr.dcsr_prv     <= priv_mode_m_c;
+        csr.dcsr_prv     <= priv_ਬਹੁਲਕ_m_c;
         csr.dcsr_cause   <= (others => '0');
         csr.dpc          <= (others => '0');
         csr.dscratch0    <= (others => '0');
@@ -1198,7 +1198,7 @@ begin
   -- -------------------------------------------------------------------------------------------
   csr_read_access: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_ਕਿਨਾਰਾ(clk_i) then
       csr_rdata <= (others => '0'); -- output all-zero if there is no CSR read operation
       if (ctrl.csr_re = '1') then
         case ctrl.csr_addr is
@@ -1212,16 +1212,16 @@ begin
             csr_rdata(11) <= csr.mstatus_mpp;
             csr_rdata(12) <= csr.mstatus_mpp;
             csr_rdata(17) <= csr.mstatus_mprv;
-            csr_rdata(21) <= csr.mstatus_tw and bool_to_ulogic_f(RISCV_ISA_U);
+            csr_rdata(21) <= csr.mstatus_tw and bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_U);
 
           when csr_misa_c => -- ISA and extensions
-            csr_rdata(0)  <= bool_to_ulogic_f(RISCV_ISA_A);
-            csr_rdata(1)  <= bool_to_ulogic_f(RISCV_ISA_B);
-            csr_rdata(2)  <= bool_to_ulogic_f(RISCV_ISA_C);
-            csr_rdata(4)  <= bool_to_ulogic_f(RISCV_ISA_E);
-            csr_rdata(8)  <= bool_to_ulogic_f(not RISCV_ISA_E);
-            csr_rdata(12) <= bool_to_ulogic_f(RISCV_ISA_M);
-            csr_rdata(20) <= bool_to_ulogic_f(RISCV_ISA_U);
+            csr_rdata(0)  <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_A);
+            csr_rdata(1)  <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_B);
+            csr_rdata(2)  <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_C);
+            csr_rdata(4)  <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_E);
+            csr_rdata(8)  <= bool_ਮੰਜ਼ਿਲ_ulogic_f(not RISCV_ISA_E);
+            csr_rdata(12) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_M);
+            csr_rdata(20) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_U);
             csr_rdata(23) <= '1'; -- X CPU extension (non-standard / NEORV32-specific)
             csr_rdata(31 downto 30) <= "01"; -- MXL = 32
 
@@ -1266,8 +1266,8 @@ begin
           -- --------------------------------------------------------------------
           when csr_mvendorid_c => csr_rdata <= VENDOR_ID; -- vendor ID
           when csr_marchid_c   => csr_rdata <= x"00000013"; -- architecture ID
-          when csr_mimpid_c    => csr_rdata <= hw_version_c; -- implementation ID
-          when csr_mhartid_c   => csr_rdata <= std_ulogic_vector(to_unsigned(HART_ID, 32)); -- hardware thread ID
+          when csr_mimpid_c    => csr_rdata <= hw_ਸੰਸਕਰਣ_c; -- implementation ID
+          when csr_mhartid_c   => csr_rdata <= std_ulogic_ਸਦਿਸ਼(ਮੰਜ਼ਿਲ_unsigned(HART_ID, 32)); -- hardware thread ID
 
           -- --------------------------------------------------------------------
           -- debug-mode
@@ -1282,40 +1282,40 @@ begin
           when csr_mxisa_c => -- machine extended ISA extensions information, low-word
             csr_rdata(0)  <= '1';                                   -- Zicsr: CSR access (always enabled)
             csr_rdata(1)  <= '1';                                   -- Zifencei: instruction stream sync. (always enabled)
-            csr_rdata(2)  <= bool_to_ulogic_f(RISCV_ISA_Zmmul);     -- Zmmul: mul/div
-            csr_rdata(3)  <= bool_to_ulogic_f(RISCV_ISA_Xcfu);      -- Xcfu: custom instructions
-            csr_rdata(4)  <= bool_to_ulogic_f(RISCV_ISA_Zkt);       -- Zkt: data independent execution latency
-            csr_rdata(5)  <= bool_to_ulogic_f(RISCV_ISA_Zfinx);     -- Zfinx: FPU using x registers
-            csr_rdata(6)  <= bool_to_ulogic_f(RISCV_ISA_Zicond);    -- Zicond: integer conditional operations
-            csr_rdata(7)  <= bool_to_ulogic_f(RISCV_ISA_Zicntr);    -- Zicntr: base counters
-            csr_rdata(8)  <= bool_to_ulogic_f(RISCV_ISA_Smpmp);     -- Smpmp: physical memory protection
-            csr_rdata(9)  <= bool_to_ulogic_f(RISCV_ISA_Zihpm);     -- Zihpm: hardware performance monitors
-            csr_rdata(10) <= bool_to_ulogic_f(RISCV_ISA_Sdext);     -- Sdext: external debug
-            csr_rdata(11) <= bool_to_ulogic_f(RISCV_ISA_Sdtrig);    -- Sdtrig: trigger module
-            csr_rdata(12) <= bool_to_ulogic_f(RISCV_ISA_Zbkx);      -- Zbkx: cryptography crossbar permutation
-            csr_rdata(13) <= bool_to_ulogic_f(RISCV_ISA_Zknd);      -- Zknd: cryptography NIST AES decryption
-            csr_rdata(14) <= bool_to_ulogic_f(RISCV_ISA_Zkne);      -- Zkne: cryptography NIST AES encryption
-            csr_rdata(15) <= bool_to_ulogic_f(RISCV_ISA_Zknh);      -- Zknh: cryptography NIST hash functions
-            csr_rdata(16) <= bool_to_ulogic_f(RISCV_ISA_Zbkb);      -- Zbkb: bit manipulation instructions for cryptography
-            csr_rdata(17) <= bool_to_ulogic_f(RISCV_ISA_Zbkc);      -- Zbkc: carry-less multiplication for cryptography
-            csr_rdata(18) <= bool_to_ulogic_f(RISCV_ISA_Zkn);       -- Zkn: NIST algorithm suite
-            csr_rdata(19) <= bool_to_ulogic_f(RISCV_ISA_Zksh);      -- Zksh: ShangMi hash functions
-            csr_rdata(20) <= bool_to_ulogic_f(RISCV_ISA_Zksed);     -- Zksed: ShangMi block ciphers
-            csr_rdata(21) <= bool_to_ulogic_f(RISCV_ISA_Zks);       -- Zks: ShangMi algorithm suite
-            csr_rdata(22) <= bool_to_ulogic_f(RISCV_ISA_Zba);       -- Zba: shifted-add bit-manipulation
-            csr_rdata(23) <= bool_to_ulogic_f(RISCV_ISA_Zbb);       -- Zbb: basic bit-manipulation
-            csr_rdata(24) <= bool_to_ulogic_f(RISCV_ISA_Zbs);       -- Zbs: single-bit bit-manipulation
-            csr_rdata(25) <= bool_to_ulogic_f(RISCV_ISA_Zaamo);     -- Zaamo: atomic memory operations
-            csr_rdata(26) <= bool_to_ulogic_f(RISCV_ISA_Zalrsc);    -- Zalrsc: reservation-set operations
-            csr_rdata(27) <= bool_to_ulogic_f(RISCV_ISA_Zcb);       -- Zcb: additional code size reduction instructions
-            csr_rdata(28) <= bool_to_ulogic_f(RISCV_ISA_C);         -- Zca: C without floating-point
-            csr_rdata(29) <= bool_to_ulogic_f(RISCV_ISA_Zibi);      -- Zibi: branch with immediate-comparison
-            csr_rdata(30) <= bool_to_ulogic_f(RISCV_ISA_Zimop);     -- Zimop: may-be-operations
-            csr_rdata(31) <= bool_to_ulogic_f(RISCV_ISA_Smcntrpmf); -- Smcntrpmf: counter privilege-mode filtering
+            csr_rdata(2)  <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zmmul);     -- Zmmul: mul/div
+            csr_rdata(3)  <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Xcfu);      -- Xcfu: custom instructions
+            csr_rdata(4)  <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zkt);       -- Zkt: data independent execution latency
+            csr_rdata(5)  <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zfinx);     -- Zfinx: FPU using x registers
+            csr_rdata(6)  <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zicond);    -- Zicond: integer conditional operations
+            csr_rdata(7)  <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zicntr);    -- Zicntr: base counters
+            csr_rdata(8)  <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Smpmp);     -- Smpmp: physical memory protection
+            csr_rdata(9)  <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zihpm);     -- Zihpm: hardware performance monitors
+            csr_rdata(10) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Sdext);     -- Sdext: external debug
+            csr_rdata(11) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Sdtrig);    -- Sdtrig: trigger module
+            csr_rdata(12) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zbkx);      -- Zbkx: cryptography crossbar permutation
+            csr_rdata(13) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zknd);      -- Zknd: cryptography NIST AES decryption
+            csr_rdata(14) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zkne);      -- Zkne: cryptography NIST AES encryption
+            csr_rdata(15) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zknh);      -- Zknh: cryptography NIST hash functions
+            csr_rdata(16) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zbkb);      -- Zbkb: bit manipulation instructions for cryptography
+            csr_rdata(17) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zbkc);      -- Zbkc: carry-less multiplication for cryptography
+            csr_rdata(18) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zkn);       -- Zkn: NIST algorithm suite
+            csr_rdata(19) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zksh);      -- Zksh: ShangMi hash functions
+            csr_rdata(20) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zksed);     -- Zksed: ShangMi block ciphers
+            csr_rdata(21) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zks);       -- Zks: ShangMi algorithm suite
+            csr_rdata(22) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zba);       -- Zba: shifted-add bit-manipulation
+            csr_rdata(23) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zbb);       -- Zbb: basic bit-manipulation
+            csr_rdata(24) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zbs);       -- Zbs: single-bit bit-manipulation
+            csr_rdata(25) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zaamo);     -- Zaamo: atomic memory operations
+            csr_rdata(26) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zalrsc);    -- Zalrsc: reservation-set operations
+            csr_rdata(27) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zcb);       -- Zcb: additional code size reduction instructions
+            csr_rdata(28) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_C);         -- Zca: C without floating-point
+            csr_rdata(29) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zibi);      -- Zibi: branch with immediate-comparison
+            csr_rdata(30) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zimop);     -- Zimop: may-be-operations
+            csr_rdata(31) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Smcntrpmf); -- Smcntrpmf: counter privilege-mode filtering
 
           when csr_mxisah_c => -- machine extended ISA extensions information, high-word
-            csr_rdata(0) <= bool_to_ulogic_f(RISCV_ISA_Zbc);   -- Zbc: carry-less multiplication
-            csr_rdata(1) <= bool_to_ulogic_f(RISCV_ISA_Zcmop); -- Zcmop: compressed may-be-operations
+            csr_rdata(0) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zbc);   -- Zbc: carry-less multiplication
+            csr_rdata(1) <= bool_ਮੰਜ਼ਿਲ_ulogic_f(RISCV_ISA_Zcmop); -- Zcmop: compressed may-be-operations
 
           -- --------------------------------------------------------------------
           -- undefined/unavailable or implemented externally
