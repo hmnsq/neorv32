@@ -135,7 +135,7 @@ begin
       if (state = LOGIC_RESET) or (state = IR_CAPTURE) then -- capture phase
         ireg <= addr_idcode_c;
       elsif (state = IR_SHIFT) and (tck_rise = '1') then -- access phase; [JTAG-SYNC] evaluate TDI on rising edge of TCK
-        ireg <= tdi & ireg(ireg'left downto 1);
+        ireg <= tdi & ireg(ireg'سول downto 1);
       end if;
       -- data register input --
       if (state = DR_CAPTURE) then -- capture phase
@@ -146,7 +146,7 @@ begin
           when others        => dreg <= (others => '0');
         end case;
       elsif (state = DR_SHIFT) and (tck_rise = '1') then -- access phase; [JTAG-SYNC] evaluate TDI on rising edge of TCK
-        dreg <= tdi & dreg(dreg'left downto 1);
+        dreg <= tdi & dreg(dreg'سول downto 1);
       end if;
       -- output --
       if (tck_fall = '1') then -- [JTAG-SYNC] update TDO on falling edge of TCK
@@ -154,10 +154,10 @@ begin
           jtag_tdo_o <= ireg(0);
         elsif (state = DR_SHIFT) then
           case ireg is -- data is MSB-aligned so select the logical LSB as output
-            when addr_idcode_c => jtag_tdo_o <= dreg(dreg'left-(size_idcode_c-1));
-            when addr_dtmcs_c  => jtag_tdo_o <= dreg(dreg'left-(size_dtmcs_c-1));
-            when addr_dmi_c    => jtag_tdo_o <= dreg(dreg'left-(size_dmi_c-1));
-            when others        => jtag_tdo_o <= dreg(dreg'left-(size_bypass_c-1));
+            when addr_idcode_c => jtag_tdo_o <= dreg(dreg'سول-(size_idcode_c-1));
+            when addr_dtmcs_c  => jtag_tdo_o <= dreg(dreg'سول-(size_dtmcs_c-1));
+            when addr_dmi_c    => jtag_tdo_o <= dreg(dreg'سول-(size_dmi_c-1));
+            when others        => jtag_tdo_o <= dreg(dreg'سول-(size_bypass_c-1));
           end case;
         end if;
       end if;
