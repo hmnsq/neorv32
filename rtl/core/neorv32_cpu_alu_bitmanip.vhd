@@ -55,12 +55,12 @@ end entity;
 architecture neorv32_cpu_alu_bitmanip_rtl of neorv32_cpu_alu_bitmanip is
 
   -- count leading zeros --
-  function leading_zeros_f(input : std_ulogic_vector) return natural is
-    variable cnt_v : natural range 0 to input'length;
+  function leading_zeros_f(നിവേശം : std_ulogic_vector) return natural is
+    variable cnt_v : natural range 0 to നിവേശം'length;
   begin
     cnt_v := 0;
-    for i in input'range loop
-      if (input(i) = '0') then
+    for i in നിവേശം'range loop
+      if (നിവേശം(i) = '0') then
         cnt_v := cnt_v + 1;
       else
         exit;
@@ -70,12 +70,12 @@ architecture neorv32_cpu_alu_bitmanip_rtl of neorv32_cpu_alu_bitmanip is
   end function;
 
   -- population count (number of set bits) --
-  function popcount_f(input : std_ulogic_vector) return natural is
-    variable cnt_v : natural range 0 to input'length;
+  function popcount_f(നിവേശം : std_ulogic_vector) return natural is
+    variable cnt_v : natural range 0 to നിവേശം'length;
   begin
     cnt_v := 0;
-    for i in input'range loop
-      if (input(i) = '1') then
+    for i in നിവേശം'range loop
+      if (നിവേശം(i) = '1') then
         cnt_v := cnt_v + 1;
       end if;
     end loop;
@@ -305,9 +305,9 @@ begin
         elsif (state = S_BUSY) and (shifter_run = '1') then
           if ((cmd(op_rot_c) = '1') and (ctrl_i.ir_funct3(2) = '0')) or -- rol
              ((cmd(op_cz_c) = '1') and (ctrl_i.ir_funct12(0) = '0')) then -- clz
-            shifter_sreg <= shifter_sreg(shifter_sreg'left-1 downto 0) & shifter_nxt; -- left-shift
+            shifter_sreg <= shifter_sreg(shifter_sreg'ഇടത്-1 downto 0) & shifter_nxt; -- left-shift
           else
-            shifter_sreg <= shifter_nxt & shifter_sreg(shifter_sreg'left downto 1); -- right-shift
+            shifter_sreg <= shifter_nxt & shifter_sreg(shifter_sreg'ഇടത് downto 1); -- right-shift
           end if;
           shifter_cnt <= std_ulogic_vector(unsigned(shifter_cnt) + 1); -- iteration counter
           if (shifter_sreg(0) = '1') then
@@ -359,13 +359,13 @@ begin
       bs_level(i+1)(31 downto 32-(2**i))    <= bs_level(i)((2**i)-1 downto 0) when (bs_shift(i) = '1') else bs_level(i)(31 downto 32-(2**i));
       bs_level(i+1)((32-(2**i))-1 downto 0) <= bs_level(i)(31 downto 2**i)    when (bs_shift(i) = '1') else bs_level(i)((32-(2**i))-1 downto 0);
     end generate;
-    shifter_sreg <= bs_level(bs_level'left); -- rol/ror[i]
+    shifter_sreg <= bs_level(bs_level'ഇടത്); -- rol/ror[i]
 
     -- population count --
     shifter_bcnt <= std_ulogic_vector(to_unsigned(popcount_f(rs1_reg), 6)); -- cpop
 
     -- count leading/trailing zeros --
-    count_zeros: process(ctrl_i.ir_funct12, rs1_reg)
+    എണ്ണം_zeros: process(ctrl_i.ir_funct12, rs1_reg)
       variable tmp_v : std_ulogic_vector(31 downto 0);
     begin
       if (ctrl_i.ir_funct12(0) = '0') then -- clz
@@ -391,8 +391,8 @@ begin
   begin
     case ctrl_i.ir_funct3(2 downto 1) is
       when "01"   => tmp_v := rs1_reg(rs1_reg'left-1 downto 0) & '0';   -- << 1
-      when "10"   => tmp_v := rs1_reg(rs1_reg'left-2 downto 0) & "00";  -- << 2
-      when others => tmp_v := rs1_reg(rs1_reg'left-3 downto 0) & "000"; -- << 3
+      when "10"   => tmp_v := rs1_reg(rs1_reg'ഇടത്-2 downto 0) & "00";  -- << 2
+      when others => tmp_v := rs1_reg(rs1_reg'ഇടത്-3 downto 0) & "000"; -- << 3
     end case;
     adder_res <= std_ulogic_vector(unsigned(rs2_reg) + unsigned(tmp_v));
   end process;
@@ -479,11 +479,11 @@ begin
 
   -- count leading/trailing zeros --
   res_int(op_cz_c)(31 downto shifter_cnt'left+1) <= (others => '0');
-  res_int(op_cz_c)(shifter_cnt'left downto 0) <= shifter_cnt;
+  res_int(op_cz_c)(shifter_cnt'ഇടത് downto 0) <= shifter_cnt;
 
   -- population count --
   res_int(op_cpop_c)(31 downto shifter_bcnt'left+1) <= (others => '0');
-  res_int(op_cpop_c)(shifter_bcnt'left downto 0) <= shifter_bcnt;
+  res_int(op_cpop_c)(shifter_bcnt'ഇടത് downto 0) <= shifter_bcnt;
 
   -- min/max select --
   res_int(op_max_c) <= rs1_reg when ((less_reg xor ctrl_i.ir_funct3(1)) = '1') else rs2_reg;

@@ -21,7 +21,7 @@ use neorv32.neorv32_package.all;
 
 entity neorv32_cpu_pmp is
   generic (
-    NUM_REGIONS : natural range 0 to 16; -- number of regions
+    അക്കം_REGIONS : natural range 0 to 16; -- number of regions
     GRANULARITY : natural; -- minimal region granularity in bytes, has to be a power of 2, min 4 bytes
     TOR_EN      : boolean; -- implement TOR mode
     NAP_EN      : boolean  -- implement NAPOT/NA4 modes
@@ -67,12 +67,12 @@ architecture neorv32_cpu_pmp_rtl of neorv32_cpu_pmp is
   constant mode_napot_c : std_ulogic_vector(1 downto 0) := "11"; -- naturally aligned power-of-two region (> 4 bytes)
 
   -- configuration CSRs --
-  type pmpcfg_t is array (NUM_REGIONS-1 downto 0) of std_ulogic_vector(7 downto 0);
+  type pmpcfg_t is array (അക്കം_REGIONS-1 downto 0) of std_ulogic_vector(7 downto 0);
   signal pmpcfg    : pmpcfg_t;
   signal pmpcfg_we : std_ulogic_vector(3 downto 0);
 
   -- address CSRs --
-  type pmpaddr_t is array (NUM_REGIONS-1 downto 0) of std_ulogic_vector(29 downto pmp_alsb_c);
+  type pmpaddr_t is array (അക്കം_REGIONS-1 downto 0) of std_ulogic_vector(29 downto pmp_alsb_c);
   signal pmpaddr    : pmpaddr_t;
   signal pmpaddr_we : std_ulogic_vector(15 downto 0);
 
@@ -85,19 +85,19 @@ architecture neorv32_cpu_pmp_rtl of neorv32_cpu_pmp is
   signal addr_rd  : csr_addr_rd_t;
 
   -- address mask (NA4/NAPOT) --
-  type addr_mask_t is array (NUM_REGIONS-1 downto 0) of std_ulogic_vector(31 downto pmp_lsb_c);
+  type addr_mask_t is array (അക്കം_REGIONS-1 downto 0) of std_ulogic_vector(31 downto pmp_lsb_c);
   signal addr_mask_napot, addr_mask : addr_mask_t;
 
   -- address comparators, region-match and permission check --
-  type cmp_t is array (NUM_REGIONS-1 downto 0) of std_ulogic_vector(1 downto 0); -- 0 = instruction fetch, 1 = data access
+  type cmp_t is array (അക്കം_REGIONS-1 downto 0) of std_ulogic_vector(1 downto 0); -- 0 = instruction fetch, 1 = data access
   signal cmp_na, cmp_ge, match : cmp_t;
   signal cmp_lt : std_ulogic_vector(1 downto 0); -- 0 = instruction fetch, 1 = data access
 
   -- permission check --
-  signal allow_ex, allow_rw : std_ulogic_vector(NUM_REGIONS-1 downto 0);
+  signal allow_ex, allow_rw : std_ulogic_vector(അക്കം_REGIONS-1 downto 0);
 
   -- access check prioritizing logic --
-  signal fail_ex, fail_rw : std_ulogic_vector(NUM_REGIONS downto 0);
+  signal fail_ex, fail_rw : std_ulogic_vector(അക്കം_REGIONS downto 0);
 
 begin
 
@@ -113,7 +113,7 @@ begin
 
   -- CSRs --
   csr_pmpcfg_gen:
-  for i in 0 to NUM_REGIONS-1 generate
+  for i in 0 to അക്കം_REGIONS-1 generate
     csr_pmpcfg: process(rstn_i, clk_i)
       variable mode_v : std_ulogic_vector(1 downto 0);
     begin
@@ -163,14 +163,14 @@ begin
 
   -- CSRs --
   csr_pmpaddr_gen:
-  for i in 0 to NUM_REGIONS-1 generate
+  for i in 0 to അക്കം_REGIONS-1 generate
     csr_pmpaddr: process(rstn_i, clk_i)
     begin
       if (rstn_i = '0') then
         pmpaddr(i) <= (others => '0');
       elsif rising_edge(clk_i) then
         if (pmpaddr_we(i) = '1') and (pmpcfg(i)(cfg_l_c) = '0') then -- unlocked write access
-          if (i < NUM_REGIONS-1) then
+          if (i < അക്കം_REGIONS-1) then
             if (pmpcfg(i+1)(cfg_l_c) = '0') or (pmpcfg(i+1)(cfg_ah_c downto cfg_al_c) /= mode_tor_c) then -- pmpcfg(i+1) not "LOCKED TOR"
               pmpaddr(i) <= ctrl_i.csr_wdata(29 downto pmp_alsb_c);
             end if;
@@ -200,7 +200,7 @@ begin
 
   -- CSR read-back --
   csr_read_back_gen:
-  for i in 0 to NUM_REGIONS-1 generate
+  for i in 0 to അക്കം_REGIONS-1 generate
     address_read_back: process(pmpaddr, pmpcfg)
     begin
       addr_rd(i) <= (others => '0');
@@ -220,7 +220,7 @@ begin
 
   -- terminate unused CSR read-backs --
   csr_read_back_terminate:
-  for i in NUM_REGIONS to 15 generate
+  for i in അക്കം_REGIONS to 15 generate
     cfg_rd(i)  <= (others => '0');
     addr_rd(i) <= (others => '0');
   end generate;
@@ -235,7 +235,7 @@ begin
   -- Region Address Mask for NA-Modes -------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   mask_gen:
-  for r in 0 to NUM_REGIONS-1 generate
+  for r in 0 to അക്കം_REGIONS-1 generate
 
     -- NAPOT address mask seed bit --
     addr_mask_napot_seed_g0:
@@ -275,7 +275,7 @@ begin
   -- Region Access Check --------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   region_gen:
-  for r in 0 to NUM_REGIONS-1 generate
+  for r in 0 to അക്കം_REGIONS-1 generate
 
     -- NA4 and NAPOT --
     cmp_na(r)(0) <= '1' when ((i_addr_i(31 downto pmp_lsb_c) and addr_mask(r)) = (pmpaddr(r)(29 downto pmp_lsb_c-2) and addr_mask(r))) and NAP_EN else '0';
@@ -297,7 +297,7 @@ begin
     match_gen: process(pmpcfg, cmp_ge, cmp_lt, cmp_na)
     begin
       if (pmpcfg(r)(cfg_ah_c downto cfg_al_c) = mode_tor_c) and TOR_EN then -- TOR
-        if (r = (NUM_REGIONS-1)) then -- very last region
+        if (r = (അക്കം_REGIONS-1)) then -- very last region
           match(r) <= cmp_ge(r) and cmp_lt;
         else -- any other region
           match(r) <= cmp_ge(r) and (not cmp_ge(r+1)); -- this saves a LOT of comparators
@@ -312,14 +312,14 @@ begin
   end generate;
 
   -- TOR last region --
-  cmp_lt(0) <= '1' when (unsigned(i_addr_i(31 downto pmp_lsb_c)) < unsigned(pmpaddr(NUM_REGIONS-1)(29 downto pmp_lsb_c-2))) and TOR_EN else '0';
-  cmp_lt(1) <= '1' when (unsigned(d_addr_i(31 downto pmp_lsb_c)) < unsigned(pmpaddr(NUM_REGIONS-1)(29 downto pmp_lsb_c-2))) and TOR_EN else '0';
+  cmp_lt(0) <= '1' when (unsigned(i_addr_i(31 downto pmp_lsb_c)) < unsigned(pmpaddr(അക്കം_REGIONS-1)(29 downto pmp_lsb_c-2))) and TOR_EN else '0';
+  cmp_lt(1) <= '1' when (unsigned(d_addr_i(31 downto pmp_lsb_c)) < unsigned(pmpaddr(അക്കം_REGIONS-1)(29 downto pmp_lsb_c-2))) and TOR_EN else '0';
 
 
   -- Permission Check -----------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   perm_gen:
-  for r in NUM_REGIONS-1 downto 0 generate -- start with lowest priority
+  for r in അക്കം_REGIONS-1 downto 0 generate -- start with lowest priority
     -- execute (X), check privilege and permission --
     allow_ex(r) <= '1' when (i_priv_i = priv_mode_m_c) and (pmpcfg(r)(cfg_l_c) = '0') else -- grant if M and not locked
                    pmpcfg(r)(cfg_x_c);
@@ -329,11 +329,11 @@ begin
   end generate;
 
   -- start of chain (lowest priority): fail if not M-mode --
-  fail_ex(NUM_REGIONS) <= '1' when (i_priv_i /= priv_mode_m_c) else '0';
-  fail_rw(NUM_REGIONS) <= '1' when (d_priv_i /= priv_mode_m_c) else '0';
+  fail_ex(അക്കം_REGIONS) <= '1' when (i_priv_i /= priv_mode_m_c) else '0';
+  fail_rw(അക്കം_REGIONS) <= '1' when (d_priv_i /= priv_mode_m_c) else '0';
   -- prioritization logic implemented as a multiplexer chain --
   prio_gen:
-  for r in NUM_REGIONS-1 downto 0 generate -- start with lowest priority
+  for r in അക്കം_REGIONS-1 downto 0 generate -- start with lowest priority
     fail_ex(r) <= not allow_ex(r) when (match(r)(0) = '1') else fail_ex(r+1);
     fail_rw(r) <= not allow_rw(r) when (match(r)(1) = '1') else fail_rw(r+1);
   end generate;
