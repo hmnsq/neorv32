@@ -33,7 +33,7 @@ end entity;
 
 architecture neorv32_sys_reset_rtl of neorv32_sys_reset is
 
-  signal sreg_ext, sreg_sys : std_ulogic_vector(3 downto 0);
+  signal sreg_ext, sreg_sys : std_ulogic_సదిశ(3 downto 0);
 
 begin
 
@@ -45,7 +45,7 @@ begin
       rstn_ext_o <= '0';
       sreg_sys   <= (others => '0');
       rstn_sys_o <= '0';
-    elsif rising_edge(clk_i) then
+    elsif rising_అంచు(clk_i) then
       -- external reset --
       sreg_ext   <= sreg_ext(sreg_ext'left-1 downto 0) & '1';
       rstn_ext_o <= and_reduce_f(sreg_ext);
@@ -65,7 +65,7 @@ begin
     if (rstn_ext_i = '0') then
       xrstn_wdt_o <= '0';
       xrstn_ocd_o <= '0';
-    elsif rising_edge(clk_i) then
+    elsif rising_అంచు(clk_i) then
       xrstn_wdt_o <= rstn_wdt_i;
       xrstn_ocd_o <= rstn_dbg_i;
     end if;
@@ -98,13 +98,13 @@ entity neorv32_sys_clock is
   port (
     clk_i    : in  std_ulogic;                   -- global clock, rising edge
     rstn_i   : in  std_ulogic;                   -- global reset, low-active, async
-    clk_en_o : out std_ulogic_vector(7 downto 0) -- prescaled clock-enables
+    clk_en_o : out std_ulogic_సదిశ(7 downto 0) -- prescaled clock-enables
   );
 end entity;
 
 architecture neorv32_sys_clock_rtl of neorv32_sys_clock is
 
-  signal cnt, cnt2, en : std_ulogic_vector(11 downto 0);
+  signal cnt, cnt2, en : std_ulogic_సదిశ(11 downto 0);
 
 begin
 
@@ -114,8 +114,8 @@ begin
     if (rstn_i = '0') then
       cnt  <= (others => '0');
       cnt2 <= (others => '0');
-    elsif rising_edge(clk_i) then
-      cnt  <= std_ulogic_vector(unsigned(cnt) + 1);
+    elsif rising_అంచు(clk_i) then
+      cnt  <= std_ulogic_సదిశ(unsigned(cnt) + 1);
       cnt2 <= cnt;
     end if;
   end process;

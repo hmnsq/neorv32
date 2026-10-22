@@ -19,67 +19,67 @@ use neorv32.neorv32_package.all;
 
 entity neorv32_cache_ram is
   generic (
-    TAG_WIDTH : natural; -- tag width
-    IDX_WIDTH : natural; -- index width
-    OFS_WIDTH : natural  -- offset width
+    ట్యాగ్_వెడల్పు : natural; -- tag width
+    IDX_వెడల్పు : natural; -- index width
+    OFS_వెడల్పు : natural  -- offset width
   );
   port (
     -- global control --
     clk_i     : in  std_ulogic;                     -- global clock, rising edge
-    addr_i    : in  std_ulogic_vector(31 downto 0); -- full byte address
+    addr_i    : in  std_ulogic_సదిశ(31 downto 0); -- full byte address
     -- tag memory --
-    tag_we_i  : in  std_ulogic;                     -- tag write-enable
-    tag_o     : out std_ulogic_vector(31 downto 0); -- zero-extended tag output
+    ట్యాగ్_we_i  : in  std_ulogic;                     -- tag write-enable
+    ట్యాగ్_o     : out std_ulogic_సదిశ(31 downto 0); -- zero-extended tag output
     -- data memory --
-    data_we_i : in  std_ulogic_vector(3 downto 0);  -- byte-wise data write-enable
-    data_i    : in  std_ulogic_vector(31 downto 0); -- write data
-    data_o    : out std_ulogic_vector(31 downto 0)  -- read data
+    దత్తాంశం_we_i : in  std_ulogic_సదిశ(3 downto 0);  -- byte-wise data write-enable
+    దత్తాంశం_i    : in  std_ulogic_సదిశ(31 downto 0); -- write data
+    దత్తాంశం_o    : out std_ulogic_సదిశ(31 downto 0)  -- read data
   );
 end entity;
 
 architecture neorv32_cache_ram_rtl of neorv32_cache_ram is
 
-  signal tag_rd : std_ulogic_vector(TAG_WIDTH-1 downto 0);
+  signal ట్యాగ్_rd : std_ulogic_సదిశ(ట్యాగ్_వెడల్పు-1 downto 0);
 
 begin
 
   -- Tag RAM --------------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  tag_ram_inst: entity neorv32.neorv32_prim_spram
+  ట్యాగ్_ram_inst: entity neorv32.neorv32_prim_spram
   generic map (
-    AWIDTH => IDX_WIDTH,
-    DWIDTH => TAG_WIDTH,
+    AWIDTH => IDX_వెడల్పు,
+    DWIDTH => ట్యాగ్_వెడల్పు,
     OUTREG => false
   )
   port map (
     clk_i  => clk_i,
     en_i   => '1',
-    rw_i   => tag_we_i,
-    addr_i => addr_i(31-TAG_WIDTH downto 2+OFS_WIDTH), -- index
-    data_i => addr_i(31 downto 31-(TAG_WIDTH-1)), -- tag
-    data_o => tag_rd
+    rw_i   => ట్యాగ్_we_i,
+    addr_i => addr_i(31-ట్యాగ్_వెడల్పు downto 2+OFS_వెడల్పు), -- index
+    దత్తాంశం_i => addr_i(31 downto 31-(ట్యాగ్_వెడల్పు-1)), -- tag
+    దత్తాంశం_o => ట్యాగ్_rd
   );
 
-  tag_o(TAG_WIDTH-1 downto 0) <= tag_rd(TAG_WIDTH-1 downto 0); -- actual tag
-  tag_o(31 downto TAG_WIDTH)  <= (others => '0'); -- zero-extend
+  ట్యాగ్_o(ట్యాగ్_వెడల్పు-1 downto 0) <= ట్యాగ్_rd(ట్యాగ్_వెడల్పు-1 downto 0); -- actual tag
+  ట్యాగ్_o(31 downto ట్యాగ్_వెడల్పు)  <= (others => '0'); -- zero-extend
 
   -- Data RAM -------------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  data_ram_gen:
+  దత్తాంశం_ram_gen:
   for i in 0 to 3 generate -- four individual byte RAMs per word
-    data_ram_inst: entity neorv32.neorv32_prim_spram
+    దత్తాంశం_ram_inst: entity neorv32.neorv32_prim_spram
     generic map (
-      AWIDTH => IDX_WIDTH + OFS_WIDTH,
+      AWIDTH => IDX_వెడల్పు + OFS_వెడల్పు,
       DWIDTH => 8,
       OUTREG => false
     )
     port map (
       clk_i  => clk_i,
       en_i   => '1',
-      rw_i   => data_we_i(i),
-      addr_i => addr_i(IDX_WIDTH+OFS_WIDTH+1 downto 2), -- index & word-offset
-      data_i => data_i(i*8+7 downto i*8),
-      data_o => data_o(i*8+7 downto i*8)
+      rw_i   => దత్తాంశం_we_i(i),
+      addr_i => addr_i(IDX_వెడల్పు+OFS_వెడల్పు+1 downto 2), -- index & word-offset
+      దత్తాంశం_i => దత్తాంశం_i(i*8+7 downto i*8),
+      దత్తాంశం_o => దత్తాంశం_o(i*8+7 downto i*8)
     );
   end generate;
 

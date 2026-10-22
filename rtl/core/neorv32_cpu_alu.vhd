@@ -39,7 +39,7 @@ entity neorv32_cpu_alu is
     -- Tuning Options --
     FAST_MUL_EN      : boolean;              -- use DSPs for M extension's multiplier
     FAST_MUL_REGS    : natural range 1 to 3; -- number of fast multiplier register stages
-    FAST_SHIFT_EN    : boolean               -- use barrel shifter for shift operations
+    FAST_జరుపు_EN    : boolean               -- use barrel shifter for shift operations
   );
   port (
     -- global control --
@@ -47,23 +47,23 @@ entity neorv32_cpu_alu is
     rstn_i : in  std_ulogic; -- global reset, low-active, async
     ctrl_i : in  ctrl_bus_t; -- main control bus
     -- data input --
-    rs1_i  : in  std_ulogic_vector(31 downto 0); -- register source 1
-    rs2_i  : in  std_ulogic_vector(31 downto 0); -- register source 2
+    rs1_i  : in  std_ulogic_సదిశ(31 downto 0); -- register source 1
+    rs2_i  : in  std_ulogic_సదిశ(31 downto 0); -- register source 2
     -- data output --
-    cmp_o  : out std_ulogic_vector(1 downto 0);  -- comparator status
-    res_o  : out std_ulogic_vector(31 downto 0); -- ALU result
-    add_o  : out std_ulogic_vector(31 downto 0); -- address computation result
-    csr_o  : out std_ulogic_vector(31 downto 0); -- CSR read data
+    cmp_o  : out std_ulogic_సదిశ(1 downto 0);  -- comparator status
+    res_o  : out std_ulogic_సదిశ(31 downto 0); -- ALU result
+    కూడు_o  : out std_ulogic_సదిశ(31 downto 0); -- address computation result
+    csr_o  : out std_ulogic_సదిశ(31 downto 0); -- CSR read data
     -- status --
-    done_o : out std_ulogic -- co-processor operation done?
+    పూర్తి_o : out std_ulogic -- co-processor operation done?
   );
 end entity;
 
 architecture neorv32_cpu_alu_rtl of neorv32_cpu_alu is
 
   -- Zibi ISA extension: compare with immediate --
-  function zibi_cmp_f(sel : std_ulogic_vector(4 downto 0); cmp : std_ulogic_vector(31 downto 0)) return std_ulogic is
-    variable imm_v : std_ulogic_vector(31 downto 0);
+  function zibi_cmp_f(sel : std_ulogic_సదిశ(4 downto 0); cmp : std_ulogic_సదిశ(31 downto 0)) return std_ulogic is
+    variable imm_v : std_ulogic_సదిశ(31 downto 0);
   begin
     if (sel = "00000") then
       imm_v := (others => '1'); -- minus 1
@@ -78,16 +78,16 @@ architecture neorv32_cpu_alu_rtl of neorv32_cpu_alu is
   end function;
 
   -- ALU core --
-  signal cmp_rs1, cmp_rs2, opa, opb, slt_opb, addsub, cp_res : std_ulogic_vector(31 downto 0);
+  signal cmp_rs1, cmp_rs2, opa, opb, slt_opb, addsub, cp_res : std_ulogic_సదిశ(31 downto 0);
   signal cmp_eq, cmp_lt, slt : std_ulogic;
 
   -- co-processor interface --
-  type cp_data_t  is array (6 downto 0) of std_ulogic_vector(31 downto 0);
-  signal cp_result : cp_data_t;
-  signal cp_valid : std_ulogic_vector(6 downto 0);
-  signal cfu_inst : std_ulogic_vector(31 downto 0);
-  signal fpu_csr_en, fpu_csr_we, cfu_done, cfu_busy : std_ulogic;
-  signal fpu_csr_rd, cfu_res : std_ulogic_vector(31 downto 0);
+  type cp_దత్తాంశం_t  is array (6 downto 0) of std_ulogic_సదిశ(31 downto 0);
+  signal cp_ఫలితం : cp_దత్తాంశం_t;
+  signal cp_valid : std_ulogic_సదిశ(6 downto 0);
+  signal cfu_inst : std_ulogic_సదిశ(31 downto 0);
+  signal fpu_csr_en, fpu_csr_we, cfu_పూర్తి, cfu_busy : std_ulogic;
+  signal fpu_csr_rd, cfu_res : std_ulogic_సదిశ(31 downto 0);
 
 begin
 
@@ -116,7 +116,7 @@ begin
     res_o <= (others => '0');
     case ctrl_i.alu_op is
       when alu_op_zero_c => res_o <= (others => '0');
-      when alu_op_add_c  => res_o <= addsub;
+      when alu_op_కూడు_c  => res_o <= addsub;
       when alu_op_cp_c   => res_o <= cp_res;
       when alu_op_slt_c  => res_o <= x"0000000" & "000" & slt;
       when alu_op_movb_c => res_o <= opb;
@@ -132,9 +132,9 @@ begin
   opb <= ctrl_i.alu_imm when (ctrl_i.alu_opb_mux = '1') else rs2_i;
 
   -- adder/subtractor
-  addsub <= std_ulogic_vector(unsigned(opa) - unsigned(opb)) when (ctrl_i.alu_sub = '1') else
-            std_ulogic_vector(unsigned(opa) + unsigned(opb));
-  add_o  <= addsub; -- direct output
+  addsub <= std_ulogic_సదిశ(unsigned(opa) - unsigned(opb)) when (ctrl_i.alu_sub = '1') else
+            std_ulogic_సదిశ(unsigned(opa) + unsigned(opb));
+  కూడు_o  <= addsub; -- direct output
 
   -- set-on-less-than --
   slt_opb <= (opb(31) xnor ctrl_i.alu_unsigned) & opb(30 downto 0);
@@ -145,14 +145,14 @@ begin
   -- **************************************************************************************************************************
 
   -- result and status --
-  done_o <= cp_valid(0) or cp_valid(1) or cp_valid(2) or cp_valid(3) or cp_valid(4) or cp_valid(5) or cp_valid(6);
-  cp_res <= cp_result(0) or cp_result(1) or cp_result(2) or cp_result(3) or cp_result(4) or cp_result(5) or cp_result(6);
+  పూర్తి_o <= cp_valid(0) or cp_valid(1) or cp_valid(2) or cp_valid(3) or cp_valid(4) or cp_valid(5) or cp_valid(6);
+  cp_res <= cp_ఫలితం(0) or cp_ఫలితం(1) or cp_ఫలితం(2) or cp_ఫలితం(3) or cp_ఫలితం(4) or cp_ఫలితం(5) or cp_ఫలితం(6);
 
   -- ALU[I]-Opcode Co-Processor: Shifter Unit (Base ISA) ------------------------------------
   -- -------------------------------------------------------------------------------------------
   cpu_alu_shifter_inst: entity neorv32.neorv32_cpu_alu_shifter
   generic map (
-    FAST_SHIFT_EN => FAST_SHIFT_EN -- use barrel shifter for shift operations
+    FAST_జరుపు_EN => FAST_జరుపు_EN -- use barrel shifter for shift operations
   )
   port map (
     -- global control --
@@ -163,7 +163,7 @@ begin
     rs1_i   => rs1_i,           -- register source 1
     shamt_i => opb(4 downto 0), -- shift amount
     -- result and status --
-    res_o   => cp_result(0),    -- operation result
+    res_o   => cp_ఫలితం(0),    -- operation result
     valid_o => cp_valid(0)      -- data output valid
   );
 
@@ -186,14 +186,14 @@ begin
       rs1_i   => rs1_i,        -- register source 1
       rs2_i   => rs2_i,        -- register source 2
       -- result and status --
-      res_o   => cp_result(1), -- operation result
+      res_o   => cp_ఫలితం(1), -- operation result
       valid_o => cp_valid(1)   -- data output valid
     );
   end generate;
 
   cpu_alu_muldiv_disabled:
   if (not RISCV_ISA_M) and (not RISCV_ISA_Zmmul) generate
-    cp_result(1) <= (others => '0');
+    cp_ఫలితం(1) <= (others => '0');
     cp_valid(1)  <= '0';
   end generate;
 
@@ -203,7 +203,7 @@ begin
   if RISCV_ISA_Zba or RISCV_ISA_Zbb or RISCV_ISA_Zbc or RISCV_ISA_Zbkb or RISCV_ISA_Zbkc or RISCV_ISA_Zbkx or RISCV_ISA_Zbs generate
     cpu_alu_bitmanip_inst: entity neorv32.neorv32_cpu_alu_bitmanip
     generic map (
-      FAST_SHIFT => FAST_SHIFT_EN,  -- use barrel shifter for shift operations
+      FAST_జరుపు => FAST_జరుపు_EN,  -- use barrel shifter for shift operations
       ZBA        => RISCV_ISA_Zba,  -- address-generation instruction
       ZBB        => RISCV_ISA_Zbb,  -- basic bit-manipulation instruction
       ZBC        => RISCV_ISA_Zbc,  -- carry-less multiplication instructions
@@ -223,14 +223,14 @@ begin
       rs2_i   => rs2_i,           -- register source 2
       shamt_i => opb(4 downto 0), -- shift amount
       -- result and status --
-      res_o   => cp_result(2),    -- operation result
+      res_o   => cp_ఫలితం(2),    -- operation result
       valid_o => cp_valid(2)      -- data output valid
     );
   end generate;
 
   cpu_alu_bitmanip_disabled:
   if not (RISCV_ISA_Zba or RISCV_ISA_Zbb or RISCV_ISA_Zbc or RISCV_ISA_Zbkb or RISCV_ISA_Zbkc or RISCV_ISA_Zbkx or RISCV_ISA_Zbs) generate
-    cp_result(2) <= (others => '0');
+    cp_ఫలితం(2) <= (others => '0');
     cp_valid(2)  <= '0';
   end generate;
 
@@ -255,7 +255,7 @@ begin
       rs1_i       => rs1_i,                       -- register source 1
       rs2_i       => rs2_i,                       -- register source 2
       -- result and status --
-      res_o       => cp_result(3),                -- operation result
+      res_o       => cp_ఫలితం(3),                -- operation result
       valid_o     => cp_valid(3)                  -- data output valid
     );
 
@@ -271,7 +271,7 @@ begin
     fpu_csr_we   <= '0';
     fpu_csr_rd   <= (others => '0');
     csr_o        <= (others => '0');
-    cp_result(3) <= (others => '0');
+    cp_ఫలితం(3) <= (others => '0');
     cp_valid(3)  <= '0';
   end generate;
 
@@ -286,13 +286,13 @@ begin
       clk_i    => clk_i,             -- global clock, rising edge
       rstn_i   => rstn_i,            -- global reset, low-active, async
       -- request
-      start_i  => ctrl_i.alu_cp_cfu, -- start trigger, single-shot
+      ప్రారంభం_i  => ctrl_i.alu_cp_cfu, -- start trigger, single-shot
       inst_i   => cfu_inst,          -- instruction word
       rs1_i    => rs1_i,             -- register source 1
       rs2_i    => rs2_i,             -- register source 2
       -- response --
-      result_o => cfu_res,           -- operation result
-      valid_o  => cfu_done           -- result valid, operation done
+      ఫలితం_o => cfu_res,           -- operation result
+      valid_o  => cfu_పూర్తి           -- result valid, operation done
     );
 
     -- CFU instruction word --
@@ -304,30 +304,30 @@ begin
     begin
       if (rstn_i = '0') then
         cfu_busy     <= '0';
-        cp_result(4) <= (others => '0');
-      elsif rising_edge(clk_i) then
-        if (cfu_done = '1') or (ctrl_i.cpu_trap = '1') then -- terminate also on trap
+        cp_ఫలితం(4) <= (others => '0');
+      elsif rising_అంచు(clk_i) then
+        if (cfu_పూర్తి = '1') or (ctrl_i.cpu_trap = '1') then -- terminate also on trap
           cfu_busy <= '0';
         elsif (ctrl_i.alu_cp_cfu = '1') then
           cfu_busy <= '1';
         end if;
         if (cp_valid(4) = '1') then
-          cp_result(4) <= cfu_res;
+          cp_ఫలితం(4) <= cfu_res;
         else -- output zero if there is no CFU operation
-          cp_result(4) <= (others => '0');
+          cp_ఫలితం(4) <= (others => '0');
         end if;
       end if;
     end process;
-    cp_valid(4) <= cfu_done and (ctrl_i.alu_cp_cfu or cfu_busy);
+    cp_valid(4) <= cfu_పూర్తి and (ctrl_i.alu_cp_cfu or cfu_busy);
   end generate;
 
   cpu_alu_cfu_disabled:
   if not RISCV_ISA_Xcfu generate
     cfu_inst     <= (others => '0');
     cfu_res      <= (others => '0');
-    cfu_done     <= '0';
+    cfu_పూర్తి     <= '0';
     cfu_busy     <= '0';
-    cp_result(4) <= (others => '0');
+    cp_ఫలితం(4) <= (others => '0');
     cp_valid(4)  <= '0';
   end generate;
 
@@ -344,14 +344,14 @@ begin
       rs1_i   => rs1_i,        -- register source 1
       rs2_i   => rs2_i,        -- register source 2
       -- result and status --
-      res_o   => cp_result(5), -- operation result
+      res_o   => cp_ఫలితం(5), -- operation result
       valid_o => cp_valid(5)   -- data output valid
     );
   end generate;
 
   cpu_alu_cond_disabled:
   if not RISCV_ISA_Zicond generate
-    cp_result(5) <= (others => '0');
+    cp_ఫలితం(5) <= (others => '0');
     cp_valid(5)  <= '0';
   end generate;
 
@@ -376,14 +376,14 @@ begin
       rs1_i   => rs1_i,        -- register source 1
       rs2_i   => rs2_i,        -- register source 2
       -- result and status --
-      res_o   => cp_result(6), -- operation result
+      res_o   => cp_ఫలితం(6), -- operation result
       valid_o => cp_valid(6)   -- data output valid
     );
   end generate;
 
   cpu_alu_crypto_disabled:
   if not (RISCV_ISA_Zknd or RISCV_ISA_Zkne or RISCV_ISA_Zknh or RISCV_ISA_Zksed or RISCV_ISA_Zksh) generate
-    cp_result(6) <= (others => '0');
+    cp_ఫలితం(6) <= (others => '0');
     cp_valid(6)  <= '0';
   end generate;
 

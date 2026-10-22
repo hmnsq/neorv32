@@ -20,16 +20,16 @@ use neorv32.neorv32_package.all;
 
 entity neorv32_clint is
   generic (
-    NUM_HARTS : natural range 1 to 4 -- number of physical CPU cores
+    అంకె_HARTS : natural range 1 to 4 -- number of physical CPU cores
   );
   port (
     clk_i     : in  std_ulogic;                              -- global clock line
     rstn_i    : in  std_ulogic;                              -- global reset line, low-active, async
     bus_req_i : in  bus_req_t;                               -- bus request
     bus_rsp_o : out bus_rsp_t;                               -- bus response
-    time_o    : out std_ulogic_vector(63 downto 0);          -- current system time (HI/LO are not synchronized!)
-    mti_o     : out std_ulogic_vector(NUM_HARTS-1 downto 0); -- machine timer interrupt
-    msi_o     : out std_ulogic_vector(NUM_HARTS-1 downto 0)  -- machine software interrupt
+    సమయం_o    : out std_ulogic_సదిశ(63 downto 0);          -- current system time (HI/LO are not synchronized!)
+    mti_o     : out std_ulogic_సదిశ(అంకె_HARTS-1 downto 0); -- machine timer interrupt
+    msi_o     : out std_ulogic_సదిశ(అంకె_HARTS-1 downto 0)  -- machine software interrupt
   );
 end entity;
 
@@ -40,36 +40,36 @@ architecture neorv32_clint_rtl of neorv32_clint is
   port (
     clk_i   : in  std_ulogic;
     rstn_i  : in  std_ulogic;
-    mtime_i : in  std_ulogic_vector(63 downto 0);
+    mtime_i : in  std_ulogic_సదిశ(63 downto 0);
     we_i    : in  std_ulogic;
     re_i    : in  std_ulogic;
     addr_i  : in  std_ulogic;
-    wdata_i : in  std_ulogic_vector(31 downto 0);
-    rdata_o : out std_ulogic_vector(31 downto 0);
+    wdata_i : in  std_ulogic_సదిశ(31 downto 0);
+    rdata_o : out std_ulogic_సదిశ(31 downto 0);
     mti_o   : out std_ulogic
   );
   end component;
 
   -- device offsets --
-  constant base_mswi_c     : unsigned(15 downto 0) := x"0000";
-  constant base_mtimecmp_c : unsigned(15 downto 0) := x"4000";
-  constant base_mtime_c    : unsigned(15 downto 0) := x"bff8";
+  constant పునాది_mswi_c     : unsigned(15 downto 0) := x"0000";
+  constant పునాది_mtimecmp_c : unsigned(15 downto 0) := x"4000";
+  constant పునాది_mtime_c    : unsigned(15 downto 0) := x"bff8";
 
   -- bus interface --
   signal bus_ack, bus_rden : std_ulogic;
 
   -- device access --
   signal mtime_en : std_ulogic;
-  signal mtime_we : std_ulogic_vector(1 downto 0);
-  signal mtimecmp_en, mtimecmp_re, mtimecmp_we, mswi_en, mswi : std_ulogic_vector(NUM_HARTS-1 downto 0);
+  signal mtime_we : std_ulogic_సదిశ(1 downto 0);
+  signal mtimecmp_en, mtimecmp_re, mtimecmp_we, mswi_en, mswi : std_ulogic_సదిశ(అంకె_HARTS-1 downto 0);
 
   -- read-back --
-  type rb32_t is array (NUM_HARTS-1 downto 0) of std_ulogic_vector(31 downto 0);
+  type rb32_t is array (అంకె_HARTS-1 downto 0) of std_ulogic_సదిశ(31 downto 0);
   signal mtimecmp_rd : rb32_t;
   signal mswi_rd     : rb32_t;
-  signal mtime       : std_ulogic_vector(63 downto 0);
-  signal mtime_rd    : std_ulogic_vector(31 downto 0);
-  signal rdata       : std_ulogic_vector(31 downto 0);
+  signal mtime       : std_ulogic_సదిశ(63 downto 0);
+  signal mtime_rd    : std_ulogic_సదిశ(31 downto 0);
+  signal rdata       : std_ulogic_సదిశ(31 downto 0);
 
 begin
 
@@ -84,13 +84,13 @@ begin
     rstn_i => rstn_i,
     inc_i  => '1', -- permanent increment
     we_i   => mtime_we,
-    data_i => bus_req_i.data,
+    దత్తాంశం_i => bus_req_i.దత్తాంశం,
     oe_i   => '1', -- permanent output (required for comparators)
     cnt_o  => mtime
   );
 
   -- device access --
-  mtime_en    <= '1' when (unsigned(bus_req_i.addr(15 downto 3)) = base_mtime_c(15 downto 3)) else '0';
+  mtime_en    <= '1' when (unsigned(bus_req_i.addr(15 downto 3)) = పునాది_mtime_c(15 downto 3)) else '0';
   mtime_we(0) <= bus_req_i.stb and mtime_en and bus_req_i.rw and (not bus_req_i.addr(2));
   mtime_we(1) <= bus_req_i.stb and mtime_en and bus_req_i.rw and (    bus_req_i.addr(2));
 
@@ -99,12 +99,12 @@ begin
               mtime(63 downto 32) when (bus_req_i.addr(2) = '1') else mtime(31 downto 0);
 
   -- system time output: high and low word are NOT synchronized! --
-  time_o <= mtime;
+  సమయం_o <= mtime;
 
   -- MTIMECMP - Per-Hart Time Comparator / Interrupt Generator ------------------------------
   -- -------------------------------------------------------------------------------------------
   neorv32_clint_mtimecmp_gen:
-  for i in 0 to NUM_HARTS-1 generate
+  for i in 0 to అంకె_HARTS-1 generate
 
     neorv32_clint_mtimecmp_inst: neorv32_clint_mtimecmp
     port map (
@@ -114,13 +114,13 @@ begin
       we_i    => mtimecmp_we(i),
       re_i    => mtimecmp_re(i),
       addr_i  => bus_req_i.addr(2),
-      wdata_i => bus_req_i.data,
+      wdata_i => bus_req_i.దత్తాంశం,
       rdata_o => mtimecmp_rd(i),
       mti_o   => mti_o(i)
     );
 
     -- device access --
-    mtimecmp_en(i) <= '1' when (unsigned(bus_req_i.addr(15 downto 3)) = (base_mtimecmp_c(15 downto 3) + i)) else '0';
+    mtimecmp_en(i) <= '1' when (unsigned(bus_req_i.addr(15 downto 3)) = (పునాది_mtimecmp_c(15 downto 3) + i)) else '0';
     mtimecmp_we(i) <= mtimecmp_en(i) and (    bus_req_i.rw) and bus_req_i.stb;
     mtimecmp_re(i) <= mtimecmp_en(i) and (not bus_req_i.rw);
 
@@ -129,15 +129,15 @@ begin
   -- MSWI - Per-Hart Machine Software Interrupt Trigger -------------------------------------
   -- -------------------------------------------------------------------------------------------
   neorv32_clint_swi_gen:
-  for i in 0 to NUM_HARTS-1 generate
+  for i in 0 to అంకె_HARTS-1 generate
 
     mswi_reg: process(rstn_i, clk_i)
     begin
       if (rstn_i = '0') then
         mswi(i) <= '0';
-      elsif rising_edge(clk_i) then
+      elsif rising_అంచు(clk_i) then
         if (bus_req_i.stb = '1') and (mswi_en(i) = '1') and (bus_req_i.rw = '1') then
-          mswi(i) <= bus_req_i.data(0);
+          mswi(i) <= bus_req_i.దత్తాంశం(0);
         end if;
       end if;
     end process mswi_reg;
@@ -146,7 +146,7 @@ begin
     msi_o(i) <= mswi(i);
 
     -- device access --
-    mswi_en(i) <= '1' when (unsigned(bus_req_i.addr(15 downto 2)) = (base_mswi_c(15 downto 2) + i)) else '0';
+    mswi_en(i) <= '1' when (unsigned(bus_req_i.addr(15 downto 2)) = (పునాది_mswi_c(15 downto 2) + i)) else '0';
 
     -- read-back --
     mswi_rd(i) <= x"0000000" & "000" & (mswi_en(i) and mswi(i));
@@ -157,18 +157,18 @@ begin
   -- -------------------------------------------------------------------------------------------
   bus_handshake: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_అంచు(clk_i) then
       bus_ack  <= bus_req_i.stb and (mtime_en or or_reduce_f(mtimecmp_en) or or_reduce_f(mswi_en));
       bus_rden <= bus_req_i.stb and (not bus_req_i.rw);
     end if;
   end process;
 
   -- data read-back --
-  read_back: process(mtime_rd, mtimecmp_rd, mswi_rd)
-    variable tmp_v : std_ulogic_vector(31 downto 0);
+  read_వెనుక: process(mtime_rd, mtimecmp_rd, mswi_rd)
+    variable tmp_v : std_ulogic_సదిశ(31 downto 0);
   begin
     tmp_v := (others => '0');
-    for i in 0 to NUM_HARTS-1 loop -- OR all
+    for i in 0 to అంకె_HARTS-1 loop -- OR all
       tmp_v := tmp_v or mtimecmp_rd(i) or mswi_rd(i);
     end loop;
     rdata <= mtime_rd or tmp_v;
@@ -177,7 +177,7 @@ begin
   -- bus response --
   bus_rsp_o.ack  <= bus_ack;
   bus_rsp_o.err  <= '0'; -- no access errors supported
-  bus_rsp_o.data <= rdata when (bus_rden = '1') else (others => '0'); -- output gating
+  bus_rsp_o.దత్తాంశం <= rdata when (bus_rden = '1') else (others => '0'); -- output gating
 
 end architecture;
 
@@ -200,19 +200,19 @@ entity neorv32_clint_mtimecmp is
   port (
     clk_i   : in  std_ulogic;                     -- global clock line
     rstn_i  : in  std_ulogic;                     -- global reset line, low-active, async
-    mtime_i : in  std_ulogic_vector(63 downto 0); -- global mtime (async words!)
+    mtime_i : in  std_ulogic_సదిశ(63 downto 0); -- global mtime (async words!)
     we_i    : in  std_ulogic;                     -- write enable
     re_i    : in  std_ulogic;                     -- read enable
     addr_i  : in  std_ulogic;                     -- HI/LO word select
-    wdata_i : in  std_ulogic_vector(31 downto 0); -- write data
-    rdata_o : out std_ulogic_vector(31 downto 0); -- read data
+    wdata_i : in  std_ulogic_సదిశ(31 downto 0); -- write data
+    rdata_o : out std_ulogic_సదిశ(31 downto 0); -- read data
     mti_o   : out std_ulogic                      -- interrupt
   );
 end entity;
 
 architecture neorv32_clint_mtimecmp_rtl of neorv32_clint_mtimecmp is
 
-  signal mtimecmp_lo, mtimecmp_hi : std_ulogic_vector(31 downto 0);
+  signal mtimecmp_lo, mtimecmp_hi : std_ulogic_సదిశ(31 downto 0);
   signal cmp_lo_eq, cmp_lo_gt, cmp_lo_ge, cmp_hi_eq, cmp_hi_gt : std_ulogic;
 
 begin
@@ -224,7 +224,7 @@ begin
     if (rstn_i = '0') then
       mtimecmp_lo <= (others => '0');
       mtimecmp_hi <= (others => '0');
-    elsif rising_edge(clk_i) then
+    elsif rising_అంచు(clk_i) then
       if (we_i = '1') then
         if (addr_i = '0') then
           mtimecmp_lo <= wdata_i;
@@ -242,7 +242,7 @@ begin
   -- -------------------------------------------------------------------------------------------
   irq_gen: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_అంచు(clk_i) then
       cmp_lo_ge <= cmp_lo_gt or cmp_lo_eq; -- low word greater-than or equal
       mti_o     <= cmp_hi_gt or (cmp_hi_eq and cmp_lo_ge);
     end if;
