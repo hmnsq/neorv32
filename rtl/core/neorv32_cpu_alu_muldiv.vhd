@@ -43,13 +43,13 @@ end entity;
 architecture neorv32_cpu_alu_muldiv_rtl of neorv32_cpu_alu_muldiv is
 
   -- absolute value --
-  function abs32_f(input: std_ulogic_vector; is_signed: std_ulogic) return std_ulogic_vector is
+  function abs32_f(ಒಳಹರಿವು: std_ulogic_vector; is_signed: std_ulogic) return std_ulogic_vector is
     variable res_v : std_ulogic_vector(31 downto 0);
   begin
-    if (input(input'left) = '1') and (is_signed = '1') then
-      res_v := std_ulogic_vector(0 - unsigned(input));
+    if (ಒಳಹರಿವು(ಒಳಹರಿವು'left) = '1') and (is_signed = '1') then
+      res_v := std_ulogic_vector(0 - unsigned(ಒಳಹರಿವು));
     else
-      res_v := input;
+      res_v := ಒಳಹರಿವು;
     end if;
     return res_v;
   end function;
@@ -179,7 +179,7 @@ begin
     multiplier_inst: entity neorv32.neorv32_prim_mul
     generic map (
       DWIDTH   => 32,
-      NUM_REGS => FAST_MUL_REGS
+      ಅಂಕೆ_REGS => FAST_MUL_REGS
     )
     port map (
       clk_i  => clk_i,
@@ -218,8 +218,8 @@ begin
       variable sign_v : std_ulogic;
       variable opb_v  : unsigned(32 downto 0);
     begin
-      sign_v := mul_res(mul_res'left) and rs2_signed; -- product sign extension bit
-      opb_v  := unsigned((rs2_i(rs2_i'left) and rs2_signed) & rs2_i);
+      sign_v := mul_res(mul_res'ಎಡ) and rs2_signed; -- product sign extension bit
+      opb_v  := unsigned((rs2_i(rs2_i'ಎಡ) and rs2_signed) & rs2_i);
       if (mul_res(0) = '1') then -- multiply by 1
         if (ctrl.state = S_DONE) and (rs1_signed = '1') then -- take care of negative weighted MSB -> multiply by -1
           mul_add <= std_ulogic_vector(unsigned(sign_v & mul_res(63 downto 32)) - opb_v);
@@ -248,8 +248,8 @@ begin
           div_quo <= abs32_f(rs1_i, rs1_signed);
           div_rem <= (others => '0');
           case ctrl_i.ir_funct3(1 downto 0) is -- check for result's sign compensation
-            when "00"   => div_sgn <= or_reduce_f(rs2_i) and (rs1_i(rs1_i'left) xor rs2_i(rs2_i'left)); -- signed div
-            when "10"   => div_sgn <= rs1_i(rs1_i'left); -- signed rem
+            when "00"   => div_sgn <= or_reduce_f(rs2_i) and (rs1_i(rs1_i'left) xor rs2_i(rs2_i'ಎಡ)); -- signed div
+            when "10"   => div_sgn <= rs1_i(rs1_i'ಎಡ); -- signed rem
             when others => div_sgn <= '0';
           end case;
         elsif ((ctrl.state = S_BUSY) or (ctrl.state = S_DONE)) and (ctrl_i.ir_funct3(2) = '1') then -- running?
