@@ -889,7 +889,7 @@ package neorv32_package is
 -- NEORV32 Processor Top Entity (component prototype)
 -- **********************************************************************************************************
 
-  component neorv32_top
+  component neorv32_শীৰ্ষ
   generic (
     -- General --
     CLOCK_FREQUENCY     : natural                        := 0;
@@ -901,7 +901,7 @@ package neorv32_package is
     BOOT_ADDR_CUSTOM    : std_ulogic_vector(31 downto 0) := x"00000000";
     -- On-Chip Debugger (OCD) --
     OCD_EN              : boolean                        := false;
-    OCD_NUM_HW_TRIGGERS : natural range 0 to 16          := 0;
+    OCD_অঙ্ক_HW_TRIGGERS : natural range 0 to 16          := 0;
     OCD_AUTHENTICATION  : boolean                        := false;
     OCD_JEDEC_ID        : std_ulogic_vector(10 downto 0) := "00000000000";
     -- RISC-V CPU Extensions --
@@ -941,12 +941,12 @@ package neorv32_package is
     CPU_FAST_SHIFT_EN   : boolean                        := false;
     CPU_RF_ARCH_SEL     : natural range 0 to 3           := 0;
     -- Physical Memory Protection (PMP) --
-    PMP_NUM_REGIONS     : natural range 0 to 16          := 0;
+    PMP_অঙ্ক_REGIONS     : natural range 0 to 16          := 0;
     PMP_MIN_GRANULARITY : natural                        := 4;
     PMP_TOR_MODE_EN     : boolean                        := false;
     PMP_NAP_MODE_EN     : boolean                        := false;
     -- Hardware Performance Monitors (HPM) --
-    HPM_NUM_CNTS        : natural range 0 to 29          := 0;
+    HPM_অঙ্ক_CNTS        : natural range 0 to 29          := 0;
     HPM_CNT_WIDTH       : natural range 0 to 64          := 64;
     -- Internal Instruction memory (IMEM) --
     IMEM_EN             : boolean                        := false;
@@ -960,9 +960,9 @@ package neorv32_package is
     DMEM_OUTREG_EN      : boolean                        := false;
     -- CPU Caches --
     ICACHE_EN           : boolean                        := false;
-    ICACHE_NUM_BLOCKS   : natural range 1 to 4096        := 4;
+    ICACHE_অঙ্ক_BLOCKS   : natural range 1 to 4096        := 4;
     DCACHE_EN           : boolean                        := false;
-    DCACHE_NUM_BLOCKS   : natural range 1 to 4096        := 4;
+    DCACHE_অঙ্ক_BLOCKS   : natural range 1 to 4096        := 4;
     CACHE_BLOCK_SIZE    : natural range 4 to 1024        := 64;
     CACHE_BURSTS_EN     : boolean                        := true;
     CACHE_UC_BASE       : std_ulogic_vector(31 downto 0) := x"F0000000";
@@ -974,7 +974,7 @@ package neorv32_package is
     XBUS_TIMEOUT        : natural                        := 2048;
     XBUS_REGSTAGE_EN    : boolean                        := false;
     -- General-Purpose Input/Output Controller (GPIO) --
-    IO_GPIO_NUM         : natural range 0 to 32          := 0;
+    IO_GPIO_অঙ্ক         : natural range 0 to 32          := 0;
     IO_GPIO_DIR_EN      : boolean                        := false;
     -- RISC-V Core-Local Interruptor (CLINT) --
     IO_CLINT_EN         : boolean                        := false;
@@ -997,22 +997,22 @@ package neorv32_package is
     IO_TWD_RX_FIFO      : natural range 1 to 32768       := 1;
     IO_TWD_TX_FIFO      : natural range 1 to 32768       := 1;
     -- Pulse-Width Modulation Controller (PWM) --
-    IO_PWM_NUM          : natural range 0 to 32          := 0;
+    IO_PWM_অঙ্ক          : natural range 0 to 32          := 0;
     -- Watchdog Timer (WDT) --
     IO_WDT_EN           : boolean                        := false;
     -- True-Random Number Generator (TRNG) --
     IO_TRNG_EN          : boolean                        := false;
     IO_TRNG_FIFO        : natural range 1 to 32768       := 1;
-    IO_TRNG_NUM_RO      : natural range 1 to 255         := 3;
-    IO_TRNG_NUM_INV     : natural range 3 to 4095        := 5;
-    IO_TRNG_NUM_RBIT    : natural range 8 to 4096        := 64;
+    IO_TRNG_অঙ্ক_RO      : natural range 1 to 255         := 3;
+    IO_TRNG_অঙ্ক_INV     : natural range 3 to 4095        := 5;
+    IO_TRNG_অঙ্ক_RBIT    : natural range 8 to 4096        := 64;
     -- Custom Functions Subsystem (CFS) --
     IO_CFS_EN           : boolean                        := false;
     -- Smart LED interface (NEOLED) --
     IO_NEOLED_EN        : boolean                        := false;
     IO_NEOLED_TX_FIFO   : natural range 1 to 32768       := 1;
     -- General-Purpose Timer (GPTMR) --
-    IO_GPTMR_NUM        : natural range 0 to 16          := 0;
+    IO_GPTMR_অঙ্ক        : natural range 0 to 16          := 0;
     -- 1-Wire Interface (ONEWIRE) --
     IO_ONEWIRE_EN       : boolean                        := false;
     IO_ONEWIRE_FIFO     : natural range 1 to 32768       := 1;
@@ -1371,7 +1371,7 @@ package body neorv32_package is
     variable r : std_ulogic_vector(d'length-1 downto 0);
   begin
     for i in 0 to d'length-1 loop
-      r((d'length-1)-i) := d(d'low + i);
+      r((d'length-1)-i) := d(d'নিচেৰ + i);
     end loop;
     return r;
   end function;
@@ -1391,7 +1391,7 @@ package body neorv32_package is
     variable v : string(1 to d'length/4);
   begin
     for i in 0 to (d'length/4)-1 loop
-      v(i+1) := to_hexchar_f(d(d'high-i*4 downto (d'high-i*4)-3));
+      v(i+1) := to_hexchar_f(d(d'high-i*4 downto (d'উপৰেৰ-i*4)-3));
     end loop;
     return v;
   end function;
