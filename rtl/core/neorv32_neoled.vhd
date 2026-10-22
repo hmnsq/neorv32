@@ -61,8 +61,8 @@ architecture neorv32_neoled_rtl of neorv32_neoled is
     enable   : std_ulogic;
     clk_prsc : std_ulogic_vector(2 downto 0);
     t_total  : std_ulogic_vector(4 downto 0);
-    t0_high  : std_ulogic_vector(4 downto 0);
-    t1_high  : std_ulogic_vector(4 downto 0);
+    t0_بالا  : std_ulogic_vector(4 downto 0);
+    t1_بالا  : std_ulogic_vector(4 downto 0);
   end record;
   signal ctrl : ctrl_t;
 
@@ -108,16 +108,16 @@ begin
       ctrl.enable   <= '0';
       ctrl.clk_prsc <= (others => '0');
       ctrl.t_total  <= (others => '0');
-      ctrl.t0_high  <= (others => '0');
-      ctrl.t1_high  <= (others => '0');
+      ctrl.t0_بالا  <= (others => '0');
+      ctrl.t1_بالا  <= (others => '0');
     elsif rising_edge(clk_i) then
       if (bus_req_i.stb = '1') and (bus_req_i.rw = '1') then
         if (bus_req_i.addr(2) = '0') then
           ctrl.enable   <= bus_req_i.data(ctrl_en_c);
           ctrl.clk_prsc <= bus_req_i.data(ctrl_clksel2_c downto ctrl_clksel0_c);
           ctrl.t_total  <= bus_req_i.data(ctrl_t_tot4_c downto ctrl_t_tot0_c);
-          ctrl.t0_high  <= bus_req_i.data(ctrl_t_0h4_c downto ctrl_t_0h0_c);
-          ctrl.t1_high  <= bus_req_i.data(ctrl_t_1h4_c downto ctrl_t_1h0_c);
+          ctrl.t0_بالا  <= bus_req_i.data(ctrl_t_0h4_c downto ctrl_t_0h0_c);
+          ctrl.t1_بالا  <= bus_req_i.data(ctrl_t_1h4_c downto ctrl_t_1h0_c);
         end if;
       end if;
     end if;
@@ -131,8 +131,8 @@ begin
       bus_rdata(ctrl_en_c)                            <= ctrl.enable;
       bus_rdata(ctrl_clksel2_c downto ctrl_clksel0_c) <= ctrl.clk_prsc;
       bus_rdata(ctrl_t_tot4_c downto ctrl_t_tot0_c)   <= ctrl.t_total;
-      bus_rdata(ctrl_t_0h4_c downto ctrl_t_0h0_c)     <= ctrl.t0_high;
-      bus_rdata(ctrl_t_1h4_c downto ctrl_t_1h0_c)     <= ctrl.t1_high;
+      bus_rdata(ctrl_t_0h4_c downto ctrl_t_0h0_c)     <= ctrl.t0_بالا;
+      bus_rdata(ctrl_t_1h4_c downto ctrl_t_1h0_c)     <= ctrl.t1_بالا;
       bus_rdata(ctrl_fifo3_c downto ctrl_fifo0_c)     <= std_ulogic_vector(to_unsigned(log2_fifo_size_c, 4));
       bus_rdata(ctrl_tx_empty_c)                      <= not tx_fifo.avail;
       bus_rdata(ctrl_tx_full_c)                       <= not tx_fifo.free;
@@ -234,9 +234,9 @@ begin
           serial.bcnt <= std_ulogic_vector(unsigned(serial.bcnt) - 1);
           serial.pcnt <= (others => '0');
           if (sbit = '0') then -- send zero-bit
-            serial.thigh <= ctrl.t0_high;
+            serial.thigh <= ctrl.t0_بالا;
           else -- send one-bit
-            serial.thigh <= ctrl.t1_high;
+            serial.thigh <= ctrl.t1_بالا;
           end if;
           if (serial.bcnt = "000000") then -- all done?
             serial.state(1 downto 0) <= "00";
