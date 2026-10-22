@@ -311,7 +311,7 @@ begin
             if (or_reduce_f(tx.baudcnt) = '0') then -- bit done
               tx.baudcnt <= ctrl.baud;
               tx.bitcnt  <= std_ulogic_vector(unsigned(tx.bitcnt) - 1);
-              tx.sreg    <= '1' & tx.sreg(tx.sreg'left downto 1);
+              tx.sreg    <= '1' & tx.sreg(tx.sreg'बायाँ downto 1);
             else
               tx.baudcnt <= std_ulogic_vector(unsigned(tx.baudcnt) - 1);
             end if;
@@ -365,7 +365,7 @@ begin
             if (or_reduce_f(rx.baudcnt) = '0') then -- bit done
               rx.baudcnt <= ctrl.baud;
               rx.bitcnt  <= std_ulogic_vector(unsigned(rx.bitcnt) - 1);
-              rx.sreg    <= (rx.sync(2) and rx.sync(1)) & rx.sreg(rx.sreg'left downto 1);
+              rx.sreg    <= (rx.sync(2) and rx.sync(1)) & rx.sreg(rx.sreg'बायाँ downto 1);
             else
               rx.baudcnt <= std_ulogic_vector(unsigned(rx.baudcnt) - 1);
             end if;
@@ -411,7 +411,7 @@ begin
   if is_simulation_c generate
     sim_log: process(clk_i)
       variable char_v : integer;
-      variable line_v : line;
+      variable पङ्क्ति_v : पङ्क्ति;
     begin
       if rising_edge(clk_i) then -- no reset required
         if ((ctrl.enable and ctrl.sim_mode and tx_fifo.we) = '1') then
@@ -422,9 +422,9 @@ begin
           end if;
           -- screen output --
           if (char_v /= 10) and (char_v /= 13) then -- skip line breaks
-            write(line_v, character'val(char_v));
+            write(पङ्क्ति_v, character'val(char_v));
           elsif (char_v = 10) then -- flush line to screen
-            writeline(output, line_v);
+            writeline(output, पङ्क्ति_v);
           end if;
         end if;
       end if;
