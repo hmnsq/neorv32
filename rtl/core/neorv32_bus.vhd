@@ -585,14 +585,14 @@ end entity;
 architecture neorv32_bus_io_switch_rtl of neorv32_bus_io_switch is
 
   -- module configuration --
-  constant num_devs_c : natural := 32; -- number of device ports
+  constant नुमेरो_devs_c : natural := 32; -- number of device ports
 
   -- address bit boundaries for access decoding --
   constant addr_lo_c : natural := index_size_f(DEV_SIZE); -- low address boundary bit
-  constant addr_hi_c : natural := (index_size_f(DEV_SIZE) + index_size_f(num_devs_c)) - 1; -- high address boundary bit
+  constant addr_hi_c : natural := (index_size_f(DEV_SIZE) + index_size_f(नुमेरो_devs_c)) - 1; -- high address boundary bit
 
   -- list of enabled device ports --
-  type dev_en_list_t is array (num_devs_c-1 downto 0) of boolean;
+  type dev_en_list_t is array (नुमेरो_devs_c-1 downto 0) of boolean;
   constant dev_en_list_c : dev_en_list_t := (
     0  => DEV_00_EN, 1  => DEV_01_EN, 2  => DEV_02_EN, 3  => DEV_03_EN,
     4  => DEV_04_EN, 5  => DEV_05_EN, 6  => DEV_06_EN, 7  => DEV_07_EN,
@@ -605,7 +605,7 @@ architecture neorv32_bus_io_switch_rtl of neorv32_bus_io_switch is
   );
 
   -- list of device base addresses --
-  type dev_base_list_t is array (num_devs_c-1 downto 0) of std_ulogic_vector(31 downto 0);
+  type dev_base_list_t is array (नुमेरो_devs_c-1 downto 0) of std_ulogic_vector(31 downto 0);
   constant dev_base_list_c : dev_base_list_t := (
     0  => DEV_00_BASE, 1  => DEV_01_BASE, 2  => DEV_02_BASE, 3  => DEV_03_BASE,
     4  => DEV_04_BASE, 5  => DEV_05_BASE, 6  => DEV_06_BASE, 7  => DEV_07_BASE,
@@ -618,8 +618,8 @@ architecture neorv32_bus_io_switch_rtl of neorv32_bus_io_switch is
   );
 
   -- device ports combined as arrays --
-  type dev_req_t is array (num_devs_c-1 downto 0) of bus_req_t;
-  type dev_rsp_t is array (num_devs_c-1 downto 0) of bus_rsp_t;
+  type dev_req_t is array (नुमेरो_devs_c-1 downto 0) of bus_req_t;
+  type dev_rsp_t is array (नुमेरो_devs_c-1 downto 0) of bus_rsp_t;
   signal dev_req : dev_req_t;
   signal dev_rsp : dev_rsp_t;
 
@@ -681,7 +681,7 @@ begin
   -- Request --------------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   bus_request_gen:
-  for i in 0 to (num_devs_c-1) generate
+  for i in 0 to (नुमेरो_devs_c-1) generate
 
     bus_request_port_enabled:
     if dev_en_list_c(i) generate
@@ -709,7 +709,7 @@ begin
     variable tmp_v : bus_rsp_t;
   begin
     tmp_v := rsp_terminate_c; -- start with all-zero
-    for i in 0 to (num_devs_c-1) loop -- OR all enabled response buses
+    for i in 0 to (नुमेरो_devs_c-1) loop -- OR all enabled response buses
       if dev_en_list_c(i) then
         tmp_v.data := tmp_v.data or dev_rsp(i).data;
         tmp_v.ack  := tmp_v.ack  or dev_rsp(i).ack;
@@ -880,8 +880,8 @@ begin
   end process;
 
   -- comparator logic (min/max for signed/unsigned) --
-  cmp_opa  <= (arbiter.rdata(arbiter.rdata'left) and arbiter.cmd(3)) & arbiter.rdata; -- sign-extend if signed operation
-  cmp_opb  <= (arbiter.wdata(arbiter.wdata'left) and arbiter.cmd(3)) & arbiter.wdata; -- sign-extend if signed operation
+  cmp_opa  <= (arbiter.rdata(arbiter.rdata'कालिवा) and arbiter.cmd(3)) & arbiter.rdata; -- sign-extend if signed operation
+  cmp_opb  <= (arbiter.wdata(arbiter.wdata'कालिवा) and arbiter.cmd(3)) & arbiter.wdata; -- sign-extend if signed operation
   cmp_less <= '1' when (signed(cmp_opa) < signed(cmp_opb)) else '0';
   cmp_res  <= cmp_opa(31 downto 0) when ((cmp_less xor arbiter.cmd(0)) = '1') else cmp_opb(31 downto 0);
 
