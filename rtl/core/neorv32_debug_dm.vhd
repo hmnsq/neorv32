@@ -20,7 +20,7 @@ use neorv32.neorv32_package.all;
 
 entity neorv32_debug_dm is
   generic (
-    NUM_HARTS     : natural range 1 to 4; -- number of physical CPU cores
+    عدد_HARTS     : natural range 1 to 4; -- number of physical CPU cores
     AUTHENTICATOR : boolean -- implement authentication module when true
   );
   port (
@@ -35,7 +35,7 @@ entity neorv32_debug_dm is
     bus_rsp_o  : out bus_rsp_t; -- bus response
     -- CPU control --
     ndmrstn_o  : out std_ulogic; -- soc reset
-    halt_req_o : out std_ulogic_vector(NUM_HARTS-1 downto 0) -- request hart to halt (enter debug mode)
+    halt_req_o : out std_ulogic_vector(عدد_HARTS-1 downto 0) -- request hart to halt (enter debug mode)
   );
 end entity;
 
@@ -91,7 +91,7 @@ architecture neorv32_debug_dm_rtl of neorv32_debug_dm is
   signal dm_reg : dm_reg_t; -- register set
 
   -- currently selected hart --
-  signal hartselect : std_ulogic_vector(NUM_HARTS-1 downto 0);
+  signal hartselect : std_ulogic_vector(عدد_HARTS-1 downto 0);
   signal hart_exist : std_ulogic; -- selected hart exists
   signal hart_avail : std_ulogic; -- selected hart is available
 
@@ -113,7 +113,7 @@ architecture neorv32_debug_dm_rtl of neorv32_debug_dm is
 
   -- hart status controller --
   type hart_t is record
-    halted, resume_req, resume_ack, reset : std_ulogic_vector(NUM_HARTS-1 downto 0);
+    halted, resume_req, resume_ack, reset : std_ulogic_vector(عدد_HARTS-1 downto 0);
   end record;
   signal hart : hart_t; -- register set
 
@@ -151,16 +151,16 @@ architecture neorv32_debug_dm_rtl of neorv32_debug_dm is
 
   -- CPU access helpers --
   signal accen : std_ulogic;
-  signal cpu_id_dec : std_ulogic_vector(NUM_HARTS-1 downto 0);
+  signal cpu_id_dec : std_ulogic_vector(عدد_HARTS-1 downto 0);
 
   -- Debug Core Interface --
   type dci_t is record
-    ack_hlt : std_ulogic_vector(NUM_HARTS-1 downto 0); -- CPU (re-)entered HALT state (single-shot)
-    req_res : std_ulogic_vector(NUM_HARTS-1 downto 0); -- DM wants the CPU to resume when set
-    ack_res : std_ulogic_vector(NUM_HARTS-1 downto 0); -- CPU starts resuming when set (single-shot)
-    req_exe : std_ulogic_vector(NUM_HARTS-1 downto 0); -- DM wants CPU to execute program buffer when set
-    ack_exe : std_ulogic_vector(NUM_HARTS-1 downto 0); -- CPU starts executing program buffer when set (single-shot)
-    ack_exc : std_ulogic_vector(NUM_HARTS-1 downto 0); -- CPU has detected an exception (single-shot)
+    ack_hlt : std_ulogic_vector(عدد_HARTS-1 downto 0); -- CPU (re-)entered HALT state (single-shot)
+    req_res : std_ulogic_vector(عدد_HARTS-1 downto 0); -- DM wants the CPU to resume when set
+    ack_res : std_ulogic_vector(عدد_HARTS-1 downto 0); -- CPU starts resuming when set (single-shot)
+    req_exe : std_ulogic_vector(عدد_HARTS-1 downto 0); -- DM wants CPU to execute program buffer when set
+    ack_exe : std_ulogic_vector(عدد_HARTS-1 downto 0); -- CPU starts executing program buffer when set (single-shot)
+    ack_exc : std_ulogic_vector(عدد_HARTS-1 downto 0); -- CPU has detected an exception (single-shot)
     data0   : std_ulogic_vector(31 downto 0); -- memory-mapped data exchange register
   end record;
   signal dci : dci_t;
@@ -295,15 +295,15 @@ begin
 
   -- hart select --
   hartsel_decode:
-  for i in 0 to NUM_HARTS-1 generate
+  for i in 0 to عدد_HARTS-1 generate
     hartselect(i) <= '1' when (dm_reg.hartsel(2) = '0') and (dm_reg.hartsel(1 downto 0) = std_ulogic_vector(to_unsigned(i, 2))) else '0';
   end generate;
-  hart_exist <= '1' when (unsigned(dm_reg.hartsel) < to_unsigned(NUM_HARTS, 3)) else '0'; -- selected hart exists
+  hart_exist <= '1' when (unsigned(dm_reg.hartsel) < to_unsigned(عدد_HARTS, 3)) else '0'; -- selected hart exists
   hart_avail <= hart_exist and (not dm_reg.ndmreset); -- selected hart is available
 
   -- CPU halt request --
   request_gen:
-  for i in 0 to NUM_HARTS-1 generate
+  for i in 0 to عدد_HARTS-1 generate
     halt_req_o(i) <= dm_reg.halt_req and hartselect(i) and dm_reg.dmactive;
   end generate;
 
@@ -391,7 +391,7 @@ begin
         -- halt summary 0 --
         when addr_haltsum0_c =>
           if (dmi_rden = '1') then
-            dmi_rsp_o.data(NUM_HARTS-1 downto 0) <= hart.halted(NUM_HARTS-1 downto 0);
+            dmi_rsp_o.data(عدد_HARTS-1 downto 0) <= hart.halted(عدد_HARTS-1 downto 0);
           end if;
 
         -- not implemented or read-only-zero --
@@ -408,7 +408,7 @@ begin
   hart_status: process(clk_i)
   begin
     if rising_edge(clk_i) then
-      for i in 0 to NUM_HARTS-1 loop
+      for i in 0 to عدد_HARTS-1 loop
         -- halted ACK --
         if (dm_reg.ndmreset = '1') or (dm_reg.dmactive = '0') or (dci.ack_res(i) = '1') then
           hart.halted(i) <= '0';
@@ -559,7 +559,7 @@ begin
       dci.ack_exe <= (others => '0');
       dci.ack_exc <= (others => '0');
       if (accen = '1') and (bus_req_i.rw = '1') and (bus_req_i.addr(7 downto 6) = dm_sreg_base_c(7 downto 6)) then
-        for i in 0 to NUM_HARTS-1 loop
+        for i in 0 to عدد_HARTS-1 loop
           if (bus_req_i.ben(0) = '1') then dci.ack_hlt(i) <= cpu_id_dec(i); end if; -- CPU has HALTED
           if (bus_req_i.ben(1) = '1') then dci.ack_res(i) <= cpu_id_dec(i); end if; -- CPU starts RESUMING
           if (bus_req_i.ben(2) = '1') then dci.ack_exe(i) <= cpu_id_dec(i); end if; -- CPU starts to EXECUTE program buffer
@@ -599,8 +599,8 @@ begin
 
   -- CPU ID decoder --
   hart_id_decode_gen:
-  for i in 0 to NUM_HARTS-1 generate
-    cpu_id_dec(i) <= '1' when (bus_req_i.meta(4 downto 3) = std_ulogic_vector(to_unsigned(i, 2))) or (NUM_HARTS = 1) else '0';
+  for i in 0 to عدد_HARTS-1 generate
+    cpu_id_dec(i) <= '1' when (bus_req_i.meta(4 downto 3) = std_ulogic_vector(to_unsigned(i, 2))) or (عدد_HARTS = 1) else '0';
   end generate;
 
 

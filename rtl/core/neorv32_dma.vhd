@@ -36,8 +36,8 @@ architecture neorv32_dma_rtl of neorv32_dma is
   constant log2_fifo_size_c : natural := index_size_f(DSC_FIFO); -- extend to next power of two
 
   -- transfer configuration (part of the descriptor) --
-  constant conf_num_lo_c : natural :=  0; -- r/w: number of elements to transfer, LSB
-  constant conf_num_hi_c : natural := 23; -- r/w: number of elements to transfer, MSB
+  constant conf_عدد_lo_c : natural :=  0; -- r/w: number of elements to transfer, LSB
+  constant conf_عدد_hi_c : natural := 23; -- r/w: number of elements to transfer, MSB
   constant conf_bswap_c  : natural := 27; -- r/w: swap byte order
   constant conf_src_lo_c : natural := 28; -- r/w: source addressing (0=byte, 1=word)
   constant conf_src_hi_c : natural := 29; -- r/w: source addressing (0=const, 1=inc)
@@ -99,8 +99,8 @@ architecture neorv32_dma_rtl of neorv32_dma is
     err      : std_ulogic;
     src_addr : std_ulogic_vector(31 downto 0);
     dst_addr : std_ulogic_vector(31 downto 0);
-    num      : std_ulogic_vector(23 downto 0);
-    num_or   : std_ulogic;
+    عدد      : std_ulogic_vector(23 downto 0);
+    عدد_or   : std_ulogic;
     bswap    : std_ulogic; -- swap byte order
     src_type : std_ulogic_vector(1 downto 0);
     dst_type : std_ulogic_vector(1 downto 0);
@@ -216,8 +216,8 @@ begin
       engine.err      <= '0';
       engine.src_addr <= (others => '0');
       engine.dst_addr <= (others => '0');
-      engine.num      <= (others => '0');
-      engine.num_or   <= '0';
+      engine.عدد      <= (others => '0');
+      engine.عدد_or   <= '0';
       engine.bswap    <= '0';
       engine.src_type <= (others => '0');
       engine.dst_type <= (others => '0');
@@ -228,7 +228,7 @@ begin
         -- ------------------------------------------------------------
           engine.done   <= '0';
           engine.err    <= '0';
-          engine.num_or <= '0';
+          engine.عدد_or <= '0';
           if (engine.run = '0') then -- start new transfer if descriptor available and no pending error
             if (fifo.avail = '1') and (ctrl.start = '1') and (ctrl.err = '0') then
               engine.run   <= '1';
@@ -264,7 +264,7 @@ begin
 
         when S_GET_3 => -- get descriptor: transfer configuration
         -- ------------------------------------------------------------
-          engine.num      <= fifo.rdata(conf_num_hi_c downto conf_num_lo_c);
+          engine.عدد      <= fifo.rdata(conf_عدد_hi_c downto conf_عدد_lo_c);
           engine.bswap    <= fifo.rdata(conf_bswap_c);
           engine.src_type <= fifo.rdata(conf_src_hi_c downto conf_src_lo_c);
           engine.dst_type <= fifo.rdata(conf_dst_hi_c downto conf_dst_lo_c);
@@ -272,10 +272,10 @@ begin
 
         when S_READ_REQ => -- read request
         -- ------------------------------------------------------------
-          if (engine.num_or = '1') then -- hacky! do not increment in first iteration
+          if (engine.عدد_or = '1') then -- hacky! do not increment in first iteration
             engine.dst_addr <= std_ulogic_vector(unsigned(engine.dst_addr) + dst_add);
           end if;
-          engine.num   <= std_ulogic_vector(unsigned(engine.num) - 1);
+          engine.عدد   <= std_ulogic_vector(unsigned(engine.عدد) - 1);
           engine.state <= S_READ_RSP;
 
         when S_READ_RSP => -- read response
@@ -292,14 +292,14 @@ begin
         when S_WRITE_REQ => -- write request
         -- ------------------------------------------------------------
           engine.src_addr <= std_ulogic_vector(unsigned(engine.src_addr) + src_add);
-          engine.num_or   <= or_reduce_f(engine.num);
+          engine.عدد_or   <= or_reduce_f(engine.عدد);
           engine.state    <= S_WRITE_RSP;
 
         when S_WRITE_RSP => -- write response
         -- ------------------------------------------------------------
           if (dma_rsp_i.ack = '1') then
             engine.err <= dma_rsp_i.err;
-            if (engine.num_or = '0') or (ctrl.enable = '0') or (dma_rsp_i.err = '1') then -- done/abort/error?
+            if (engine.عدد_or = '0') or (ctrl.enable = '0') or (dma_rsp_i.err = '1') then -- done/abort/error?
               engine.state <= S_CHECK;
             else
               engine.state <= S_READ_REQ;
