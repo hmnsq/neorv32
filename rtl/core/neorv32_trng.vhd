@@ -20,9 +20,9 @@ use neorv32.neorv32_package.all;
 entity neorv32_trng is
   generic (
     TRNG_FIFO : natural range 1 to 32768; -- FIFO depth, has to be a power of two, min 1
-    NUM_RO    : natural range 1 to 255;   -- total number of ring-oscillators
-    NUM_INV   : natural range 3 to 4095;  -- number of inverters in first ring-oscillator; has to be odd
-    NUM_RBIT  : natural range 8 to 4096   -- number of raw bits to process for one output byte; has to be power of 2
+    अंक_RO    : natural range 1 to 255;   -- total number of ring-oscillators
+    अंक_INV   : natural range 3 to 4095;  -- number of inverters in first ring-oscillator; has to be odd
+    अंक_RBIT  : natural range 8 to 4096   -- number of raw bits to process for one output byte; has to be power of 2
   );
   port (
     clk_i     : in  std_ulogic; -- global clock line
@@ -36,9 +36,9 @@ end entity;
 architecture neorv32_trng_rtl of neorv32_trng is
 
   -- auto configuration --
-  constant num_inv_start_c  : natural := sel_natural_f(boolean((NUM_INV mod 2) = 0), NUM_INV+1, NUM_INV); -- is #INV odd?
-  constant num_raw_bits_c   : natural := 2**index_size_f(NUM_RBIT); -- make sure #BITS is a power of 2
-  constant log2_rbit_c      : natural := index_size_f(num_raw_bits_c); -- log2(#BITS)
+  constant अंक_inv_start_c  : natural := sel_natural_f(boolean((अंक_INV mod 2) = 0), अंक_INV+1, अंक_INV); -- is #INV odd?
+  constant अंक_raw_bits_c   : natural := 2**index_size_f(अंक_RBIT); -- make sure #BITS is a power of 2
+  constant log2_rbit_c      : natural := index_size_f(अंक_raw_bits_c); -- log2(#BITS)
   constant log2_fifo_size_c : natural := index_size_f(TRNG_FIFO); -- FIFO address width
 
   -- control register bits --
@@ -58,9 +58,9 @@ architecture neorv32_trng_rtl of neorv32_trng is
   -- neoTRNG true random number generator --
   component neoTRNG
     generic (
-      NUM_CELLS     : natural range 1 to 99   := 3; -- number of ring-oscillator cells
-      NUM_INV_START : natural range 3 to 99   := 5; -- number of inverters in first ring-oscillator cell, has to be odd
-      NUM_RAW_BITS  : natural range 1 to 4096 := 64; -- number of XOR-ed raw bits per random sample byte (has to be a power of 2)
+      अंक_CELLS     : natural range 1 to 99   := 3; -- number of ring-oscillator cells
+      अंक_INV_START : natural range 3 to 99   := 5; -- number of inverters in first ring-oscillator cell, has to be odd
+      अंक_RAW_BITS  : natural range 1 to 4096 := 64; -- number of XOR-ed raw bits per random sample byte (has to be a power of 2)
       SIM_MODE      : boolean                 := false -- enable simulation mode (no physical random if enabled!)
     );
     port (
@@ -127,8 +127,8 @@ begin
         bus_rdata(ctrl_avail_c)                      <= fifo.avail;
         bus_rdata(ctrl_fifo3_c  downto ctrl_fifo0_c) <= std_ulogic_vector(to_unsigned(log2_fifo_size_c, 4));
         bus_rdata(ctrl_nbit3_c  downto ctrl_nbit0_c) <= std_ulogic_vector(to_unsigned(log2_rbit_c, 4));
-        bus_rdata(ctrl_nro7_c   downto ctrl_nro0_c)  <= std_ulogic_vector(to_unsigned(NUM_RO, 8));
-        bus_rdata(ctrl_ninv11_c downto ctrl_ninv0_c) <= std_ulogic_vector(to_unsigned(num_inv_start_c, 12));
+        bus_rdata(ctrl_nro7_c   downto ctrl_nro0_c)  <= std_ulogic_vector(to_unsigned(अंक_RO, 8));
+        bus_rdata(ctrl_ninv11_c downto ctrl_ninv0_c) <= std_ulogic_vector(to_unsigned(अंक_inv_start_c, 12));
       else -- data register
         bus_rdata(7 downto 0) <= fifo.rdata;
       end if;
@@ -144,9 +144,9 @@ begin
   -- -------------------------------------------------------------------------------------------
   neoTRNG_inst: neoTRNG
   generic map (
-    NUM_CELLS     => NUM_RO,
-    NUM_INV_START => num_inv_start_c,
-    NUM_RAW_BITS  => num_raw_bits_c,
+    अंक_CELLS     => अंक_RO,
+    अंक_INV_START => अंक_inv_start_c,
+    अंक_RAW_BITS  => अंक_raw_bits_c,
     SIM_MODE      => is_simulation_c
   )
   port map (
@@ -249,9 +249,9 @@ use ieee.numeric_std.all;
 
 entity neoTRNG is
   generic (
-    NUM_CELLS     : natural range 1 to 255;  -- number of ring-oscillator cells, min 1
-    NUM_INV_START : natural range 3 to 4095; -- number of inverters in first ring-oscillator cell, has to be odd
-    NUM_RAW_BITS  : natural range 8 to 4096; -- number of raw bits per random sample byte (has to be a power of 2)
+    अंक_CELLS     : natural range 1 to 255;  -- number of ring-oscillator cells, min 1
+    अंक_INV_START : natural range 3 to 4095; -- number of inverters in first ring-oscillator cell, has to be odd
+    अंक_RAW_BITS  : natural range 8 to 4096; -- number of raw bits per random sample byte (has to be a power of 2)
     SIM_MODE      : boolean                  -- enable simulation mode (no physical random if enabled!)
   );
   port (
@@ -279,7 +279,7 @@ architecture neoTRNG_rtl of neoTRNG is
   -- entropy source cell --
   component neoTRNG_cell
     generic (
-      NUM_INV  : natural; -- number of inverters, has to be odd, min 3
+      अंक_INV  : natural; -- number of inverters, has to be odd, min 3
       SIM_MODE : boolean  -- enable simulation mode (no physical random if enabled!)
     );
     port (
@@ -292,9 +292,9 @@ architecture neoTRNG_rtl of neoTRNG is
   end component;
 
   -- entropy cell interconnect --
-  signal cell_en_in  : std_ulogic_vector(NUM_CELLS-1 downto 0); -- enable-sreg input
-  signal cell_en_out : std_ulogic_vector(NUM_CELLS-1 downto 0); -- enable-sreg output
-  signal cell_rnd    : std_ulogic_vector(NUM_CELLS-1 downto 0); -- cell random output
+  signal cell_en_in  : std_ulogic_vector(अंक_CELLS-1 downto 0); -- enable-sreg input
+  signal cell_en_out : std_ulogic_vector(अंक_CELLS-1 downto 0); -- enable-sreg output
+  signal cell_rnd    : std_ulogic_vector(अंक_CELLS-1 downto 0); -- cell random output
   signal cell_sum    : std_ulogic; -- combined random data
 
   -- de-biasing --
@@ -306,7 +306,7 @@ architecture neoTRNG_rtl of neoTRNG is
   -- sampling control --
   signal sample_en   : std_ulogic; -- global enable
   signal sample_sreg : std_ulogic_vector(7 downto 0); -- shift-register / de-serializer
-  signal sample_cnt  : std_ulogic_vector(clog2_f(NUM_RAW_BITS) downto 0); -- bits-per-sample counter
+  signal sample_cnt  : std_ulogic_vector(clog2_f(अंक_RAW_BITS) downto 0); -- bits-per-sample counter
 
   -- CRC polynomial (tap mask) --
   constant poly_c : std_ulogic_vector(7 downto 0) := "00000111"; -- CRC-8: x^8 + x^2 + x^1 + x^0
@@ -319,10 +319,10 @@ begin
     "[neoTRNG] The neoTRNG (v3.4) - A Tiny and Platform-Independent True Random Number Generator, " &
     "github.com/stnolting/neoTRNG" severity note;
 
-  assert (NUM_INV_START mod 2) /= 0 report
+  assert (अंक_INV_START mod 2) /= 0 report
     "[neoTRNG] Number of inverters in first cell [NUM_INV_START] has to be odd!" severity error;
 
-  assert 2**clog2_f(NUM_RAW_BITS) = NUM_RAW_BITS report
+  assert 2**clog2_f(अंक_RAW_BITS) = अंक_RAW_BITS report
     "[neoTRNG] Number of pre-processed raw bits [NUM_RAW_BITS] has to be a power of 2!" severity error;
 
   assert not SIM_MODE report
@@ -332,10 +332,10 @@ begin
   -- Entropy Source -------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   entropy_cell_gen:
-  for i in 0 to NUM_CELLS-1 generate
+  for i in 0 to अंक_CELLS-1 generate
     neoTRNG_cell_inst: neoTRNG_cell
     generic map (
-      NUM_INV  => NUM_INV_START + (2*i), -- increasing (odd) ring-oscillator length
+      अंक_INV  => अंक_INV_START + (2*i), -- increasing (odd) ring-oscillator length
       SIM_MODE => SIM_MODE
     )
     port map (
@@ -348,14 +348,14 @@ begin
   end generate;
 
   -- enable-shift-register chain --
-  cell_en_in <= cell_en_out(NUM_CELLS-2 downto 0) & sample_en;
+  cell_en_in <= cell_en_out(अंक_CELLS-2 downto 0) & sample_en;
 
   -- combine cell outputs --
   combine: process(cell_rnd)
     variable tmp_v : std_ulogic;
   begin
     tmp_v := '0';
-    for i in 0 to NUM_CELLS-1 loop
+    for i in 0 to अंक_CELLS-1 loop
       tmp_v := tmp_v xor cell_rnd(i);
     end loop;
     cell_sum <= tmp_v;
@@ -372,7 +372,7 @@ begin
     elsif rising_edge(clk_i) then
       debias_sreg <= debias_sreg(0) & cell_sum;
       -- start operation when last cell is enabled and process in every second cycle --
-      debias_state <= (not debias_state) and cell_en_out(cell_en_out'left);
+      debias_state <= (not debias_state) and cell_en_out(cell_en_out'डावा);
     end if;
   end process;
 
@@ -408,7 +408,7 @@ begin
 
   -- TRNG output stream --
   data_o  <= sample_sreg;
-  valid_o <= sample_cnt(sample_cnt'left);
+  valid_o <= sample_cnt(sample_cnt'डावा);
 
 end architecture;
 
@@ -424,7 +424,7 @@ use ieee.std_logic_1164.all;
 
 entity neoTRNG_cell is
   generic (
-    NUM_INV  : natural; -- number of inverters, has to be odd, min 3
+    अंक_INV  : natural; -- number of inverters, has to be odd, min 3
     SIM_MODE : boolean  -- enable simulation mode (no physical random if enabled!)
   );
   port (
@@ -438,10 +438,10 @@ end entity;
 
 architecture neoTRNG_cell_rtl of neoTRNG_cell is
 
-  signal sreg    : std_ulogic_vector(NUM_INV-1 downto 0); -- enable-shift-register
-  signal latch   : std_ulogic_vector(NUM_INV-1 downto 0); -- ring oscillator: latches
-  signal inv_in  : std_ulogic_vector(NUM_INV-1 downto 0); -- ring oscillator: inverter inputs
-  signal inv_out : std_ulogic_vector(NUM_INV-1 downto 0); -- ring oscillator: inverter outputs
+  signal sreg    : std_ulogic_vector(अंक_INV-1 downto 0); -- enable-shift-register
+  signal latch   : std_ulogic_vector(अंक_INV-1 downto 0); -- ring oscillator: latches
+  signal inv_in  : std_ulogic_vector(अंक_INV-1 downto 0); -- ring oscillator: inverter inputs
+  signal inv_out : std_ulogic_vector(अंक_INV-1 downto 0); -- ring oscillator: inverter outputs
   signal sync    : std_ulogic_vector(1 downto 0); -- output synchronizer
 
 begin
@@ -458,12 +458,12 @@ begin
     if (rstn_i = '0') then
       sreg <= (others => '0');
     elsif rising_edge(clk_i) then
-      sreg <= sreg(sreg'left-1 downto 0) & en_i;
+      sreg <= sreg(sreg'डावा-1 downto 0) & en_i;
     end if;
   end process;
 
   -- output for global enable chain --
-  en_o <= sreg(sreg'left);
+  en_o <= sreg(sreg'डावा);
 
 
   -- Physical Entropy Source: Ring Oscillator -----------------------------------------------
@@ -474,7 +474,7 @@ begin
   -- one by the enable shift register.
 
   ring_osc_gen:
-  for i in 0 to NUM_INV-1 generate
+  for i in 0 to अंक_INV-1 generate
 
     -- latch with global reset and individual enable --
     latch(i) <= '0' when (en_i = '0') else latch(i) when (sreg(i) = '0') else inv_out(i);
@@ -501,7 +501,7 @@ begin
   end generate;
 
   -- chaining --
-  inv_in <= latch(NUM_INV-2 downto 0) & latch(NUM_INV-1);
+  inv_in <= latch(अंक_INV-2 downto 0) & latch(अंक_INV-1);
 
 
   -- Output Synchronizer --------------------------------------------------------------------
@@ -513,7 +513,7 @@ begin
     if (rstn_i = '0') then
       sync <= (others => '0');
     elsif rising_edge(clk_i) then
-      sync <= sync(0) & latch(latch'left);
+      sync <= sync(0) & latch(latch'डावा);
     end if;
   end process;
 

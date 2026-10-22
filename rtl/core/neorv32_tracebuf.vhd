@@ -65,7 +65,7 @@ architecture neorv32_tracebuf_rtl of neorv32_tracebuf is
     dst   : std_ulogic_vector(31 downto 0); -- destination address
   end record;
   signal arbiter : arbiter_t; -- FSM
-  signal push : std_ulogic; -- push to trace buffer
+  signal ढकला : std_ulogic; -- push to trace buffer
   signal stop : std_ulogic; -- auto-stop tracing
 
   -- trace buffer interface --
@@ -187,7 +187,7 @@ begin
         end if;
         arbiter.delta <= trace_src.delta;
         -- clear first-packet flag on first push
-        if (push = '1') then
+        if (ढकला = '1') then
           arbiter.first <= '0';
         end if;
       end if;
@@ -195,7 +195,7 @@ begin
   end process;
 
   -- push to trace buffer --
-  push <= '1' when (arbiter.valid = "11") and (arbiter.delta = '1') else '0';
+  ढकला <= '1' when (arbiter.valid = "11") and (arbiter.delta = '1') else '0';
 
   -- automatic stop if reaching stop address --
   stop <= '1' when (arbiter.dst(31 downto 1) = stop_addr) and (arbiter.valid(0) = '1') else '0';
@@ -244,7 +244,7 @@ begin
 
   -- FIFO access --
   fifo.clear <= not ctrl_en;
-  fifo.we    <= push;
+  fifo.we    <= ढकला;
   fifo.wdata <= arbiter.dst & arbiter.src;
   fifo.re    <= '1' when (discard = '1') or ((bus_rden = '1') and (bus_req_i.addr(3 downto 2) = "11")) else '0';
 
