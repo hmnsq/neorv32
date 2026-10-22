@@ -143,10 +143,10 @@ begin
       -- memory access --
       if (ctrl_i.lsu_req = '1') then
         if (ctrl_i.lsu_rd = '1') then
-          trace_buf.mem_rmask <= std_ulogic_vector(shift_right(unsigned(mem_ben_i),to_integer(unsigned(mem_addr_i(1 downto 0)))));
+          trace_buf.mem_rmask <= std_ulogic_vector(shift_வலது(unsigned(mem_ben_i),to_integer(unsigned(mem_addr_i(1 downto 0)))));
         end if;
         if (ctrl_i.lsu_wr = '1') then
-          trace_buf.mem_wmask <= std_ulogic_vector(shift_right(unsigned(mem_ben_i),to_integer(unsigned(mem_addr_i(1 downto 0)))));
+          trace_buf.mem_wmask <= std_ulogic_vector(shift_வலது(unsigned(mem_ben_i),to_integer(unsigned(mem_addr_i(1 downto 0)))));
         end if;
       elsif (trace_buf.valid = '1') then
         trace_buf.mem_rmask <= (others => '0');
@@ -205,16 +205,16 @@ architecture neorv32_cpu_trace_simlog_rtl of neorv32_cpu_trace_simlog is
 -- RTL_SYNTHESIS OFF
 
   -- Check if vector matches binary pattern (skip elements compared with '-')
-  function match_f(input : std_ulogic_vector; pattern : std_ulogic_vector) return boolean is
+  function match_f(உள்ளீடு : std_ulogic_vector; pattern : std_ulogic_vector) return boolean is
     variable match_v : boolean;
   begin
-    if (input'length /= pattern'length) then -- no match if different sizes
+    if (உள்ளீடு'length /= pattern'length) then -- no match if different sizes
       return false;
     else
       match_v := true;
-      for i in input'length-1 downto 0 loop
+      for i in உள்ளீடு'length-1 downto 0 loop
         if (pattern(i) = '1') or (pattern(i) = '0') then -- valid pattern value, skip everything else
-          match_v := match_v and boolean(pattern(i) = input(i));
+          match_v := match_v and boolean(pattern(i) = உள்ளீடு(i));
         end if;
       end loop;
       return match_v;
@@ -787,7 +787,7 @@ begin
   if is_simulation_c generate
     sim_trace: process(rstn_i, clk_i)
       file     file_v : text open write_mode is LOG_FILE;
-      variable line_v : line;
+      variable வரி_v : வரி;
     begin
       if (rstn_i = '0') then
         cycle_cnt <= (others => '0');
@@ -796,83 +796,83 @@ begin
       elsif rising_edge(clk_i) then
         if (header = '0') then
           header <= '1';
-          write(line_v, string'("-----------------------------------------------------------------------------------------------------------------------------------------------------------------"));
-          writeline(file_v, line_v);
-          write(line_v, string'("Index        Time         Address     Instr       P  Mnemonic    Operands                Registers                                        Memory       Events"));
-          writeline(file_v, line_v);
-          write(line_v, string'("-----------------------------------------------------------------------------------------------------------------------------------------------------------------"));
-          writeline(file_v, line_v);
+          write(வரி_v, string'("-----------------------------------------------------------------------------------------------------------------------------------------------------------------"));
+          writeline(file_v, வரி_v);
+          write(வரி_v, string'("Index        Time         Address     Instr       P  Mnemonic    Operands                Registers                                        Memory       Events"));
+          writeline(file_v, வரி_v);
+          write(வரி_v, string'("-----------------------------------------------------------------------------------------------------------------------------------------------------------------"));
+          writeline(file_v, வரி_v);
         end if;
         cycle_cnt <= std_ulogic_vector(unsigned(cycle_cnt) + 1);
         if (trace_i.valid = '1') then
           -- index --
-          write(line_v, integer'(to_integer(unsigned(trace_i.order(31 downto 0)))), left, 13);
+          write(வரி_v, integer'(to_integer(unsigned(trace_i.order(31 downto 0)))), இடது, 13);
           -- timestamp --
-          write(line_v, integer'(to_integer(unsigned(cycle_cnt))), left, 13);
+          write(வரி_v, integer'(to_integer(unsigned(cycle_cnt))), இடது, 13);
           -- instruction address --
-          write(line_v, string'("0x"));
-          write(line_v, string'(to_hexstring_f(trace_i.pc_rdata)));
-          write(line_v, string'("  "));
+          write(வரி_v, string'("0x"));
+          write(வரி_v, string'(to_hexstring_f(trace_i.pc_rdata)));
+          write(வரி_v, string'("  "));
           -- instruction word --
-          write(line_v, string'("0x"));
+          write(வரி_v, string'("0x"));
           if (trace_i.compr = '1') then -- compressed instruction
-            write(line_v, string'(to_hexstring_f(trace_i.insn(15 downto 0))), left, 10);
+            write(வரி_v, string'(to_hexstring_f(trace_i.insn(15 downto 0))), இடது, 10);
           else
-            write(line_v, string'(to_hexstring_f(trace_i.insn)), left, 10);
+            write(வரி_v, string'(to_hexstring_f(trace_i.insn)), இடது, 10);
           end if;
           -- privilege level --
           if (trace_i.debug = '1') then
-            write(line_v, string'("D"), left, 3);
+            write(வரி_v, string'("D"), இடது, 3);
           elsif (trace_i.mode = "11") then
-            write(line_v, string'("M"), left, 3);
+            write(வரி_v, string'("M"), இடது, 3);
           elsif (trace_i.mode = "00") then
-            write(line_v, string'("U"), left, 3);
+            write(வரி_v, string'("U"), இடது, 3);
           else
-            write(line_v, string'("?"), left, 3);
+            write(வரி_v, string'("?"), இடது, 3);
           end if;
           -- decoded instruction (mnemonic + operands) --
-          write(line_v, string'(decode_mnemonic_f(trace_i.insn)), left, 12);
-          write(line_v, string'(decode_operands_f(trace_i.cmd32)), left, 24);
+          write(வரி_v, string'(decode_mnemonic_f(trace_i.insn)), இடது, 12);
+          write(வரி_v, string'(decode_operands_f(trace_i.cmd32)), இடது, 24);
           -- registers --
           if (trace_i.rd_addr = "00000") then
-            write(line_v, string'(" "), left, 17);
+            write(வரி_v, string'(" "), இடது, 17);
           else
-            write(line_v, string'("x"));
-            write(line_v, integer'(to_integer(unsigned(trace_i.rd_addr))), left, 2);
-            write(line_v, string'("<=0x"));
-            write(line_v, string'(to_hexstring_f(trace_i.rd_wdata)));
-            write(line_v, string'(", "));
+            write(வரி_v, string'("x"));
+            write(வரி_v, integer'(to_integer(unsigned(trace_i.rd_addr))), இடது, 2);
+            write(வரி_v, string'("<=0x"));
+            write(வரி_v, string'(to_hexstring_f(trace_i.rd_wdata)));
+            write(வரி_v, string'(", "));
           end if;
-          write(line_v, string'("x"));
-          write(line_v, integer'(to_integer(unsigned(trace_i.rs1_addr))), left, 2);
-          write(line_v, string'("=0x"));
-          write(line_v, string'(to_hexstring_f(trace_i.rs1_rdata)));
-          write(line_v, string'(", x"));
-          write(line_v, integer'(to_integer(unsigned(trace_i.rs2_addr))), left, 2);
-          write(line_v, string'("=0x"));
-          write(line_v, string'(to_hexstring_f(trace_i.rs2_rdata)));
-          write(line_v, string'("  "));
+          write(வரி_v, string'("x"));
+          write(வரி_v, integer'(to_integer(unsigned(trace_i.rs1_addr))), இடது, 2);
+          write(வரி_v, string'("=0x"));
+          write(வரி_v, string'(to_hexstring_f(trace_i.rs1_rdata)));
+          write(வரி_v, string'(", x"));
+          write(வரி_v, integer'(to_integer(unsigned(trace_i.rs2_addr))), இடது, 2);
+          write(வரி_v, string'("=0x"));
+          write(வரி_v, string'(to_hexstring_f(trace_i.rs2_rdata)));
+          write(வரி_v, string'("  "));
           -- memory access address --
           if (trace_i.mem_rmask /= "0000") or (trace_i.mem_wmask /= "0000") then
-            write(line_v, string'("@0x"));
-            write(line_v, string'(to_hexstring_f(trace_i.mem_addr)));
-            write(line_v, string'(" "));
+            write(வரி_v, string'("@0x"));
+            write(வரி_v, string'(to_hexstring_f(trace_i.mem_addr)));
+            write(வரி_v, string'(" "));
           else
-            write(line_v, string'(" "), left, 12);
+            write(வரி_v, string'(" "), இடது, 12);
           end if;
           -- events --
           if (reset = '1') then -- hardware reset
-            write(line_v, string'(" RESET"));
+            write(வரி_v, string'(" RESET"));
             reset <= '0';
           end if;
           if (trace_i.halt = '1') then -- entering sleep mode
-            write(line_v, string'(" SLEEP"));
+            write(வரி_v, string'(" SLEEP"));
           end if;
           if (trace_i.intr = '1') then -- first instruction of trap handler
-            write(line_v, string'(" TRAP_ENTRY"));
+            write(வரி_v, string'(" TRAP_ENTRY"));
           end if;
           -- flush line to file --
-          writeline(file_v, line_v);
+          writeline(file_v, வரி_v);
         end if;
       end if;
     end process;

@@ -68,15 +68,15 @@ entity neorv32_cpu is
     CPU_FAST_SHIFT_EN   : boolean                        := false;       -- use barrel shifter for shift operations
     CPU_RF_ARCH_SEL     : natural range 0 to 3           := 0;           -- register file implementation style select
     -- Physical Memory Protection (PMP) --
-    PMP_NUM_REGIONS     : natural range 0 to 16          := 0;           -- number of regions
+    PMP_இலக்கம்_REGIONS     : natural range 0 to 16          := 0;           -- number of regions
     PMP_MIN_GRANULARITY : natural                        := 4;           -- minimal region granularity in bytes, has to be a power of 2, min 4 bytes
     PMP_TOR_MODE_EN     : boolean                        := false;       -- enable TOR mode
     PMP_NAP_MODE_EN     : boolean                        := false;       -- enable NAPOT/NA4 modes
     -- Hardware Performance Monitors (HPM) --
-    HPM_NUM_CNTS        : natural range 0 to 29          := 0;           -- number of implemented HPM counters
+    HPM_இலக்கம்_CNTS        : natural range 0 to 29          := 0;           -- number of implemented HPM counters
     HPM_CNT_WIDTH       : natural range 0 to 64          := 0;           -- total size of HPM counters
     -- Trigger Module (TM) --
-    NUM_HW_TRIGGERS     : natural range 0 to 16          := 0            -- number of hardware triggers
+    இலக்கம்_HW_TRIGGERS     : natural range 0 to 16          := 0            -- number of hardware triggers
   );
   port (
     -- global control --
@@ -344,10 +344,10 @@ begin
   -- Hardware Trigger Module (Sdtrig) -------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   trigger_module_enabled:
-  if (RISCV_ISA_Sdtrig = true) and (NUM_HW_TRIGGERS > 0) generate
+  if (RISCV_ISA_Sdtrig = true) and (இலக்கம்_HW_TRIGGERS > 0) generate
     cpu_hwtrig_inst: entity neorv32.neorv32_cpu_hwtrig
     generic map (
-      NUM_TRIGGERS => NUM_HW_TRIGGERS, -- number of implemented hardware triggers
+      இலக்கம்_TRIGGERS => இலக்கம்_HW_TRIGGERS, -- number of implemented hardware triggers
       RISCV_ISA_U  => RISCV_ISA_U      -- RISC-V user-mode available
     )
     port map (
@@ -364,7 +364,7 @@ begin
   end generate;
 
   trigger_module_disabled:
-  if (RISCV_ISA_Sdtrig = false) or (NUM_HW_TRIGGERS = 0) generate
+  if (RISCV_ISA_Sdtrig = false) or (இலக்கம்_HW_TRIGGERS = 0) generate
     xcsr_tm <= (others => '0');
     hwtrig  <= '0';
   end generate;
@@ -380,7 +380,7 @@ begin
       ZIHPM_EN     => RISCV_ISA_Zihpm,     -- hardware performance monitors (HPMs)
       SMCNTRPMF_EN => RISCV_ISA_Smcntrpmf, -- counter privilege-mode filtering
       UMODE_EN     => RISCV_ISA_U,         -- user-mode
-      HPM_NUM      => HPM_NUM_CNTS,        -- number of implemented HPM counters
+      HPM_இலக்கம்      => HPM_இலக்கம்_CNTS,        -- number of implemented HPM counters
       HPM_WIDTH    => HPM_CNT_WIDTH        -- total size of HPM counters
     )
     port map (
@@ -511,7 +511,7 @@ begin
   if RISCV_ISA_Smpmp generate
     cpu_pmp_inst: entity neorv32.neorv32_cpu_pmp
     generic map (
-      NUM_REGIONS => PMP_NUM_REGIONS,     -- number of regions
+      இலக்கம்_REGIONS => PMP_இலக்கம்_REGIONS,     -- number of regions
       GRANULARITY => PMP_MIN_GRANULARITY, -- minimal region granularity in bytes
       TOR_EN      => PMP_TOR_MODE_EN,     -- enable TOR mode
       NAP_EN      => PMP_NAP_MODE_EN      -- enable NAPOT/NA4 modes

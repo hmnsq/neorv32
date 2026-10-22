@@ -27,7 +27,7 @@ use neorv32.neorv32_package.all;
 
 entity neorv32_cache is
   generic (
-    NUM_BLOCKS : natural range 1 to 4096;       -- number of cache blocks, has to be a power of 2
+    இலக்கம்_BLOCKS : natural range 1 to 4096;       -- number of cache blocks, has to be a power of 2
     BLOCK_SIZE : natural range 4 to 1024;       -- cache block size in bytes, has to be a power of 2
     UC_BEGIN   : std_ulogic_vector(3 downto 0); -- begin of uncached address space (4 MSBs of address)
     READ_ONLY  : boolean;                       -- cache is read-only accesses for host
@@ -47,10 +47,10 @@ end entity;
 architecture neorv32_cache_rtl of neorv32_cache is
 
   -- cache layout --
-  constant block_num_c    : natural := 2**index_size_f(NUM_BLOCKS);  -- extend if not a power of two
+  constant block_இலக்கம்_c    : natural := 2**index_size_f(இலக்கம்_BLOCKS);  -- extend if not a power of two
   constant block_size_c   : natural := 2**index_size_f(BLOCK_SIZE);  -- extend if not a power of two
   constant offset_width_c : natural := index_size_f(block_size_c/4); -- word offset
-  constant index_width_c  : natural := index_size_f(block_num_c);
+  constant index_width_c  : natural := index_size_f(block_இலக்கம்_c);
   constant tag_width_c    : natural := 32 - (offset_width_c + index_width_c + 2);
 
   -- control -> cache interface --
@@ -99,7 +99,7 @@ architecture neorv32_cache_rtl of neorv32_cache is
   signal ctrl, ctrl_nxt : ctrl_t; -- FSM
 
   -- status memory --
-  signal valid,    dirty    : std_ulogic_vector(block_num_c-1 downto 0);
+  signal valid,    dirty    : std_ulogic_vector(block_இலக்கம்_c-1 downto 0);
   signal valid_rd, dirty_rd : std_ulogic;
 
 begin
