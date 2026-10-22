@@ -344,7 +344,7 @@ begin
 
   -- Number Classifier ----------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  number_classifier: process(op_data, rs1_i, rs2_i)
+  সংখ্যা_classifier: process(op_data, rs1_i, rs2_i)
     variable op_m_all_zero_v, op_e_all_zero_v, op_e_all_one_v       : std_ulogic;
     variable op_is_zero_v, op_is_inf_v, op_is_denorm_v, op_is_nan_v : std_ulogic;
   begin
@@ -800,7 +800,7 @@ begin
       multiplier.flags(fp_exc_dz_c) <= '0'; -- division by zero: not possible here
 
       -- latency shift register --
-      multiplier.latency <= multiplier.latency(multiplier.latency'left-1 downto 0) & multiplier.start;
+      multiplier.latency <= multiplier.latency(multiplier.latency'বাম-1 downto 0) & multiplier.start;
     end if;
   end process;
 
@@ -828,7 +828,7 @@ begin
 
   -- latency --
   multiplier.start <= fu_mul.start;
-  multiplier.done  <= multiplier.latency(multiplier.latency'left);
+  multiplier.done  <= multiplier.latency(multiplier.latency'বাম);
   fu_mul.done      <= multiplier.done;
 
 
@@ -1095,7 +1095,7 @@ begin
           end if;
           addsub.exp_cnt(7 downto 0) <= addsub.large_exp(7 downto 0);
         else
-          addsub.man_sreg  <= '0' & addsub.man_sreg(addsub.man_sreg'left downto 1);
+          addsub.man_sreg  <= '0' & addsub.man_sreg(addsub.man_sreg'বাম downto 1);
           addsub.man_g_ext <= addsub.man_sreg(0);
           addsub.man_r_ext <= addsub.man_g_ext;
           addsub.man_s_ext <= addsub.man_s_ext or addsub.man_r_ext; -- sticky bit
@@ -1213,7 +1213,7 @@ begin
 
   -- latency --
   addsub.start   <= fu_addsub.start;
-  addsub.done    <= addsub.latency(addsub.latency'left);
+  addsub.done    <= addsub.latency(addsub.latency'বাম);
   fu_addsub.done <= addsub.done;
 
   -- mantissa result --
@@ -1393,7 +1393,7 @@ begin
 
   -- Normalizer Input -----------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  normalizer_input_select: process(funct_ff, addsub, multiplier, fu_conv_i2f)
+  normalizer_প্রবেশ_select: process(funct_ff, addsub, multiplier, fu_conv_i2f)
   begin
     case funct_ff is
       when op_addsub_c => -- addition/subtraction
@@ -1731,15 +1731,15 @@ begin
           else
             if (sreg.dir = '0') then -- shift right
               ctrl.cnt   <= std_ulogic_vector(unsigned(ctrl.cnt) + 1);
-              sreg.upper <= '0' & sreg.upper(sreg.upper'left downto 1);
-              sreg.lower <= sreg.upper(0) & sreg.lower(sreg.lower'left downto 1);
+              sreg.upper <= '0' & sreg.upper(sreg.upper'বাম downto 1);
+              sreg.lower <= sreg.upper(0) & sreg.lower(sreg.lower'বাম downto 1);
               sreg.ext_g <= sreg.lower(0);
               sreg.ext_r <= sreg.ext_g;
               sreg.ext_s <= sreg.ext_r or sreg.ext_s; -- sticky bit
             else -- shift left
               ctrl.cnt   <= std_ulogic_vector(unsigned(ctrl.cnt) - 1);
-              sreg.upper <= sreg.upper(sreg.upper'left-1 downto 0) & sreg.lower(sreg.lower'left);
-              sreg.lower <= sreg.lower(sreg.lower'left-1 downto 0) & sreg.ext_g;
+              sreg.upper <= sreg.upper(sreg.upper'left-1 downto 0) & sreg.lower(sreg.lower'বাম);
+              sreg.lower <= sreg.lower(sreg.lower'বাম-1 downto 0) & sreg.ext_g;
               sreg.ext_g <= sreg.ext_r;
               sreg.ext_r <= sreg.ext_s;
               sreg.ext_s <= sreg.ext_s; -- sticky bit
@@ -2068,17 +2068,17 @@ begin
           -- if the exponent is small enough only S will be set, assuming the number is not 0
           if (unsigned(ctrl.cnt) < 125) then -- less than 0.5
             sreg.int    <= (others => '0');
-            sreg.mant   <= "001" & sreg.mant(sreg.mant'left downto 3);
+            sreg.mant   <= "001" & sreg.mant(sreg.mant'বাম downto 3);
             ctrl.under  <= '1'; -- this is an underflow!
             ctrl.cnt    <= (others => '0');
           elsif (unsigned(ctrl.cnt) = 125) then -- less than 0.5
             sreg.int    <= (others => '0');
-            sreg.mant   <= "01" & sreg.mant(sreg.mant'left downto 2);
+            sreg.mant   <= "01" & sreg.mant(sreg.mant'বাম downto 2);
             ctrl.under  <= '1'; -- this is an underflow!
             ctrl.cnt    <= (others => '0');
           elsif (unsigned(ctrl.cnt) = 126) then -- num < 1.0 but num >= 0.5
             sreg.int    <= (others => '0');
-            sreg.mant   <= '1' & sreg.mant(sreg.mant'left downto 1);
+            sreg.mant   <= '1' & sreg.mant(sreg.mant'বাম downto 1);
             ctrl.under  <= '1'; -- as the number cannot be represented correctly it will be an underflow
             ctrl.cnt    <= (others => '0');
           else
@@ -2113,20 +2113,20 @@ begin
         when S_NORMALIZE_BUSY => -- running normalization cycle
         -- ------------------------------------------------------------
           if (or_reduce_f(ctrl.cnt(ctrl.cnt'left-1 downto 0)) = '0') then -- if we are at the last step of a normal shift right update the G, R and S
-            sreg.ext_g <= sreg.mant(sreg.mant'left);
-            sreg.ext_r <= sreg.mant(sreg.mant'left-1);
+            sreg.ext_g <= sreg.mant(sreg.mant'বাম);
+            sreg.ext_r <= sreg.mant(sreg.mant'বাম-1);
             if (or_reduce_f(sreg.mant(sreg.mant'left-2 downto 0)) = '1') then
               sreg.ext_s <= '1'; -- sticky bit
             end if;
             if (ctrl.unsign = '0') then -- signed conversion
-              ctrl.over <= ctrl.over or sreg.int(sreg.int'left); -- update overrun flag again to check for numerical overflow into sign bit
+              ctrl.over <= ctrl.over or sreg.int(sreg.int'বাম); -- update overrun flag again to check for numerical overflow into sign bit
             end if;
             ctrl.state <= S_ROUND;
           else -- shift left
             ctrl.cnt  <= std_ulogic_vector(unsigned(ctrl.cnt) - 1);
-            sreg.int  <= sreg.int(sreg.int'left-1 downto 0) & sreg.mant(sreg.mant'left);
+            sreg.int  <= sreg.int(sreg.int'left-1 downto 0) & sreg.mant(sreg.mant'বাম);
             sreg.mant <= sreg.mant(sreg.mant'left-1 downto 0) & '0';
-            ctrl.over <= ctrl.over or sreg.int(sreg.int'left);
+            ctrl.over <= ctrl.over or sreg.int(sreg.int'বাম);
             sreg.ext_g <= '0'; -- as we are shifting left these will always be 0
             sreg.ext_r <= '0'; -- as we are shifting left these will always be 0
             sreg.ext_s <= '0'; -- sticky bit
@@ -2135,8 +2135,8 @@ begin
         when S_ROUND => -- rounding cycle
         -- ------------------------------------------------------------
           ctrl.rounded    <= ctrl.rounded or round.en;
-          ctrl.over       <= ctrl.over or round.output(round.output'left); -- overflow after rounding
-          ctrl.result_tmp <= round.output(round.output'left-1 downto 0);
+          ctrl.over       <= ctrl.over or round.output(round.output'বাম); -- overflow after rounding
+          ctrl.result_tmp <= round.output(round.output'বাম-1 downto 0);
           ctrl.state      <= S_FINALIZE;
           -- If after the round we get bits in the guard band
           -- the end result will be inexact as we are truncating away information
