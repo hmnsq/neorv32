@@ -26,7 +26,7 @@ entity neorv32_twi is
     rstn_i    : in  std_ulogic;                    -- global reset line, low-active, async
     bus_req_i : in  bus_req_t;                     -- bus request
     bus_rsp_o : out bus_rsp_t;                     -- bus response
-    clkgen_i  : in  std_ulogic_vector(7 downto 0); -- prescaled clock enables
+    clkgen_i  : in  std_ulogic_وکتور(7 downto 0); -- prescaled clock enables
     twi_sda_i : in  std_ulogic;                    -- serial data line input
     twi_sda_o : out std_ulogic;                    -- serial data line output (0=GND, 1=high-Z)
     twi_scl_i : in  std_ulogic;                    -- serial clock line input
@@ -50,7 +50,7 @@ architecture neorv32_twi_rtl of neorv32_twi is
   --
   constant ctrl_sense_scl_c : natural := 27; -- r/-: current state of the SCL bus line
   constant ctrl_sense_sda_c : natural := 28; -- r/-: current state of the SDA bus line
-  constant ctrl_tx_full_c   : natural := 29; -- r/-: TX FIFO full
+  constant ctrl_tx_پر_c   : natural := 29; -- r/-: TX FIFO full
   constant ctrl_rx_avail_c  : natural := 30; -- r/-: RX FIFO data available
   constant ctrl_busy_c      : natural := 31; -- r/-: Set if TWI unit is busy
 
@@ -62,17 +62,17 @@ architecture neorv32_twi_rtl of neorv32_twi is
   constant dcmd_cmd_hi_c : natural := 10; -- -/w: operation command; 10=STOP, 11=DATA
 
   -- helpers --
-  constant log2_fifo_size_c : natural := index_size_f(IO_TWI_FIFO);
+  constant log2_fifo_اندازه_c : natural := شاخص_اندازه_f(IO_TWI_FIFO);
 
   -- bus interface --
   signal bus_ack, bus_rden : std_ulogic;
-  signal bus_rdata : std_ulogic_vector(31 downto 0);
+  signal bus_rdata : std_ulogic_وکتور(31 downto 0);
 
   -- control register --
   type ctrl_t is record
     enable : std_ulogic;
-    prsc   : std_ulogic_vector(2 downto 0);
-    cdiv   : std_ulogic_vector(3 downto 0);
+    prsc   : std_ulogic_وکتور(2 downto 0);
+    cdiv   : std_ulogic_وکتور(3 downto 0);
     clkstr : std_ulogic;
   end record;
   signal ctrl : ctrl_t; -- register set
@@ -82,26 +82,26 @@ architecture neorv32_twi_rtl of neorv32_twi is
     rx_clear, tx_clear : std_ulogic; -- sync reset, high-active
     rx_we,    tx_we    : std_ulogic; -- write enable
     rx_re,    tx_re    : std_ulogic; -- read enable
-    rx_wdata, rx_rdata : std_ulogic_vector(8 downto 0); -- RX read/write data
-    tx_wdata, tx_rdata : std_ulogic_vector(10 downto 0); -- TX read/write data
+    rx_wdata, rx_rdata : std_ulogic_وکتور(8 downto 0); -- RX read/write data
+    tx_wdata, tx_rdata : std_ulogic_وکتور(10 downto 0); -- TX read/write data
     rx_avail, tx_avail : std_ulogic; -- data available?
     rx_free,  tx_free  : std_ulogic; -- free entry available?
   end record;
   signal fifo : fifo_t;
 
   -- clock generator --
-  signal clkgen_cnt          : std_ulogic_vector(3 downto 0); -- clock divider
+  signal clkgen_cnt          : std_ulogic_وکتور(3 downto 0); -- clock divider
   signal clkgen_tick         : std_ulogic; -- actual TWI clock tick
   signal clkgen_halt         : std_ulogic; -- halt clock during clock stretching
-  signal clkgen_phase_gen    : std_ulogic_vector(3 downto 0); -- clock phase generator
-  signal clkgen_phase_gen_ff : std_ulogic_vector(3 downto 0);
-  signal clkgen_phase        : std_ulogic_vector(3 downto 0);
+  signal clkgen_phase_gen    : std_ulogic_وکتور(3 downto 0); -- clock phase generator
+  signal clkgen_phase_gen_ff : std_ulogic_وکتور(3 downto 0);
+  signal clkgen_phase        : std_ulogic_وکتور(3 downto 0);
 
   -- bus engine --
   type engine_t is record
-    state  : std_ulogic_vector(2 downto 0); -- FSM state
-    bitcnt : std_ulogic_vector(3 downto 0); -- bit counter
-    sreg   : std_ulogic_vector(8 downto 0); -- shift register
+    state  : std_ulogic_وکتور(2 downto 0); -- FSM state
+    bitcnt : std_ulogic_وکتور(3 downto 0); -- bit counter
+    sreg   : std_ulogic_وکتور(8 downto 0); -- shift register
     tx_re  : std_ulogic; -- pop from TX FIFO
     rx_we  : std_ulogic; -- push to RX FIFO
   end record;
@@ -109,8 +109,8 @@ architecture neorv32_twi_rtl of neorv32_twi is
   signal busy : std_ulogic; -- bus operation in progress
 
   -- I/O control --
-  signal sda_sync, scl_sync : std_ulogic_vector(1 downto 0); -- input synchronizer
-  signal sda_out,  scl_out  : std_ulogic;
+  signal sda_sync, scl_sync : std_ulogic_وکتور(1 downto 0); -- input synchronizer
+  signal sda_بیرون,  scl_بیرون  : std_ulogic;
 
 begin
 
@@ -118,7 +118,7 @@ begin
   -- -------------------------------------------------------------------------------------------
   bus_handshake: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_یال(clk_i) then
       bus_ack  <= bus_req_i.stb;
       bus_rden <= bus_req_i.stb and (not bus_req_i.rw);
     end if;
@@ -132,13 +132,13 @@ begin
       ctrl.prsc   <= (others => '0');
       ctrl.cdiv   <= (others => '0');
       ctrl.clkstr <= '0';
-    elsif rising_edge(clk_i) then
+    elsif rising_یال(clk_i) then
       if (bus_req_i.stb = '1') and (bus_req_i.rw = '1') then
         if (bus_req_i.addr(2) = '0') then -- control register
-          ctrl.enable <= bus_req_i.data(ctrl_en_c);
-          ctrl.prsc   <= bus_req_i.data(ctrl_prsc2_c downto ctrl_prsc0_c);
-          ctrl.cdiv   <= bus_req_i.data(ctrl_cdiv3_c downto ctrl_cdiv0_c);
-          ctrl.clkstr <= bus_req_i.data(ctrl_clkstr_en_c);
+          ctrl.enable <= bus_req_i.داده(ctrl_en_c);
+          ctrl.prsc   <= bus_req_i.داده(ctrl_prsc2_c downto ctrl_prsc0_c);
+          ctrl.cdiv   <= bus_req_i.داده(ctrl_cdiv3_c downto ctrl_cdiv0_c);
+          ctrl.clkstr <= bus_req_i.داده(ctrl_clkstr_en_c);
         end if;
       end if;
     end if;
@@ -154,10 +154,10 @@ begin
         bus_rdata(ctrl_prsc2_c downto ctrl_prsc0_c) <= ctrl.prsc;
         bus_rdata(ctrl_cdiv3_c downto ctrl_cdiv0_c) <= ctrl.cdiv;
         bus_rdata(ctrl_clkstr_en_c)                 <= ctrl.clkstr;
-        bus_rdata(ctrl_fifo3_c downto ctrl_fifo0_c) <= std_ulogic_vector(to_unsigned(log2_fifo_size_c, 4));
+        bus_rdata(ctrl_fifo3_c downto ctrl_fifo0_c) <= std_ulogic_وکتور(مقصد_unsigned(log2_fifo_اندازه_c, 4));
         bus_rdata(ctrl_sense_scl_c)                 <= scl_sync(1);
         bus_rdata(ctrl_sense_sda_c)                 <= sda_sync(1);
-        bus_rdata(ctrl_tx_full_c)                   <= not fifo.tx_free;
+        bus_rdata(ctrl_tx_پر_c)                   <= not fifo.tx_free;
         bus_rdata(ctrl_rx_avail_c)                  <= fifo.rx_avail;
         bus_rdata(ctrl_busy_c)                      <= busy or fifo.tx_avail;
       else -- RX data
@@ -169,7 +169,7 @@ begin
   -- bus response --
   bus_rsp_o.ack  <= bus_ack;
   bus_rsp_o.err  <= '0'; -- no access errors supported
-  bus_rsp_o.data <= bus_rdata;
+  bus_rsp_o.داده <= bus_rdata;
 
 
   -- Data FIFOs ("Ring Buffer") -------------------------------------------------------------
@@ -178,7 +178,7 @@ begin
   -- TX FIFO --
   tx_fifo_inst: entity neorv32.neorv32_prim_fifo
   generic map (
-    AWIDTH  => log2_fifo_size_c,
+    AWIDTH  => log2_fifo_اندازه_c,
     DWIDTH  => 11, -- command, host-ACK, data
     OUTGATE => false,
     ASYNCRD => false
@@ -199,7 +199,7 @@ begin
   );
 
   fifo.tx_clear <= not ctrl.enable;
-  fifo.tx_wdata <= bus_req_i.data(dcmd_cmd_hi_c downto dcmd_lsb_c);
+  fifo.tx_wdata <= bus_req_i.داده(dcmd_cmd_hi_c downto dcmd_lsb_c);
   fifo.tx_we    <= bus_req_i.stb and bus_req_i.rw and bus_req_i.addr(2);
   fifo.tx_re    <= engine.tx_re;
 
@@ -207,7 +207,7 @@ begin
   -- RX FIFO --
   rx_fifo_inst: entity neorv32.neorv32_prim_fifo
   generic map (
-    AWIDTH  => log2_fifo_size_c,
+    AWIDTH  => log2_fifo_اندازه_c,
     DWIDTH  => 9, -- ACK + data
     OUTGATE => false,
     ASYNCRD => false
@@ -236,7 +236,7 @@ begin
   -- IRQ if enabled and TX FIFO is empty and bus engine is idle --
   irq_generator: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_یال(clk_i) then
       irq_o <= ctrl.enable and (not fifo.tx_avail) and (not busy);
     end if;
   end process;
@@ -246,18 +246,18 @@ begin
   -- -------------------------------------------------------------------------------------------
   clock_generator: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_یال(clk_i) then
       if (ctrl.enable = '0') then -- reset/disabled
         clkgen_tick <= '0';
         clkgen_cnt  <= (others => '0');
       else
         clkgen_tick <= '0'; -- default
-        if (clkgen_i(to_integer(unsigned(ctrl.prsc))) = '1') then -- pre-scaled clock
+        if (clkgen_i(مقصد_integer(unsigned(ctrl.prsc))) = '1') then -- pre-scaled clock
           if (clkgen_cnt = ctrl.cdiv) then -- clock divider for fine-tuning
             clkgen_tick <= '1';
             clkgen_cnt  <= (others => '0');
           else
-            clkgen_cnt <= std_ulogic_vector(unsigned(clkgen_cnt) + 1);
+            clkgen_cnt <= std_ulogic_وکتور(unsigned(clkgen_cnt) + 1);
           end if;
         end if;
       end if;
@@ -267,7 +267,7 @@ begin
   -- generate four non-overlapping clock phases --
   phase_generator: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_یال(clk_i) then
       clkgen_phase_gen_ff <= clkgen_phase_gen;
       if (ctrl.enable = '0') or (busy = '0') then -- disabled or idle
         clkgen_phase_gen <= "0001"; -- start with a new phase
@@ -285,7 +285,7 @@ begin
 
   -- clock stretching detector --
   -- controller wants to drive SCL high, but SCL is still pulled low by peripheral --
-  clkgen_halt <= '1' when (scl_out = '1') and (scl_sync(1) = '0') and (ctrl.clkstr = '1') else '0';
+  clkgen_halt <= '1' when (scl_بیرون = '1') and (scl_sync(1) = '0') and (ctrl.clkstr = '1') else '0';
 
 
   -- TWI Bus Engine -------------------------------------------------------------------------
@@ -298,9 +298,9 @@ begin
       engine.sreg   <= (others => '0');
       engine.tx_re  <= '0';
       engine.rx_we  <= '0';
-      sda_out       <= '1';
-      scl_out       <= '1';
-    elsif rising_edge(clk_i) then
+      sda_بیرون       <= '1';
+      scl_بیرون       <= '1';
+    elsif rising_یال(clk_i) then
       engine.tx_re    <= '0';
       engine.rx_we    <= '0';
       engine.state(2) <= ctrl.enable; -- module enabled?
@@ -318,44 +318,44 @@ begin
         when "101" => -- START: generate (repeated) START condition
         -- ------------------------------------------------------------
           if (clkgen_phase(0) = '1') then
-            sda_out <= '1';
+            sda_بیرون <= '1';
           elsif (clkgen_phase(2) = '1') then
-            sda_out <= '0';
+            sda_بیرون <= '0';
           end if;
           if (clkgen_phase(0) = '1') then
-            scl_out <= '1';
+            scl_بیرون <= '1';
           elsif (clkgen_phase(3) = '1') then
-            scl_out <= '0';
+            scl_بیرون <= '0';
             engine.state(1 downto 0) <= "00"; -- go back to IDLE
           end if;
 
         when "110" => -- STOP: generate STOP condition
         -- ------------------------------------------------------------
           if (clkgen_phase(0) = '1') then
-            sda_out <= '0';
+            sda_بیرون <= '0';
           elsif (clkgen_phase(3) = '1') then
-            sda_out                  <= '1';
+            sda_بیرون                  <= '1';
             engine.state(1 downto 0) <= "00"; -- go back to IDLE
           end if;
           if (clkgen_phase(0) = '1') then
-            scl_out <= '0';
+            scl_بیرون <= '0';
           elsif (clkgen_phase(1) = '1') then
-            scl_out <= '1';
+            scl_بیرون <= '1';
           end if;
 
         when "111" => -- TRANSMISSION: send/receive byte + ACK/NACK/MACK
         -- ------------------------------------------------------------
           -- SCL clocking --
           if (clkgen_phase(0) = '1') or (clkgen_phase(3) = '1') then
-            scl_out <= '0'; -- set SCL low after transmission to keep bus claimed
+            scl_بیرون <= '0'; -- set SCL low after transmission to keep bus claimed
           elsif (clkgen_phase(1) = '1') then -- first half + second half of valid data strobe
-            scl_out <= '1';
+            scl_بیرون <= '1';
           end if;
           -- SDA output --
           if (engine.bitcnt = "1001") and (clkgen_phase(0) = '1') then
-            sda_out <= '0'; -- set SDA low after transmission to keep bus claimed
+            sda_بیرون <= '0'; -- set SDA low after transmission to keep bus claimed
           elsif (clkgen_phase(0) = '1') then
-            sda_out <= engine.sreg(8); -- MSB first
+            sda_بیرون <= engine.sreg(8); -- MSB first
           end if;
           -- SDA input --
           if (clkgen_phase(2) = '1') then
@@ -363,7 +363,7 @@ begin
           end if;
           -- bit counter --
           if (clkgen_phase(3) = '1') then
-            engine.bitcnt <= std_ulogic_vector(unsigned(engine.bitcnt) + 1);
+            engine.bitcnt <= std_ulogic_وکتور(unsigned(engine.bitcnt) + 1);
           end if;
           -- transmission done --
           if (engine.bitcnt = "1001") and (clkgen_phase(0) = '1') then
@@ -373,8 +373,8 @@ begin
 
         when others => -- "0--" OFFLINE: TWI deactivated, bus unclaimed
         -- ------------------------------------------------------------
-          scl_out                  <= '1';  -- bus idle, SCL driven by pull-up resistor
-          sda_out                  <= '1';  -- bus idle, SDA driven by pull-up resistor
+          scl_بیرون                  <= '1';  -- bus idle, SCL driven by pull-up resistor
+          sda_بیرون                  <= '1';  -- bus idle, SDA driven by pull-up resistor
           engine.state(1 downto 0) <= "00"; -- stay here, go to IDLE when activated
 
       end case;
@@ -387,16 +387,16 @@ begin
 
   -- IO Control -----------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  input_synchronizer: process(clk_i)
+  درون_داد_synchronizer: process(clk_i)
   begin
-    if rising_edge(clk_i) then
-      sda_sync <= sda_sync(0) & to_stdulogic(to_bit(twi_sda_i)); -- "to_bit" to avoid HW-vs-sim mismatch
-      scl_sync <= scl_sync(0) & to_stdulogic(to_bit(twi_scl_i));
+    if rising_یال(clk_i) then
+      sda_sync <= sda_sync(0) & مقصد_stdulogic(مقصد_بیت(twi_sda_i)); -- "to_bit" to avoid HW-vs-sim mismatch
+      scl_sync <= scl_sync(0) & مقصد_stdulogic(مقصد_بیت(twi_scl_i));
     end if;
   end process;
 
   -- tri-state control: 0 = drive GND, 1 = tri-state / driven by pull-up --
-  twi_sda_o <= sda_out;
-  twi_scl_o <= scl_out;
+  twi_sda_o <= sda_بیرون;
+  twi_scl_o <= scl_بیرون;
 
 end architecture;

@@ -35,7 +35,7 @@ entity neorv32_cpu_frontend is
     ibus_req_o : out bus_req_t; -- request
     ibus_rsp_i : in  bus_rsp_t; -- response
     -- PMP interface --
-    pmp_addr_o : out std_ulogic_vector(31 downto 0); -- access address
+    pmp_addr_o : out std_ulogic_وکتور(31 downto 0); -- access address
     pmp_priv_o : out std_ulogic; -- access privilege level
     pmp_err_i  : in  std_ulogic; -- PMP access fault
     -- back-end interface --
@@ -46,14 +46,14 @@ end entity;
 architecture neorv32_cpu_frontend_rtl of neorv32_cpu_frontend is
 
   -- heart ID --
-  constant hid_c : std_ulogic_vector(1 downto 0) := std_ulogic_vector(to_unsigned(HART_ID, 2));
+  constant hid_c : std_ulogic_وکتور(1 downto 0) := std_ulogic_وکتور(مقصد_unsigned(HART_ID, 2));
 
   -- instruction fetch engine --
   type state_t is (S_RESTART, S_REQUEST, S_PENDING);
   type fetch_t is record
     state : state_t;
     reset : std_ulogic; -- buffered restart request (after branch)
-    addr  : std_ulogic_vector(31 downto 0); -- fetch address
+    addr  : std_ulogic_وکتور(31 downto 0); -- fetch address
   end record;
   signal fetch : fetch_t; -- FSM
 
@@ -61,16 +61,16 @@ architecture neorv32_cpu_frontend_rtl of neorv32_cpu_frontend is
   signal restart : std_ulogic;
 
   -- instruction prefetch buffer (FIFO) interface --
-  type ipb_data_t is array (1 downto 0) of std_ulogic_vector(16 downto 0); -- bus_error & 16-bit instruction
-  signal ipb_wdata, ipb_rdata : ipb_data_t;
-  signal ipb_we,    ipb_re    : std_ulogic_vector(1 downto 0);
-  signal ipb_free,  ipb_avail : std_ulogic_vector(1 downto 0);
+  type ipb_داده_t is array (1 downto 0) of std_ulogic_وکتور(16 downto 0); -- bus_error & 16-bit instruction
+  signal ipb_wdata, ipb_rdata : ipb_داده_t;
+  signal ipb_we,    ipb_re    : std_ulogic_وکتور(1 downto 0);
+  signal ipb_free,  ipb_avail : std_ulogic_وکتور(1 downto 0);
 
   -- instruction issue engine --
-  signal align_q, align_set, align_clr : std_ulogic;
-  signal issue_valid : std_ulogic_vector(1 downto 0);
-  signal cmd16 : std_ulogic_vector(15 downto 0);
-  signal cmd32 : std_ulogic_vector(31 downto 0);
+  signal align_q, align_مجموعه, align_clr : std_ulogic;
+  signal issue_valid : std_ulogic_وکتور(1 downto 0);
+  signal cmd16 : std_ulogic_وکتور(15 downto 0);
+  signal cmd32 : std_ulogic_وکتور(31 downto 0);
 
 begin
 
@@ -86,7 +86,7 @@ begin
       fetch.state <= S_RESTART;
       fetch.reset <= '1'; -- reset IPB and issue engine
       fetch.addr  <= (others => '0');
-    elsif rising_edge(clk_i) then
+    elsif rising_یال(clk_i) then
       case fetch.state is
 
         when S_RESTART => -- set new start address
@@ -108,7 +108,7 @@ begin
         -- ------------------------------------------------------------
           fetch.reset <= restart; -- buffer restart request
           if (ibus_rsp_i.ack = '1') then -- wait for bus response
-            fetch.addr <= std_ulogic_vector(unsigned(fetch.addr(31 downto 2)) + 1) & "00"; -- next (re-)aligned word
+            fetch.addr <= std_ulogic_وکتور(unsigned(fetch.addr(31 downto 2)) + 1) & "00"; -- next (re-)aligned word
             if (restart = '1') then -- restart request due to branch
               fetch.state <= S_RESTART;
             else -- request next linear instruction word
@@ -131,17 +131,17 @@ begin
   ibus_req_o.meta  <= hid_c & ctrl_i.cpu_debug & ctrl_i.cpu_priv & '1';
   ibus_req_o.addr  <= fetch.addr(31 downto 2) & "00"; -- word aligned
   ibus_req_o.stb   <= '1' when (fetch.state = S_REQUEST) and (ipb_free = "11") else '0';
-  ibus_req_o.data  <= (others => '0'); -- read-only
+  ibus_req_o.داده  <= (others => '0'); -- read-only
   ibus_req_o.ben   <= (others => '1'); -- always full-word access
   ibus_req_o.rw    <= '0'; -- read-only
   ibus_req_o.amo   <= '0'; -- cannot be an atomic memory operation
   ibus_req_o.amoop <= (others => '0'); -- cannot be an atomic memory operation
-  ibus_req_o.burst <= '0'; -- only single-access
-  ibus_req_o.lock  <= '0'; -- always unlocked access
+  ibus_req_o.مدت <= '0'; -- only single-access
+  ibus_req_o.قفل  <= '0'; -- always unlocked access
 
   -- IPB instruction data and status --
-  ipb_wdata(0) <= (ibus_rsp_i.err or pmp_err_i) & ibus_rsp_i.data(15 downto 0);
-  ipb_wdata(1) <= (ibus_rsp_i.err or pmp_err_i) & ibus_rsp_i.data(31 downto 16);
+  ipb_wdata(0) <= (ibus_rsp_i.err or pmp_err_i) & ibus_rsp_i.داده(15 downto 0);
+  ipb_wdata(1) <= (ibus_rsp_i.err or pmp_err_i) & ibus_rsp_i.داده(31 downto 16);
 
   -- IPB write enable --
   ipb_we(0) <= '1' when (fetch.state = S_PENDING) and (ibus_rsp_i.ack = '1') and ((fetch.addr(1) = '0') or (not RISCV_C)) else '0';
@@ -149,7 +149,7 @@ begin
 
   -- Instruction Prefetch Buffer ------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  prefetch_buffer:
+  prefetch_میانگیر:
   for i in 0 to 1 generate
     ipb_inst: entity neorv32.neorv32_prim_fifo
     generic map (
@@ -202,11 +202,11 @@ begin
     -- -------------------------------------------------------------------------------------------
     issue_fsm_sync: process(clk_i)
     begin
-      if rising_edge(clk_i) then
+      if rising_یال(clk_i) then
         if (fetch.reset = '1') then
           align_q <= ctrl_i.pc_nxt(1); -- restart at unaligned address?
         elsif (ipb_re /= "00") then
-          align_q <= (align_q and (not align_clr)) or align_set; -- alignment "RS flip-flop"
+          align_q <= (align_q and (not align_clr)) or align_مجموعه; -- alignment "RS flip-flop"
         end if;
       end if;
     end process;
@@ -214,12 +214,12 @@ begin
     issue_fsm_comb: process(align_q, ipb_avail, ipb_rdata, cmd32)
     begin
       -- defaults --
-      align_set <= '0';
+      align_مجموعه <= '0';
       align_clr <= '0';
       -- start at LOW half-word --
       if (align_q = '0') then
         if (ipb_rdata(0)(1 downto 0) /= "11") then -- compressed, consume IPB(0) entry
-          align_set        <= ipb_avail(0); -- start of next instruction word is NOT 32-bit-aligned
+          align_مجموعه        <= ipb_avail(0); -- start of next instruction word is NOT 32-bit-aligned
           issue_valid      <= '0' & ipb_avail(0);
           frontend_o.fault <= ipb_rdata(0)(16);
           frontend_o.i32   <= cmd32;
@@ -259,7 +259,7 @@ begin
   issue_disabled:
   if not RISCV_C generate
     align_q          <= '0';
-    align_set        <= '0';
+    align_مجموعه        <= '0';
     align_clr        <= '0';
     issue_valid      <= (others => '0');
     cmd16            <= (others => '0');

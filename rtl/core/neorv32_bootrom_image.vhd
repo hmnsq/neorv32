@@ -3,9 +3,9 @@ use ieee.std_logic_1164.all;
 
 package neorv32_bootrom_image is
 
-type rom_t is array (0 to 1023) of std_ulogic_vector(31 downto 0);
-constant image_size_c : natural := 3816;
-constant image_data_c : rom_t := (
+type rom_t is array (0 to 1023) of std_ulogic_وکتور(31 downto 0);
+constant image_اندازه_c : natural := 3816;
+constant image_داده_c : rom_t := (
 x"f14020f3",
 x"80200217",
 x"0fc20213",

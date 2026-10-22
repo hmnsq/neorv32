@@ -19,67 +19,67 @@ use neorv32.neorv32_package.all;
 
 entity neorv32_cache_ram is
   generic (
-    TAG_WIDTH : natural; -- tag width
-    IDX_WIDTH : natural; -- index width
-    OFS_WIDTH : natural  -- offset width
+    برچسب_عرض : natural; -- tag width
+    IDX_عرض : natural; -- index width
+    OFS_عرض : natural  -- offset width
   );
   port (
     -- global control --
     clk_i     : in  std_ulogic;                     -- global clock, rising edge
-    addr_i    : in  std_ulogic_vector(31 downto 0); -- full byte address
+    addr_i    : in  std_ulogic_وکتور(31 downto 0); -- full byte address
     -- tag memory --
-    tag_we_i  : in  std_ulogic;                     -- tag write-enable
-    tag_o     : out std_ulogic_vector(31 downto 0); -- zero-extended tag output
+    برچسب_we_i  : in  std_ulogic;                     -- tag write-enable
+    برچسب_o     : out std_ulogic_وکتور(31 downto 0); -- zero-extended tag output
     -- data memory --
-    data_we_i : in  std_ulogic_vector(3 downto 0);  -- byte-wise data write-enable
-    data_i    : in  std_ulogic_vector(31 downto 0); -- write data
-    data_o    : out std_ulogic_vector(31 downto 0)  -- read data
+    داده_we_i : in  std_ulogic_وکتور(3 downto 0);  -- byte-wise data write-enable
+    داده_i    : in  std_ulogic_وکتور(31 downto 0); -- write data
+    داده_o    : out std_ulogic_وکتور(31 downto 0)  -- read data
   );
 end entity;
 
 architecture neorv32_cache_ram_rtl of neorv32_cache_ram is
 
-  signal tag_rd : std_ulogic_vector(TAG_WIDTH-1 downto 0);
+  signal برچسب_rd : std_ulogic_وکتور(برچسب_عرض-1 downto 0);
 
 begin
 
   -- Tag RAM --------------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  tag_ram_inst: entity neorv32.neorv32_prim_spram
+  برچسب_ram_inst: entity neorv32.neorv32_prim_spram
   generic map (
-    AWIDTH => IDX_WIDTH,
-    DWIDTH => TAG_WIDTH,
+    AWIDTH => IDX_عرض,
+    DWIDTH => برچسب_عرض,
     OUTREG => false
   )
   port map (
     clk_i  => clk_i,
     en_i   => '1',
-    rw_i   => tag_we_i,
-    addr_i => addr_i(31-TAG_WIDTH downto 2+OFS_WIDTH), -- index
-    data_i => addr_i(31 downto 31-(TAG_WIDTH-1)), -- tag
-    data_o => tag_rd
+    rw_i   => برچسب_we_i,
+    addr_i => addr_i(31-برچسب_عرض downto 2+OFS_عرض), -- index
+    داده_i => addr_i(31 downto 31-(برچسب_عرض-1)), -- tag
+    داده_o => برچسب_rd
   );
 
-  tag_o(TAG_WIDTH-1 downto 0) <= tag_rd(TAG_WIDTH-1 downto 0); -- actual tag
-  tag_o(31 downto TAG_WIDTH)  <= (others => '0'); -- zero-extend
+  برچسب_o(برچسب_عرض-1 downto 0) <= برچسب_rd(برچسب_عرض-1 downto 0); -- actual tag
+  برچسب_o(31 downto برچسب_عرض)  <= (others => '0'); -- zero-extend
 
   -- Data RAM -------------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  data_ram_gen:
+  داده_ram_gen:
   for i in 0 to 3 generate -- four individual byte RAMs per word
-    data_ram_inst: entity neorv32.neorv32_prim_spram
+    داده_ram_inst: entity neorv32.neorv32_prim_spram
     generic map (
-      AWIDTH => IDX_WIDTH + OFS_WIDTH,
+      AWIDTH => IDX_عرض + OFS_عرض,
       DWIDTH => 8,
       OUTREG => false
     )
     port map (
       clk_i  => clk_i,
       en_i   => '1',
-      rw_i   => data_we_i(i),
-      addr_i => addr_i(IDX_WIDTH+OFS_WIDTH+1 downto 2), -- index & word-offset
-      data_i => data_i(i*8+7 downto i*8),
-      data_o => data_o(i*8+7 downto i*8)
+      rw_i   => داده_we_i(i),
+      addr_i => addr_i(IDX_عرض+OFS_عرض+1 downto 2), -- index & word-offset
+      داده_i => داده_i(i*8+7 downto i*8),
+      داده_o => داده_o(i*8+7 downto i*8)
     );
   end generate;
 
