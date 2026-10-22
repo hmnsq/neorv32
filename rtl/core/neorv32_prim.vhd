@@ -300,7 +300,7 @@ use ieee.numeric_std.all;
 entity neorv32_prim_mul is
   generic (
     DWIDTH   : natural;                   -- operand width
-    NUM_REGS : natural range 1 to 3 := 1  -- number of multiplier register stages
+    رقم_REGS : natural range 1 to 3 := 1  -- number of multiplier register stages
   );
   port (
     -- global control --
@@ -328,8 +328,8 @@ begin
   begin
     if rising_edge(clk_i) then
       if (en_i = '1') then
-        opa <= signed((opa_i(opa_i'left) and opas_i) & opa_i);
-        opb <= signed((opb_i(opb_i'left) and opbs_i) & opb_i);
+        opa <= signed((opa_i(opa_i'يسار) and opas_i) & opa_i);
+        opb <= signed((opb_i(opb_i'يسار) and opbs_i) & opb_i);
       end if;
     end if;
   end process;
@@ -337,7 +337,7 @@ begin
   -- Multiplier -----------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   one_reg:
-  if (NUM_REGS = 1) generate
+  if (رقم_REGS = 1) generate
     mul_reg: process(clk_i)
     begin
       if rising_edge(clk_i) then -- no reset to improve multiplier mapping
@@ -347,7 +347,7 @@ begin
   end generate;
 
   two_regs:
-  if (NUM_REGS = 2) generate
+  if (رقم_REGS = 2) generate
     signal mul_res : signed((2*DWIDTH)+1 downto 0);
   begin
     mul_reg: process(clk_i)
@@ -366,7 +366,7 @@ begin
   end generate;
 
   three_regs:
-  if (NUM_REGS = 3) generate
+  if (رقم_REGS = 3) generate
     constant lo_width_c : natural := DWIDTH / 2;
     constant hi_width_c : natural := (DWIDTH + 1) - lo_width_c;
     constant pp_width_c : natural := 2 * hi_width_c;
@@ -381,20 +381,20 @@ begin
         q_ll <= resize(signed('0' & std_ulogic_vector(opa(lo_width_c-1 downto 0))) *
                        signed('0' & std_ulogic_vector(opb(lo_width_c-1 downto 0))), pp_width_c);
         q_lh <= resize(signed('0' & std_ulogic_vector(opa(lo_width_c-1 downto 0))) *
-                       resize(opb(opb'left downto lo_width_c), hi_width_c), pp_width_c);
-        q_hl <= resize(resize(opa(opa'left downto lo_width_c), hi_width_c) *
+                       resize(opb(opb'يسار downto lo_width_c), hi_width_c), pp_width_c);
+        q_hl <= resize(resize(opa(opa'يسار downto lo_width_c), hi_width_c) *
                        signed('0' & std_ulogic_vector(opb(lo_width_c-1 downto 0))), pp_width_c);
-        q_hh <= resize(resize(opa(opa'left downto lo_width_c), hi_width_c) *
-                       resize(opb(opb'left downto lo_width_c), hi_width_c), pp_width_c);
+        q_hh <= resize(resize(opa(opa'يسار downto lo_width_c), hi_width_c) *
+                       resize(opb(opb'يسار downto lo_width_c), hi_width_c), pp_width_c);
       end if;
     end process;
 
     partial_sum_reg: process(clk_i)
     begin
       if rising_edge(clk_i) then -- no reset to improve multiplier mapping
-        q_sum_lo <= resize(q_ll, pr_width_c) + shift_left(resize(q_lh, pr_width_c), lo_width_c);
-        q_sum_hi <= shift_left(resize(q_hl, pr_width_c), lo_width_c) +
-                    shift_left(resize(q_hh, pr_width_c), 2*lo_width_c);
+        q_sum_lo <= resize(q_ll, pr_width_c) + shift_يسار(resize(q_lh, pr_width_c), lo_width_c);
+        q_sum_hi <= shift_يسار(resize(q_hl, pr_width_c), lo_width_c) +
+                    shift_يسار(resize(q_hh, pr_width_c), 2*lo_width_c);
       end if;
     end process;
 
@@ -449,7 +449,7 @@ end entity;
 
 architecture neorv32_prim_cnt_rtl of neorv32_prim_cnt is
 
-  signal count : std_ulogic_vector(63 downto 0);
+  signal عدد : std_ulogic_vector(63 downto 0);
   signal carry, incen : std_ulogic_vector(0 downto 0);
   signal inc_lo, inc_hi : std_ulogic_vector(32 downto 0);
 
@@ -461,39 +461,39 @@ begin
   begin
     if (rstn_i = '0') then
       incen <= (others => '0');
-      count <= (others => '0');
+      عدد <= (others => '0');
       carry <= (others => '0');
     elsif rising_edge(clk_i) then
       -- increment enable --
       incen(0) <= inc_i;
       -- low-word --
       if (we_i(0) = '1') then
-        count(31 downto 0) <= data_i;
+        عدد(31 downto 0) <= data_i;
       else
-        count(31 downto 0) <= inc_lo(31 downto 0);
+        عدد(31 downto 0) <= inc_lo(31 downto 0);
       end if;
       -- low-to-high carry --
       carry(0) <= inc_lo(32);
       -- high-word --
       if (we_i(1) = '1') then
-        count(63 downto 32) <= data_i;
+        عدد(63 downto 32) <= data_i;
       else
-        count(63 downto 32) <= inc_hi(31 downto 0);
+        عدد(63 downto 32) <= inc_hi(31 downto 0);
       end if;
     end if;
   end process;
 
   -- increments --
-  inc_lo <= std_ulogic_vector(unsigned('0' & count(31 downto  0)) + unsigned(incen));
-  inc_hi <= std_ulogic_vector(unsigned('0' & count(63 downto 32)) + unsigned(carry));
+  inc_lo <= std_ulogic_vector(unsigned('0' & عدد(31 downto  0)) + unsigned(incen));
+  inc_hi <= std_ulogic_vector(unsigned('0' & عدد(63 downto 32)) + unsigned(carry));
 
   -- Output Gating and Trimming -------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  trim: process(oe_i, count)
+  trim: process(oe_i, عدد)
   begin
     cnt_o <= (others => '0');
     if (oe_i = '1') and (CWIDTH > 0) then
-      cnt_o(CWIDTH-1 downto 0) <= count(CWIDTH-1 downto 0);
+      cnt_o(CWIDTH-1 downto 0) <= عدد(CWIDTH-1 downto 0);
     end if;
   end process;
 

@@ -74,8 +74,8 @@ architecture neorv32_cpu_alu_cfu_rtl of neorv32_cpu_alu_cfu is
   constant xtea_delta_c : std_ulogic_vector(31 downto 0) := x"9e3779b9";
 
   -- key storage (accessed via special r4-type instructions) --
-  type key_mem_t is array (0 to 3) of std_ulogic_vector(31 downto 0);
-  signal key_mem : key_mem_t;
+  type مفتاح_mem_t is array (0 to 3) of std_ulogic_vector(31 downto 0);
+  signal مفتاح_mem : مفتاح_mem_t;
 
   -- processing state --
   type xtea_t is record
@@ -110,7 +110,7 @@ begin
       xtea.opb  <= (others => '0');
       xtea.sum  <= (others => '0');
       xtea.res  <= (others => '0');
-      key_mem   <= (others => (others => '0'));
+      مفتاح_mem   <= (others => (others => '0'));
     elsif rising_edge(clk_i) then
       -- "operation-done" shift register: module has 2 cycles latency --
       xtea.done(0) <= '0'; -- default: no operation trigger
@@ -124,7 +124,7 @@ begin
           xtea.done(0) <= '1'; -- start data processing
         else -- I-type is used for key access instructions
           if (funct3(0) = '1') then -- key write-enable
-            key_mem(to_integer(unsigned(imm12(1 downto 0)))) <= rs1_i; -- write key data at imm12(1:0)
+            مفتاح_mem(to_integer(unsigned(imm12(1 downto 0)))) <= rs1_i; -- write key data at imm12(1:0)
           end if;
         end if;
       end if;
@@ -155,14 +155,14 @@ begin
   tmp_b <= xtea.opa when (funct3(0) = '0') else xtea.opb; -- v0 / v1 select
   tmp_x <= xtea.opb(27 downto 0) & "0000"  when (funct3(0) = '0') else xtea.opa(27 downto 0) & "0000";  -- v << 4
   tmp_y <= "00000" & xtea.opb(31 downto 5) when (funct3(0) = '0') else "00000" & xtea.opa(31 downto 5); -- v >> 5
-  tmp_z <= key_mem(to_integer(unsigned(xtea.sum(1 downto 0)))) when (funct3(0) = '0') else -- key[sum & 3]
-           key_mem(to_integer(unsigned(xtea.sum(12 downto 11)))); -- key[(sum >> 11) & 3]
+  tmp_z <= مفتاح_mem(to_integer(unsigned(xtea.sum(1 downto 0)))) when (funct3(0) = '0') else -- key[sum & 3]
+           مفتاح_mem(to_integer(unsigned(xtea.sum(12 downto 11)))); -- key[(sum >> 11) & 3]
   tmp_r <= std_ulogic_vector(unsigned(tmp_x xor tmp_y) + unsigned(tmp_a)) xor std_ulogic_vector(unsigned(xtea.sum) + unsigned(tmp_z));
 
 
   -- Function Result Select -----------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  result_select: process(itype, funct3, imm12, xtea, key_mem)
+  result_select: process(itype, funct3, imm12, xtea, مفتاح_mem)
   begin -- no need for a register stage here; the CFU output is registered inside the ALU module anyway
     if (itype = '0') then -- R-type instructions; function select via "funct3"
     -- ----------------------------------------------------------------------
@@ -179,7 +179,7 @@ begin
       end case;
     else -- I-type instructions; used for key access
     -- ----------------------------------------------------------------------
-      result_o <= key_mem(to_integer(unsigned(imm12(1 downto 0))));
+      result_o <= مفتاح_mem(to_integer(unsigned(imm12(1 downto 0))));
       valid_o  <= '1'; -- pure-combinatorial, so we are done "immediately"
     end if;
   end process;
