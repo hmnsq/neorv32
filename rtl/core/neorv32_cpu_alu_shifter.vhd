@@ -99,7 +99,7 @@ begin
     end process;
 
     -- shift control --
-    done    <= not or_reduce_f(cnt(cnt'left downto 1));
+    done    <= not or_reduce_f(cnt(cnt'چەپ downto 1));
     valid_o <= busy and done;
     res_o   <= sreg when (oe = '1') else (others => '0');
 

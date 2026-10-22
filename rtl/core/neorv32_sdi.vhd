@@ -290,7 +290,7 @@ begin
           if (sync_csn = '1') then -- transmission aborted?
             serial.state(1 downto 0) <= "00";
           elsif (sync_sck = '1') then
-            serial.sreg <= serial.sreg(serial.sreg'left-1 downto 0) & serial.sdi_ff;
+            serial.sreg <= serial.sreg(serial.sreg'چەپ-1 downto 0) & serial.sdi_ff;
             if (serial.cnt(3) = '1') then -- done?
               serial.done              <= '1'; -- push RX byte to FIFO and get next TX byte
               serial.state(1 downto 0) <= "00";
@@ -308,6 +308,6 @@ begin
   end process;
 
   -- serial data output --
-  sdi_dat_o <= serial.sreg(serial.sreg'left);
+  sdi_dat_o <= serial.sreg(serial.sreg'چەپ);
 
 end architecture;
