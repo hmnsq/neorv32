@@ -16,7 +16,7 @@ use neorv32.neorv32_package.all;
 
 entity neorv32_gpio is
   generic (
-    GPIO_NUM : natural range 0 to 32; -- number of GPIO input/output pairs
+    GPIO_અંક : natural range 0 to 32; -- number of GPIO input/output pairs
     GPIO_DIR : boolean -- enable direction control
   );
   port (
@@ -48,10 +48,10 @@ architecture neorv32_gpio_rtl of neorv32_gpio is
   signal bus_rdata : std_ulogic_vector(31 downto 0);
 
   -- interface registers --
-  signal port_in, port_out, port_dir, irq_typ, irq_pol, irq_en, irq_clrn : std_ulogic_vector(GPIO_NUM-1 downto 0);
+  signal port_in, port_out, port_dir, irq_typ, irq_pol, irq_en, irq_clrn : std_ulogic_vector(GPIO_અંક-1 downto 0);
 
   -- synchronizer and interrupt logic --
-  signal port_in2, irq_trig, irq_pend : std_ulogic_vector(GPIO_NUM-1 downto 0);
+  signal port_in2, irq_trig, irq_pend : std_ulogic_vector(GPIO_અંક-1 downto 0);
 
 begin
 
@@ -78,11 +78,11 @@ begin
       irq_clrn <= (others => '1'); -- default
       if (bus_req_i.stb = '1') and (bus_req_i.rw = '1') then
         case bus_req_i.addr(4 downto 2) is
-          when addr_out_c => port_out <= bus_req_i.data(GPIO_NUM-1 downto 0); -- output port
-          when addr_tt_c  => irq_typ  <= bus_req_i.data(GPIO_NUM-1 downto 0); -- trigger type
-          when addr_tp_c  => irq_pol  <= bus_req_i.data(GPIO_NUM-1 downto 0); -- trigger polarity
-          when addr_ie_c  => irq_en   <= bus_req_i.data(GPIO_NUM-1 downto 0); -- interrupt enable
-          when addr_ip_c  => irq_clrn <= bus_req_i.data(GPIO_NUM-1 downto 0); -- interrupt pending (clear-only)
+          when addr_out_c => port_out <= bus_req_i.data(GPIO_અંક-1 downto 0); -- output port
+          when addr_tt_c  => irq_typ  <= bus_req_i.data(GPIO_અંક-1 downto 0); -- trigger type
+          when addr_tp_c  => irq_pol  <= bus_req_i.data(GPIO_અંક-1 downto 0); -- trigger polarity
+          when addr_ie_c  => irq_en   <= bus_req_i.data(GPIO_અંક-1 downto 0); -- interrupt enable
+          when addr_ip_c  => irq_clrn <= bus_req_i.data(GPIO_અંક-1 downto 0); -- interrupt pending (clear-only)
           when others     => null;
         end case;
       end if;
@@ -95,14 +95,14 @@ begin
     bus_rdata <= (others => '0');
     if (bus_rden = '1') then -- output gating
       case bus_req_i.addr(4 downto 2) is
-        when addr_in_c  => bus_rdata(GPIO_NUM-1 downto 0) <= port_in2; -- input port
-        when addr_out_c => bus_rdata(GPIO_NUM-1 downto 0) <= port_out; -- output port
-        when addr_dir_c => bus_rdata(GPIO_NUM-1 downto 0) <= port_dir; -- direction control
-        when addr_tt_c  => bus_rdata(GPIO_NUM-1 downto 0) <= irq_typ;  -- trigger type
-        when addr_tp_c  => bus_rdata(GPIO_NUM-1 downto 0) <= irq_pol;  -- trigger polarity
-        when addr_ie_c  => bus_rdata(GPIO_NUM-1 downto 0) <= irq_en;   -- interrupt enable
-        when addr_ip_c  => bus_rdata(GPIO_NUM-1 downto 0) <= irq_pend; -- interrupt pending
-        when others     => bus_rdata(GPIO_NUM-1 downto 0) <= (others => '0');
+        when addr_in_c  => bus_rdata(GPIO_અંક-1 downto 0) <= port_in2; -- input port
+        when addr_out_c => bus_rdata(GPIO_અંક-1 downto 0) <= port_out; -- output port
+        when addr_dir_c => bus_rdata(GPIO_અંક-1 downto 0) <= port_dir; -- direction control
+        when addr_tt_c  => bus_rdata(GPIO_અંક-1 downto 0) <= irq_typ;  -- trigger type
+        when addr_tp_c  => bus_rdata(GPIO_અંક-1 downto 0) <= irq_pol;  -- trigger polarity
+        when addr_ie_c  => bus_rdata(GPIO_અંક-1 downto 0) <= irq_en;   -- interrupt enable
+        when addr_ip_c  => bus_rdata(GPIO_અંક-1 downto 0) <= irq_pend; -- interrupt pending
+        when others     => bus_rdata(GPIO_અંક-1 downto 0) <= (others => '0');
       end case;
     end if;
   end process;
@@ -123,7 +123,7 @@ begin
         port_dir <= (others => '0'); -- reset state = all inputs
       elsif rising_edge(clk_i) then
         if (bus_req_i.stb = '1') and (bus_req_i.rw = '1') and (bus_req_i.addr(4 downto 2) = addr_dir_c) then
-          port_dir <= bus_req_i.data(GPIO_NUM-1 downto 0);
+          port_dir <= bus_req_i.data(GPIO_અંક-1 downto 0);
         end if;
       end if;
     end process;
@@ -135,10 +135,10 @@ begin
   end generate;
 
   -- input sampling --
-  input_stage: process(clk_i)
+  આગત_stage: process(clk_i)
   begin
     if rising_edge(clk_i) then
-      port_in  <= port_in_i(GPIO_NUM-1 downto 0);
+      port_in  <= port_in_i(GPIO_અંક-1 downto 0);
       port_in2 <= port_in;
     end if;
   end process;
@@ -147,16 +147,16 @@ begin
   output_stage: process(port_out, port_dir)
   begin
     port_out_o <= (others => '0');
-    port_out_o(GPIO_NUM-1 downto 0) <= port_out;
+    port_out_o(GPIO_અંક-1 downto 0) <= port_out;
     port_dir_o <= (others => '0');
-    port_dir_o(GPIO_NUM-1 downto 0) <= port_dir;
+    port_dir_o(GPIO_અંક-1 downto 0) <= port_dir;
   end process;
 
 
   -- IRQ Generator --------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   irq_trigger_gen:
-  for i in 0 to GPIO_NUM-1 generate
+  for i in 0 to GPIO_અંક-1 generate
     irq_trigger: process(irq_typ, irq_pol, port_in, port_in2)
       variable sel_v : std_ulogic_vector(1 downto 0);
     begin

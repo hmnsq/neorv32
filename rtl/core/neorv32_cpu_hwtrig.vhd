@@ -20,7 +20,7 @@ use neorv32.neorv32_package.all;
 
 entity neorv32_cpu_hwtrig is
   generic (
-    NUM_TRIGGERS : natural range 1 to 16; -- number of implemented hardware triggers
+    અંક_TRIGGERS : natural range 1 to 16; -- number of implemented hardware triggers
     RISCV_ISA_U  : boolean := false       -- RISC-V user-mode available
   );
   port (
@@ -39,21 +39,21 @@ end entity;
 architecture neorv32_cpu_hwtrig_rtl of neorv32_cpu_hwtrig is
 
   -- log2(NUM_TRIGGERS) --
-  constant log2_num_triggers_c : natural := index_size_f(NUM_TRIGGERS);
+  constant log2_અંક_triggers_c : natural := index_size_f(અંક_TRIGGERS);
 
   -- match control CSRs: tdata1[tselect] and tdata2[tselect] --
-  type tdata2_t is array (NUM_TRIGGERS-1 downto 0) of std_ulogic_vector(31 downto 0);
+  type tdata2_t is array (અંક_TRIGGERS-1 downto 0) of std_ulogic_vector(31 downto 0);
   signal tdata2 : tdata2_t;
   signal tdata1, tdata1_rb, tdata2_rb, tinfo_rb : std_ulogic_vector(31 downto 0);
-  signal tdata1_ex, tdata1_st, tdata1_ld, tdata1_hit : std_ulogic_vector(NUM_TRIGGERS-1 downto 0);
+  signal tdata1_ex, tdata1_st, tdata1_ld, tdata1_hit : std_ulogic_vector(અંક_TRIGGERS-1 downto 0);
 
   -- trigger select --
-  signal tselect     : std_ulogic_vector(log2_num_triggers_c downto 0); -- +1 to detect invalid selection
-  signal sel         : std_ulogic_vector(NUM_TRIGGERS-1 downto 0); -- decoded one-hot trigger select
+  signal tselect     : std_ulogic_vector(log2_અંક_triggers_c downto 0); -- +1 to detect invalid selection
+  signal sel         : std_ulogic_vector(અંક_TRIGGERS-1 downto 0); -- decoded one-hot trigger select
   signal sel_invalid : std_ulogic; -- invalid tselect value
 
   -- match logic --
-  signal cmp_inst, cmp_data, match : std_ulogic_vector(NUM_TRIGGERS-1 downto 0);
+  signal cmp_inst, cmp_data, match : std_ulogic_vector(અંક_TRIGGERS-1 downto 0);
 
   -- trigger module CSR access --
   signal csr_en : std_ulogic;
@@ -74,10 +74,10 @@ begin
       if (ctrl_i.csr_we = '1') and (csr_en = '1')  then
         -- tselect --
         if (ctrl_i.csr_addr(2 downto 0) = csr_tselect_c(2 downto 0)) then
-          tselect <= ctrl_i.csr_wdata(log2_num_triggers_c downto 0);
+          tselect <= ctrl_i.csr_wdata(log2_અંક_triggers_c downto 0);
         end if;
         -- tdata1 & tdata2 --
-        for i in 0 to NUM_TRIGGERS-1 loop
+        for i in 0 to અંક_TRIGGERS-1 loop
           if (ctrl_i.cpu_debug = '1') then -- only accept write-accesses from debug-mode (DMODE = 1)
             if (sel(i) = '1') and (sel_invalid = '0') then
               -- match control --
@@ -102,10 +102,10 @@ begin
 
   -- decode selected trigger (one-hot encoding) --
   sel_gen:
-  for i in 0 to NUM_TRIGGERS-1 generate
-    sel(i) <= '1' when (tselect = std_ulogic_vector(to_unsigned(i, log2_num_triggers_c+1))) else '0';
+  for i in 0 to અંક_TRIGGERS-1 generate
+    sel(i) <= '1' when (tselect = std_ulogic_vector(to_unsigned(i, log2_અંક_triggers_c+1))) else '0';
   end generate;
-  sel_invalid <= '1' when (unsigned(tselect) >= NUM_TRIGGERS) else '0'; -- invalid trigger selection
+  sel_invalid <= '1' when (unsigned(tselect) >= અંક_TRIGGERS) else '0'; -- invalid trigger selection
 
 
   -- CSR Read Access ------------------------------------------------------------------------
@@ -115,7 +115,7 @@ begin
     csr_o <= (others => '0');
     if (csr_en = '1') then
       case ctrl_i.csr_addr(2 downto 0) is
-        when "000"  => csr_o(log2_num_triggers_c downto 0) <= tselect; -- csr_tselect_c
+        when "000"  => csr_o(log2_અંક_triggers_c downto 0) <= tselect; -- csr_tselect_c
         when "001"  => csr_o <= tdata1_rb; -- csr_tdata1_c
         when "010"  => csr_o <= tdata2_rb; -- csr_tdata2_c
         when "100"  => csr_o <= tinfo_rb; -- csr_tinfo_c
@@ -153,7 +153,7 @@ begin
     variable res_v : std_ulogic_vector(31 downto 0);
   begin
     res_v := (others => '0');
-    for i in 0 to NUM_TRIGGERS-1 loop
+    for i in 0 to અંક_TRIGGERS-1 loop
       if (sel(i) = '1') and (sel_invalid = '0') then
         res_v := res_v or tdata2(i);
       end if;
@@ -169,7 +169,7 @@ begin
   -- -------------------------------------------------------------------------------------------
   -- address comparators --
   cmp_gen:
-  for i in 0 to NUM_TRIGGERS-1 generate
+  for i in 0 to અંક_TRIGGERS-1 generate
     cmp_inst(i) <= '1' when (tdata2(i) = ctrl_i.pc_cur) else '0';
     cmp_data(i) <= '1' when (tdata2(i) = mar_i) else '0';
   end generate;
@@ -180,7 +180,7 @@ begin
     if (rstn_i = '0') then
       match <= (others => '0');
     elsif rising_edge(clk_i) then
-      for i in 0 to NUM_TRIGGERS-1 loop
+      for i in 0 to અંક_TRIGGERS-1 loop
         match(i) <= (not ctrl_i.cpu_debug) and (match(i) or -- keep active until we are in debug-mode
                     (tdata1_ex(i) and cmp_inst(i) and ctrl_i.cpu_exec)                     or -- execute
                     (tdata1_st(i) and cmp_data(i) and ctrl_i.cnt_event(cnt_event_store_c)) or -- store
@@ -198,7 +198,7 @@ begin
     if (rstn_i = '0') then
       tdata1_hit <= (others => '0');
     elsif rising_edge(clk_i) then
-      for i in 0 to NUM_TRIGGERS-1 loop
+      for i in 0 to અંક_TRIGGERS-1 loop
         if (tdata1_hit(i) = '0') then
           tdata1_hit(i) <= match(i); -- any match?
         elsif (sel(i) = '1') and (ctrl_i.csr_we = '1') and (csr_en = '1') and (ctrl_i.cpu_debug = '1') and
