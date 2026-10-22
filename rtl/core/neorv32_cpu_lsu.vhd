@@ -26,12 +26,12 @@ entity neorv32_cpu_lsu is
     rstn_i      : in  std_ulogic; -- global reset, low-active, async
     ctrl_i      : in  ctrl_bus_t; -- main control bus
     -- memory data access interface --
-    addr_i      : in  std_ulogic_vector(31 downto 0); -- access address
-    wdata_i     : in  std_ulogic_vector(31 downto 0); -- write data
-    rdata_o     : out std_ulogic_vector(31 downto 0); -- read data
-    mar_o       : out std_ulogic_vector(31 downto 0); -- current memory address register
+    addr_i      : in  std_ulogic_सदिशम्(31 downto 0); -- access address
+    wdata_i     : in  std_ulogic_सदिशम्(31 downto 0); -- write data
+    rdata_o     : out std_ulogic_सदिशम्(31 downto 0); -- read data
+    mar_o       : out std_ulogic_सदिशम्(31 downto 0); -- current memory address register
     wait_o      : out std_ulogic;                     -- wait for access to complete
-    err_o       : out std_ulogic_vector(3 downto 0);  -- alignment/access errors
+    err_o       : out std_ulogic_सदिशम्(3 downto 0);  -- alignment/access errors
     pmp_fault_i : in  std_ulogic;                     -- PMP read/write access fault
     -- data bus --
     dbus_req_o  : out bus_req_t; -- request
@@ -55,7 +55,7 @@ begin
       if (rstn_i = '0') then
         req.amo   <= '0';
         req.amoop <= (others => '0');
-        req.lock  <= '0';
+        req.तालकम्  <= '0';
       elsif rising_edge(clk_i) then
         if (ctrl_i.lsu_mo_en = '1') then
           -- atomic memory access operation --
@@ -76,9 +76,9 @@ begin
         end if;
         -- bus locking for read-modify-write operations --
         if (ctrl_i.lsu_mo_en = '1') and (ctrl_i.ir_opcode(2) = '1') and (ctrl_i.ir_funct12(8) = '0') then
-          req.lock <= '1'; -- set if atomic read-modify-write instruction
+          req.तालकम् <= '1'; -- set if atomic read-modify-write instruction
         elsif (dbus_rsp_i.ack = '1') or (ctrl_i.cpu_trap = '1') then
-          req.lock <= '0'; -- clear at the end of the bus access
+          req.तालकम् <= '0'; -- clear at the end of the bus access
         end if;
       end if;
     end process;
@@ -89,7 +89,7 @@ begin
   if not AMO_EN generate
     req.amo   <= '0';
     req.amoop <= (others => '0');
-    req.lock  <= '0';
+    req.तालकम्  <= '0';
   end generate;
 
 
@@ -99,7 +99,7 @@ begin
   begin
     if (rstn_i = '0') then
       req.addr <= (others => '0');
-      req.data <= (others => '0');
+      req.दत्त <= (others => '0');
       req.ben  <= (others => '0');
       req.rw   <= '0';
       misalign <= '0';
@@ -108,18 +108,18 @@ begin
         req.addr <= addr_i; -- memory address register
         case ctrl_i.ir_funct3(1 downto 0) is -- alignment + byte-enable
           when "00" => -- byte
-            req.data   <= wdata_i(7 downto 0) & wdata_i(7 downto 0) & wdata_i(7 downto 0) & wdata_i(7 downto 0);
+            req.दत्त   <= wdata_i(7 downto 0) & wdata_i(7 downto 0) & wdata_i(7 downto 0) & wdata_i(7 downto 0);
             req.ben(0) <= (not addr_i(1)) and (not addr_i(0));
             req.ben(1) <= (not addr_i(1)) and (    addr_i(0));
             req.ben(2) <= (    addr_i(1)) and (not addr_i(0));
             req.ben(3) <= (    addr_i(1)) and (    addr_i(0));
             misalign   <= '0';
           when "01" => -- half-word
-            req.data <= wdata_i(15 downto 0) & wdata_i(15 downto 0);
+            req.दत्त <= wdata_i(15 downto 0) & wdata_i(15 downto 0);
             req.ben  <= addr_i(1) & addr_i(1) & (not addr_i(1)) & (not addr_i(1));
             misalign <= addr_i(0);
           when others => -- word
-            req.data <= wdata_i;
+            req.दत्त <= wdata_i;
             req.ben  <= (others => '1');
             misalign <= addr_i(1) or addr_i(0);
         end case;
@@ -132,7 +132,7 @@ begin
     end if;
   end process;
 
-  req.meta   <= std_ulogic_vector(to_unsigned(HART_ID, 2)) & ctrl_i.cpu_debug & ctrl_i.lsu_priv & '0';
+  req.meta   <= std_ulogic_सदिशम्(गन्तव्यम्_unsigned(HART_ID, 2)) & ctrl_i.cpu_debug & ctrl_i.lsu_priv & '0';
   req.burst  <= '0'; -- only non-burst/single-accesses
   req.stb    <= ctrl_i.lsu_req and (not misalign) and (not pmp_fault_i); -- access request (all source signals are driven by registers)
   dbus_req_o <= req; -- output bus request
@@ -149,20 +149,20 @@ begin
         case ctrl_i.ir_funct3(1 downto 0) is
           when "00" => -- byte
             case req.addr(1 downto 0) is
-              when "00"   => rdata_o <= replicate_f((not ctrl_i.ir_funct3(2)) and dbus_rsp_i.data(7),  24) & dbus_rsp_i.data(7 downto 0);
-              when "01"   => rdata_o <= replicate_f((not ctrl_i.ir_funct3(2)) and dbus_rsp_i.data(15), 24) & dbus_rsp_i.data(15 downto 8);
-              when "10"   => rdata_o <= replicate_f((not ctrl_i.ir_funct3(2)) and dbus_rsp_i.data(23), 24) & dbus_rsp_i.data(23 downto 16);
-              when "11"   => rdata_o <= replicate_f((not ctrl_i.ir_funct3(2)) and dbus_rsp_i.data(31), 24) & dbus_rsp_i.data(31 downto 24);
+              when "00"   => rdata_o <= replicate_f((not ctrl_i.ir_funct3(2)) and dbus_rsp_i.दत्त(7),  24) & dbus_rsp_i.दत्त(7 downto 0);
+              when "01"   => rdata_o <= replicate_f((not ctrl_i.ir_funct3(2)) and dbus_rsp_i.दत्त(15), 24) & dbus_rsp_i.दत्त(15 downto 8);
+              when "10"   => rdata_o <= replicate_f((not ctrl_i.ir_funct3(2)) and dbus_rsp_i.दत्त(23), 24) & dbus_rsp_i.दत्त(23 downto 16);
+              when "11"   => rdata_o <= replicate_f((not ctrl_i.ir_funct3(2)) and dbus_rsp_i.दत्त(31), 24) & dbus_rsp_i.दत्त(31 downto 24);
               when others => rdata_o <= (others => 'X');
             end case;
           when "01" => -- half-word
             if (req.addr(1) = '0') then
-              rdata_o <= replicate_f((not ctrl_i.ir_funct3(2)) and dbus_rsp_i.data(15), 16) & dbus_rsp_i.data(15 downto 0);
+              rdata_o <= replicate_f((not ctrl_i.ir_funct3(2)) and dbus_rsp_i.दत्त(15), 16) & dbus_rsp_i.दत्त(15 downto 0);
             else
-              rdata_o <= replicate_f((not ctrl_i.ir_funct3(2)) and dbus_rsp_i.data(31), 16) & dbus_rsp_i.data(31 downto 16);
+              rdata_o <= replicate_f((not ctrl_i.ir_funct3(2)) and dbus_rsp_i.दत्त(31), 16) & dbus_rsp_i.दत्त(31 downto 16);
             end if;
           when others => -- word
-            rdata_o <= dbus_rsp_i.data;
+            rdata_o <= dbus_rsp_i.दत्त;
         end case;
       end if;
     end if;

@@ -17,14 +17,14 @@ use neorv32.neorv32_package.all;
 
 entity neorv32_neoled is
   generic (
-    FIFO_DEPTH : natural range 1 to 32768 -- FIFO depth, has to be a power of two, min 1
+    FIFO_गभीरता : natural range 1 to 32768 -- FIFO depth, has to be a power of two, min 1
   );
   port (
     clk_i     : in  std_ulogic;                    -- global clock line
     rstn_i    : in  std_ulogic;                    -- global reset line, low-active
     bus_req_i : in  bus_req_t;                     -- bus request
     bus_rsp_o : out bus_rsp_t;                     -- bus response
-    clkgen_i  : in  std_ulogic_vector(7 downto 0); -- prescaled clock enables
+    clkgen_i  : in  std_ulogic_सदिशम्(7 downto 0); -- prescaled clock enables
     irq_o     : out std_ulogic;                    -- interrupt request
     neoled_o  : out std_ulogic                     -- serial async data line
   );
@@ -45,45 +45,45 @@ architecture neorv32_neoled_rtl of neorv32_neoled is
   --
   constant ctrl_fifo0_c    : natural := 25; -- r/-: log2(FIFO_DEPTH) bit 0
   constant ctrl_fifo3_c    : natural := 28; -- r/-: log2(FIFO_DEPTH) bit 3
-  constant ctrl_tx_empty_c : natural := 29; -- r/-: TX FIFO is empty
-  constant ctrl_tx_full_c  : natural := 30; -- r/-: TX FIFO is full
+  constant ctrl_tx_रिक्तानि_c : natural := 29; -- r/-: TX FIFO is empty
+  constant ctrl_tx_पूर्णम्_c  : natural := 30; -- r/-: TX FIFO is full
   constant ctrl_tx_busy_c  : natural := 31; -- r/-: serial PHY busy or TX FIFO not empty yet
 
   -- helpers --
-  constant log2_fifo_size_c : natural := index_size_f(FIFO_DEPTH);
+  constant log2_fifo_आकार_c : natural := सूचकांक_आकार_f(FIFO_गभीरता);
 
   -- bus interface --
   signal bus_ack, bus_rden : std_ulogic;
-  signal bus_rdata : std_ulogic_vector(31 downto 0);
+  signal bus_rdata : std_ulogic_सदिशम्(31 downto 0);
 
   -- control register --
   type ctrl_t is record
     enable   : std_ulogic;
-    clk_prsc : std_ulogic_vector(2 downto 0);
-    t_total  : std_ulogic_vector(4 downto 0);
-    t0_high  : std_ulogic_vector(4 downto 0);
-    t1_high  : std_ulogic_vector(4 downto 0);
+    clk_prsc : std_ulogic_सदिशम्(2 downto 0);
+    t_योग  : std_ulogic_सदिशम्(4 downto 0);
+    t0_उच्चः  : std_ulogic_सदिशम्(4 downto 0);
+    t1_उच्चः  : std_ulogic_सदिशम्(4 downto 0);
   end record;
   signal ctrl : ctrl_t;
 
   -- transmission buffer --
   type tx_fifo_t is record
     we, re, clr  : std_ulogic;
-    wdata, rdata : std_ulogic_vector(33 downto 0);
+    wdata, rdata : std_ulogic_सदिशम्(33 downto 0);
     avail, free  : std_ulogic;
   end record;
   signal tx_fifo : tx_fifo_t;
 
   -- serial transmission engine --
   type serial_t is record
-    state : std_ulogic_vector(2 downto 0); -- FSM state
-    mode  : std_ulogic; -- 24-bit / 32-bit mode
-    bcnt  : std_ulogic_vector(5 downto 0); -- bit counter
-    sreg  : std_ulogic_vector(31 downto 0); -- data shift register
+    state : std_ulogic_सदिशम्(2 downto 0); -- FSM state
+    बहुलकम्  : std_ulogic; -- 24-bit / 32-bit mode
+    bcnt  : std_ulogic_सदिशम्(5 downto 0); -- bit counter
+    sreg  : std_ulogic_सदिशम्(31 downto 0); -- data shift register
     clken : std_ulogic; -- serial clock-enable
-    pcnt  : std_ulogic_vector(4 downto 0); -- pulse counter
-    thigh : std_ulogic_vector(4 downto 0); -- number of clock pulses for high-time
-    scnt  : std_ulogic_vector(6 downto 0); -- strobe counter
+    pcnt  : std_ulogic_सदिशम्(4 downto 0); -- pulse counter
+    thigh : std_ulogic_सदिशम्(4 downto 0); -- number of clock pulses for high-time
+    scnt  : std_ulogic_सदिशम्(6 downto 0); -- strobe counter
   end record;
   signal serial : serial_t;
   signal busy : std_ulogic; -- serial engine busy
@@ -107,17 +107,17 @@ begin
     if (rstn_i = '0') then
       ctrl.enable   <= '0';
       ctrl.clk_prsc <= (others => '0');
-      ctrl.t_total  <= (others => '0');
-      ctrl.t0_high  <= (others => '0');
-      ctrl.t1_high  <= (others => '0');
+      ctrl.t_योग  <= (others => '0');
+      ctrl.t0_उच्चः  <= (others => '0');
+      ctrl.t1_उच्चः  <= (others => '0');
     elsif rising_edge(clk_i) then
       if (bus_req_i.stb = '1') and (bus_req_i.rw = '1') then
         if (bus_req_i.addr(2) = '0') then
-          ctrl.enable   <= bus_req_i.data(ctrl_en_c);
-          ctrl.clk_prsc <= bus_req_i.data(ctrl_clksel2_c downto ctrl_clksel0_c);
-          ctrl.t_total  <= bus_req_i.data(ctrl_t_tot4_c downto ctrl_t_tot0_c);
-          ctrl.t0_high  <= bus_req_i.data(ctrl_t_0h4_c downto ctrl_t_0h0_c);
-          ctrl.t1_high  <= bus_req_i.data(ctrl_t_1h4_c downto ctrl_t_1h0_c);
+          ctrl.enable   <= bus_req_i.दत्त(ctrl_en_c);
+          ctrl.clk_prsc <= bus_req_i.दत्त(ctrl_clksel2_c downto ctrl_clksel0_c);
+          ctrl.t_योग  <= bus_req_i.दत्त(ctrl_t_tot4_c downto ctrl_t_tot0_c);
+          ctrl.t0_उच्चः  <= bus_req_i.दत्त(ctrl_t_0h4_c downto ctrl_t_0h0_c);
+          ctrl.t1_उच्चः  <= bus_req_i.दत्त(ctrl_t_1h4_c downto ctrl_t_1h0_c);
         end if;
       end if;
     end if;
@@ -130,12 +130,12 @@ begin
     if (bus_rden = '1') then -- output gating
       bus_rdata(ctrl_en_c)                            <= ctrl.enable;
       bus_rdata(ctrl_clksel2_c downto ctrl_clksel0_c) <= ctrl.clk_prsc;
-      bus_rdata(ctrl_t_tot4_c downto ctrl_t_tot0_c)   <= ctrl.t_total;
-      bus_rdata(ctrl_t_0h4_c downto ctrl_t_0h0_c)     <= ctrl.t0_high;
-      bus_rdata(ctrl_t_1h4_c downto ctrl_t_1h0_c)     <= ctrl.t1_high;
-      bus_rdata(ctrl_fifo3_c downto ctrl_fifo0_c)     <= std_ulogic_vector(to_unsigned(log2_fifo_size_c, 4));
-      bus_rdata(ctrl_tx_empty_c)                      <= not tx_fifo.avail;
-      bus_rdata(ctrl_tx_full_c)                       <= not tx_fifo.free;
+      bus_rdata(ctrl_t_tot4_c downto ctrl_t_tot0_c)   <= ctrl.t_योग;
+      bus_rdata(ctrl_t_0h4_c downto ctrl_t_0h0_c)     <= ctrl.t0_उच्चः;
+      bus_rdata(ctrl_t_1h4_c downto ctrl_t_1h0_c)     <= ctrl.t1_उच्चः;
+      bus_rdata(ctrl_fifo3_c downto ctrl_fifo0_c)     <= std_ulogic_सदिशम्(गन्तव्यम्_unsigned(log2_fifo_आकार_c, 4));
+      bus_rdata(ctrl_tx_रिक्तानि_c)                      <= not tx_fifo.avail;
+      bus_rdata(ctrl_tx_पूर्णम्_c)                       <= not tx_fifo.free;
       bus_rdata(ctrl_tx_busy_c)                       <= busy or tx_fifo.avail;
     end if;
   end process;
@@ -143,14 +143,14 @@ begin
   -- bus response --
   bus_rsp_o.ack  <= bus_ack;
   bus_rsp_o.err  <= '0'; -- no access errors supported
-  bus_rsp_o.data <= bus_rdata;
+  bus_rsp_o.दत्त <= bus_rdata;
 
 
   -- TX Buffer (FIFO) -----------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  data_buffer: entity neorv32.neorv32_prim_fifo
+  दत्त_बफर: entity neorv32.neorv32_prim_fifo
   generic map (
-    AWIDTH  => log2_fifo_size_c,
+    AWIDTH  => log2_fifo_आकार_c,
     DWIDTH  => 34,
     OUTGATE => false,
     ASYNCRD => false
@@ -173,7 +173,7 @@ begin
 
   tx_fifo.re    <= '1' when (serial.state = "100") else '0';
   tx_fifo.we    <= bus_req_i.stb and bus_req_i.rw and or_reduce_f(bus_req_i.addr(3 downto 2));
-  tx_fifo.wdata <= (bus_req_i.addr(3) and bus_req_i.addr(2)) & bus_req_i.addr(3) & bus_req_i.data;
+  tx_fifo.wdata <= (bus_req_i.addr(3) and bus_req_i.addr(2)) & bus_req_i.addr(3) & bus_req_i.दत्त;
   tx_fifo.clr   <= not ctrl.enable;
 
   -- IRQ generator --
@@ -191,7 +191,7 @@ begin
   begin
     if (rstn_i = '0') then
       serial.state <= (others => '0');
-      serial.mode  <= '0';
+      serial.बहुलकम्  <= '0';
       serial.bcnt  <= (others => '0');
       serial.sreg  <= (others => '0');
       serial.clken <= '0';
@@ -201,7 +201,7 @@ begin
       neoled_o     <= '0';
     elsif rising_edge(clk_i) then
       -- clock generator --
-      serial.clken <= clkgen_i(to_integer(unsigned(ctrl.clk_prsc)));
+      serial.clken <= clkgen_i(गन्तव्यम्_integer(unsigned(ctrl.clk_prsc)));
 
       -- FSM --
       serial.state(2) <= ctrl.enable;
@@ -213,10 +213,10 @@ begin
           serial.pcnt <= (others => '0');
           serial.scnt <= (others => '0');
           if (tx_fifo.rdata(32) = '0') then -- "RGB" mode (24-bit)
-            serial.mode <= '0';
+            serial.बहुलकम् <= '0';
             serial.bcnt <= "011000";
           else -- "RGBW" mode (32-bit)
-            serial.mode <= '1';
+            serial.बहुलकम् <= '1';
             serial.bcnt <= "100000";
           end if;
           if (tx_fifo.avail = '1') then
@@ -231,12 +231,12 @@ begin
         when "101" => -- GETBIT: get next TX bit
         -- ------------------------------------------------------------
           serial.sreg <= serial.sreg(serial.sreg'left-1 downto 0) & '0';
-          serial.bcnt <= std_ulogic_vector(unsigned(serial.bcnt) - 1);
+          serial.bcnt <= std_ulogic_सदिशम्(unsigned(serial.bcnt) - 1);
           serial.pcnt <= (others => '0');
           if (sbit = '0') then -- send zero-bit
-            serial.thigh <= ctrl.t0_high;
+            serial.thigh <= ctrl.t0_उच्चः;
           else -- send one-bit
-            serial.thigh <= ctrl.t1_high;
+            serial.thigh <= ctrl.t1_उच्चः;
           end if;
           if (serial.bcnt = "000000") then -- all done?
             serial.state(1 downto 0) <= "00";
@@ -250,11 +250,11 @@ begin
           -- total pulse length = ctrl.t_total
           -- pulse high length  = serial.thigh
           if (serial.clken = '1') then
-            serial.pcnt <= std_ulogic_vector(unsigned(serial.pcnt) + 1);
+            serial.pcnt <= std_ulogic_सदिशम्(unsigned(serial.pcnt) + 1);
             if (serial.pcnt = serial.thigh) then -- thigh reached?
               neoled_o <= '0';
             end if;
-            if (serial.pcnt = ctrl.t_total) then -- T_total reached?
+            if (serial.pcnt = ctrl.t_योग) then -- T_total reached?
               serial.state(1 downto 0) <= "01"; -- get next bit to send
             end if;
           end if;
@@ -263,11 +263,11 @@ begin
         -- ------------------------------------------------------------
           -- wait for 127 * ctrl.t_total to ensure RESET
           if (serial.clken = '1') then
-            if (serial.pcnt = ctrl.t_total) then -- T_total reached?
+            if (serial.pcnt = ctrl.t_योग) then -- T_total reached?
               serial.pcnt <= (others => '0');
-              serial.scnt <= std_ulogic_vector(unsigned(serial.scnt) + 1);
+              serial.scnt <= std_ulogic_सदिशम्(unsigned(serial.scnt) + 1);
             else
-              serial.pcnt <= std_ulogic_vector(unsigned(serial.pcnt) + 1);
+              serial.pcnt <= std_ulogic_सदिशम्(unsigned(serial.pcnt) + 1);
             end if;
           end if;
           -- number of LOW periods reached for RESET? --
@@ -285,7 +285,7 @@ begin
   end process;
 
   -- SREG's TX data: bit 23 for RGB mode (24-bit), bit 31 for RGBW mode (32-bit) --
-  sbit <= serial.sreg(23) when (serial.mode = '0') else serial.sreg(31);
+  sbit <= serial.sreg(23) when (serial.बहुलकम् = '0') else serial.sreg(31);
 
   -- TX engine status --
   busy <= '0' when (serial.state(1 downto 0) = "00") else '1';

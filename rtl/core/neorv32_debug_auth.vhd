@@ -24,8 +24,8 @@ entity neorv32_debug_auth is
     -- register interface --
     we_i     : in  std_ulogic; -- wdata_i valid when high
     re_i     : in  std_ulogic; -- rdata_o has been consumed by the debugger when high
-    wdata_i  : in  std_ulogic_vector(31 downto 0); -- write data (from debugger)
-    rdata_o  : out std_ulogic_vector(31 downto 0); -- read data (to debugger)
+    wdata_i  : in  std_ulogic_सदिशम्(31 downto 0); -- write data (from debugger)
+    rdata_o  : out std_ulogic_सदिशम्(31 downto 0); -- read data (to debugger)
     -- status --
     enable_i : in  std_ulogic; -- authenticator enabled when high; reset & clear authentication when low
     busy_o   : out std_ulogic; -- authenticator is busy when high; no further read/write accesses

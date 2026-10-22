@@ -33,7 +33,7 @@ end entity;
 
 architecture neorv32_sys_reset_rtl of neorv32_sys_reset is
 
-  signal sreg_ext, sreg_sys : std_ulogic_vector(3 downto 0);
+  signal sreg_ext, sreg_sys : std_ulogic_सदिशम्(3 downto 0);
 
 begin
 
@@ -98,13 +98,13 @@ entity neorv32_sys_clock is
   port (
     clk_i    : in  std_ulogic;                   -- global clock, rising edge
     rstn_i   : in  std_ulogic;                   -- global reset, low-active, async
-    clk_en_o : out std_ulogic_vector(7 downto 0) -- prescaled clock-enables
+    clk_en_o : out std_ulogic_सदिशम्(7 downto 0) -- prescaled clock-enables
   );
 end entity;
 
 architecture neorv32_sys_clock_rtl of neorv32_sys_clock is
 
-  signal cnt, cnt2, en : std_ulogic_vector(11 downto 0);
+  signal cnt, cnt2, en : std_ulogic_सदिशम्(11 downto 0);
 
 begin
 
@@ -115,7 +115,7 @@ begin
       cnt  <= (others => '0');
       cnt2 <= (others => '0');
     elsif rising_edge(clk_i) then
-      cnt  <= std_ulogic_vector(unsigned(cnt) + 1);
+      cnt  <= std_ulogic_सदिशम्(unsigned(cnt) + 1);
       cnt2 <= cnt;
     end if;
   end process;

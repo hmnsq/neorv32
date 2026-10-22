@@ -20,9 +20,9 @@ use neorv32.neorv32_package.all;
 entity neorv32_trng is
   generic (
     TRNG_FIFO : natural range 1 to 32768; -- FIFO depth, has to be a power of two, min 1
-    NUM_RO    : natural range 1 to 255;   -- total number of ring-oscillators
-    NUM_INV   : natural range 3 to 4095;  -- number of inverters in first ring-oscillator; has to be odd
-    NUM_RBIT  : natural range 8 to 4096   -- number of raw bits to process for one output byte; has to be power of 2
+    अङ्कः_RO    : natural range 1 to 255;   -- total number of ring-oscillators
+    अङ्कः_INV   : natural range 3 to 4095;  -- number of inverters in first ring-oscillator; has to be odd
+    अङ्कः_RBIT  : natural range 8 to 4096   -- number of raw bits to process for one output byte; has to be power of 2
   );
   port (
     clk_i     : in  std_ulogic; -- global clock line
@@ -36,15 +36,15 @@ end entity;
 architecture neorv32_trng_rtl of neorv32_trng is
 
   -- auto configuration --
-  constant num_inv_start_c  : natural := sel_natural_f(boolean((NUM_INV mod 2) = 0), NUM_INV+1, NUM_INV); -- is #INV odd?
-  constant num_raw_bits_c   : natural := 2**index_size_f(NUM_RBIT); -- make sure #BITS is a power of 2
-  constant log2_rbit_c      : natural := index_size_f(num_raw_bits_c); -- log2(#BITS)
-  constant log2_fifo_size_c : natural := index_size_f(TRNG_FIFO); -- FIFO address width
+  constant अङ्कः_inv_start_c  : natural := sel_natural_f(boolean((अङ्कः_INV mod 2) = 0), अङ्कः_INV+1, अङ्कः_INV); -- is #INV odd?
+  constant अङ्कः_raw_द्वयङ्काः_c   : natural := 2**सूचकांक_आकार_f(अङ्कः_RBIT); -- make sure #BITS is a power of 2
+  constant log2_rbit_c      : natural := सूचकांक_आकार_f(अङ्कः_raw_द्वयङ्काः_c); -- log2(#BITS)
+  constant log2_fifo_आकार_c : natural := सूचकांक_आकार_f(TRNG_FIFO); -- FIFO address width
 
   -- control register bits --
   constant ctrl_en_c       : natural :=  0; -- r/w: TRNG enable
   constant ctrl_fifo_clr_c : natural :=  1; -- -/w: Clear data FIFO (auto clears)
-  constant ctrl_sim_mode_c : natural :=  2; -- r/-: TRNG implemented in non-TRNG/pseudo-RNG simulation mode
+  constant ctrl_sim_बहुलकम्_c : natural :=  2; -- r/-: TRNG implemented in non-TRNG/pseudo-RNG simulation mode
   constant ctrl_avail_c    : natural :=  3; -- r/-: Random data available
   constant ctrl_fifo0_c    : natural :=  4; -- r/-: log2(FIFO size) bit 0, LSB
   constant ctrl_fifo3_c    : natural :=  7; -- r/-: log2(FIFO size) bit 3, MSB
@@ -58,23 +58,23 @@ architecture neorv32_trng_rtl of neorv32_trng is
   -- neoTRNG true random number generator --
   component neoTRNG
     generic (
-      NUM_CELLS     : natural range 1 to 99   := 3; -- number of ring-oscillator cells
-      NUM_INV_START : natural range 3 to 99   := 5; -- number of inverters in first ring-oscillator cell, has to be odd
-      NUM_RAW_BITS  : natural range 1 to 4096 := 64; -- number of XOR-ed raw bits per random sample byte (has to be a power of 2)
-      SIM_MODE      : boolean                 := false -- enable simulation mode (no physical random if enabled!)
+      अङ्कः_CELLS     : natural range 1 to 99   := 3; -- number of ring-oscillator cells
+      अङ्कः_INV_START : natural range 3 to 99   := 5; -- number of inverters in first ring-oscillator cell, has to be odd
+      अङ्कः_RAW_द्वयङ्काः  : natural range 1 to 4096 := 64; -- number of XOR-ed raw bits per random sample byte (has to be a power of 2)
+      SIM_बहुलकम्      : boolean                 := false -- enable simulation mode (no physical random if enabled!)
     );
     port (
       clk_i    : in  std_ulogic; -- module clock
       rstn_i   : in  std_ulogic; -- module reset, low-active, async, optional
       enable_i : in  std_ulogic; -- module enable (high-active)
       valid_o  : out std_ulogic; -- data_o is valid when set
-      data_o   : out std_ulogic_vector(7 downto 0) -- random data byte output
+      दत्त_o   : out std_ulogic_सदिशम्(7 downto 0) -- random data byte output
     );
   end component;
 
   -- bus interface --
   signal bus_ack, bus_rden : std_ulogic;
-  signal bus_rdata : std_ulogic_vector(31 downto 0);
+  signal bus_rdata : std_ulogic_सदिशम्(31 downto 0);
 
   -- control register --
   signal enable, fifo_clr : std_ulogic;
@@ -82,7 +82,7 @@ architecture neorv32_trng_rtl of neorv32_trng is
   -- FIFO interface --
   type fifo_t is record
     we,    re    : std_ulogic;
-    wdata, rdata : std_ulogic_vector(7 downto 0);
+    wdata, rdata : std_ulogic_सदिशम्(7 downto 0);
     avail, free  : std_ulogic;
     clear        : std_ulogic;
   end record;
@@ -109,8 +109,8 @@ begin
     elsif rising_edge(clk_i) then
       fifo_clr <= '0'; -- default
       if (bus_req_i.stb = '1') and (bus_req_i.rw = '1') and (bus_req_i.addr(2) = '0') then -- control register
-        enable   <= bus_req_i.data(ctrl_en_c);
-        fifo_clr <= bus_req_i.data(ctrl_fifo_clr_c);
+        enable   <= bus_req_i.दत्त(ctrl_en_c);
+        fifo_clr <= bus_req_i.दत्त(ctrl_fifo_clr_c);
       end if;
     end if;
   end process;
@@ -123,12 +123,12 @@ begin
       if (bus_req_i.addr(2) = '0') then -- control register
         bus_rdata(ctrl_en_c)                         <= enable;
         bus_rdata(ctrl_fifo_clr_c)                   <= '0';
-        bus_rdata(ctrl_sim_mode_c)                   <= bool_to_ulogic_f(is_simulation_c);
+        bus_rdata(ctrl_sim_बहुलकम्_c)                   <= bool_गन्तव्यम्_ulogic_f(is_simulation_c);
         bus_rdata(ctrl_avail_c)                      <= fifo.avail;
-        bus_rdata(ctrl_fifo3_c  downto ctrl_fifo0_c) <= std_ulogic_vector(to_unsigned(log2_fifo_size_c, 4));
-        bus_rdata(ctrl_nbit3_c  downto ctrl_nbit0_c) <= std_ulogic_vector(to_unsigned(log2_rbit_c, 4));
-        bus_rdata(ctrl_nro7_c   downto ctrl_nro0_c)  <= std_ulogic_vector(to_unsigned(NUM_RO, 8));
-        bus_rdata(ctrl_ninv11_c downto ctrl_ninv0_c) <= std_ulogic_vector(to_unsigned(num_inv_start_c, 12));
+        bus_rdata(ctrl_fifo3_c  downto ctrl_fifo0_c) <= std_ulogic_सदिशम्(गन्तव्यम्_unsigned(log2_fifo_आकार_c, 4));
+        bus_rdata(ctrl_nbit3_c  downto ctrl_nbit0_c) <= std_ulogic_सदिशम्(गन्तव्यम्_unsigned(log2_rbit_c, 4));
+        bus_rdata(ctrl_nro7_c   downto ctrl_nro0_c)  <= std_ulogic_सदिशम्(गन्तव्यम्_unsigned(अङ्कः_RO, 8));
+        bus_rdata(ctrl_ninv11_c downto ctrl_ninv0_c) <= std_ulogic_सदिशम्(गन्तव्यम्_unsigned(अङ्कः_inv_start_c, 12));
       else -- data register
         bus_rdata(7 downto 0) <= fifo.rdata;
       end if;
@@ -138,30 +138,30 @@ begin
   -- bus response --
   bus_rsp_o.ack  <= bus_ack;
   bus_rsp_o.err  <= '0'; -- no access errors supported
-  bus_rsp_o.data <= bus_rdata;
+  bus_rsp_o.दत्त <= bus_rdata;
 
   -- neoTRNG True Random Number Generator ---------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   neoTRNG_inst: neoTRNG
   generic map (
-    NUM_CELLS     => NUM_RO,
-    NUM_INV_START => num_inv_start_c,
-    NUM_RAW_BITS  => num_raw_bits_c,
-    SIM_MODE      => is_simulation_c
+    अङ्कः_CELLS     => अङ्कः_RO,
+    अङ्कः_INV_START => अङ्कः_inv_start_c,
+    अङ्कः_RAW_द्वयङ्काः  => अङ्कः_raw_द्वयङ्काः_c,
+    SIM_बहुलकम्      => is_simulation_c
   )
   port map (
     clk_i    => clk_i,
     rstn_i   => rstn_i,
     enable_i => enable,
     valid_o  => fifo.we,
-    data_o   => fifo.wdata
+    दत्त_o   => fifo.wdata
   );
 
   -- Random Number Buffer --------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   rnd_fifo_inst: entity neorv32.neorv32_prim_fifo
   generic map (
-    AWIDTH  => log2_fifo_size_c,
+    AWIDTH  => log2_fifo_आकार_c,
     DWIDTH  => 8,
     OUTGATE => true, -- output zero if no data available
     ASYNCRD => false
@@ -249,17 +249,17 @@ use ieee.numeric_std.all;
 
 entity neoTRNG is
   generic (
-    NUM_CELLS     : natural range 1 to 255;  -- number of ring-oscillator cells, min 1
-    NUM_INV_START : natural range 3 to 4095; -- number of inverters in first ring-oscillator cell, has to be odd
-    NUM_RAW_BITS  : natural range 8 to 4096; -- number of raw bits per random sample byte (has to be a power of 2)
-    SIM_MODE      : boolean                  -- enable simulation mode (no physical random if enabled!)
+    अङ्कः_CELLS     : natural range 1 to 255;  -- number of ring-oscillator cells, min 1
+    अङ्कः_INV_START : natural range 3 to 4095; -- number of inverters in first ring-oscillator cell, has to be odd
+    अङ्कः_RAW_द्वयङ्काः  : natural range 8 to 4096; -- number of raw bits per random sample byte (has to be a power of 2)
+    SIM_बहुलकम्      : boolean                  -- enable simulation mode (no physical random if enabled!)
   );
   port (
     clk_i    : in  std_ulogic; -- module clock
     rstn_i   : in  std_ulogic; -- module reset, low-active, async, optional
     enable_i : in  std_ulogic; -- module enable (high-active)
     valid_o  : out std_ulogic; -- data_o is valid when set (high for one cycle)
-    data_o   : out std_ulogic_vector(7 downto 0) -- random data byte output
+    दत्त_o   : out std_ulogic_सदिशम्(7 downto 0) -- random data byte output
   );
 end entity;
 
@@ -279,8 +279,8 @@ architecture neoTRNG_rtl of neoTRNG is
   -- entropy source cell --
   component neoTRNG_cell
     generic (
-      NUM_INV  : natural; -- number of inverters, has to be odd, min 3
-      SIM_MODE : boolean  -- enable simulation mode (no physical random if enabled!)
+      अङ्कः_INV  : natural; -- number of inverters, has to be odd, min 3
+      SIM_बहुलकम् : boolean  -- enable simulation mode (no physical random if enabled!)
     );
     port (
       clk_i  : in  std_ulogic; -- clock
@@ -292,24 +292,24 @@ architecture neoTRNG_rtl of neoTRNG is
   end component;
 
   -- entropy cell interconnect --
-  signal cell_en_in  : std_ulogic_vector(NUM_CELLS-1 downto 0); -- enable-sreg input
-  signal cell_en_out : std_ulogic_vector(NUM_CELLS-1 downto 0); -- enable-sreg output
-  signal cell_rnd    : std_ulogic_vector(NUM_CELLS-1 downto 0); -- cell random output
-  signal cell_sum    : std_ulogic; -- combined random data
+  signal cell_en_अन्तर्  : std_ulogic_सदिशम्(अङ्कः_CELLS-1 downto 0); -- enable-sreg input
+  signal cell_en_बहिर्गमनम् : std_ulogic_सदिशम्(अङ्कः_CELLS-1 downto 0); -- enable-sreg output
+  signal cell_rnd    : std_ulogic_सदिशम्(अङ्कः_CELLS-1 downto 0); -- cell random output
+  signal cell_योग    : std_ulogic; -- combined random data
 
   -- de-biasing --
-  signal debias_sreg  : std_ulogic_vector(1 downto 0); -- sample buffer
+  signal debias_sreg  : std_ulogic_सदिशम्(1 downto 0); -- sample buffer
   signal debias_state : std_ulogic; -- process de-biasing every second cycle
   signal debias_valid : std_ulogic; -- result bit valid
-  signal debias_data  : std_ulogic; -- result bit
+  signal debias_दत्त  : std_ulogic; -- result bit
 
   -- sampling control --
   signal sample_en   : std_ulogic; -- global enable
-  signal sample_sreg : std_ulogic_vector(7 downto 0); -- shift-register / de-serializer
-  signal sample_cnt  : std_ulogic_vector(clog2_f(NUM_RAW_BITS) downto 0); -- bits-per-sample counter
+  signal sample_sreg : std_ulogic_सदिशम्(7 downto 0); -- shift-register / de-serializer
+  signal sample_cnt  : std_ulogic_सदिशम्(clog2_f(अङ्कः_RAW_द्वयङ्काः) downto 0); -- bits-per-sample counter
 
   -- CRC polynomial (tap mask) --
-  constant poly_c : std_ulogic_vector(7 downto 0) := "00000111"; -- CRC-8: x^8 + x^2 + x^1 + x^0
+  constant poly_c : std_ulogic_सदिशम्(7 downto 0) := "00000111"; -- CRC-8: x^8 + x^2 + x^1 + x^0
 
 begin
 
@@ -319,46 +319,46 @@ begin
     "[neoTRNG] The neoTRNG (v3.4) - A Tiny and Platform-Independent True Random Number Generator, " &
     "github.com/stnolting/neoTRNG" severity note;
 
-  assert (NUM_INV_START mod 2) /= 0 report
+  assert (अङ्कः_INV_START mod 2) /= 0 report
     "[neoTRNG] Number of inverters in first cell [NUM_INV_START] has to be odd!" severity error;
 
-  assert 2**clog2_f(NUM_RAW_BITS) = NUM_RAW_BITS report
+  assert 2**clog2_f(अङ्कः_RAW_द्वयङ्काः) = अङ्कः_RAW_द्वयङ्काः report
     "[neoTRNG] Number of pre-processed raw bits [NUM_RAW_BITS] has to be a power of 2!" severity error;
 
-  assert not SIM_MODE report
+  assert not SIM_बहुलकम् report
     "[neoTRNG] Simulation-mode enabled (NO TRUE/PHYSICAL RANDOM)!" severity warning;
 
 
   -- Entropy Source -------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   entropy_cell_gen:
-  for i in 0 to NUM_CELLS-1 generate
+  for i in 0 to अङ्कः_CELLS-1 generate
     neoTRNG_cell_inst: neoTRNG_cell
     generic map (
-      NUM_INV  => NUM_INV_START + (2*i), -- increasing (odd) ring-oscillator length
-      SIM_MODE => SIM_MODE
+      अङ्कः_INV  => अङ्कः_INV_START + (2*i), -- increasing (odd) ring-oscillator length
+      SIM_बहुलकम् => SIM_बहुलकम्
     )
     port map (
       clk_i  => clk_i,
       rstn_i => rstn_i,
-      en_i   => cell_en_in(i),
-      en_o   => cell_en_out(i),
+      en_i   => cell_en_अन्तर्(i),
+      en_o   => cell_en_बहिर्गमनम्(i),
       rnd_o  => cell_rnd(i)
     );
   end generate;
 
   -- enable-shift-register chain --
-  cell_en_in <= cell_en_out(NUM_CELLS-2 downto 0) & sample_en;
+  cell_en_अन्तर् <= cell_en_बहिर्गमनम्(अङ्कः_CELLS-2 downto 0) & sample_en;
 
   -- combine cell outputs --
   combine: process(cell_rnd)
     variable tmp_v : std_ulogic;
   begin
     tmp_v := '0';
-    for i in 0 to NUM_CELLS-1 loop
+    for i in 0 to अङ्कः_CELLS-1 loop
       tmp_v := tmp_v xor cell_rnd(i);
     end loop;
-    cell_sum <= tmp_v;
+    cell_योग <= tmp_v;
   end process;
 
 
@@ -370,15 +370,15 @@ begin
       debias_sreg  <= (others => '0');
       debias_state <= '0';
     elsif rising_edge(clk_i) then
-      debias_sreg <= debias_sreg(0) & cell_sum;
+      debias_sreg <= debias_sreg(0) & cell_योग;
       -- start operation when last cell is enabled and process in every second cycle --
-      debias_state <= (not debias_state) and cell_en_out(cell_en_out'left);
+      debias_state <= (not debias_state) and cell_en_बहिर्गमनम्(cell_en_बहिर्गमनम्'वामः);
     end if;
   end process;
 
   -- check groups of two non-overlapping bits from the random stream for edges --
   debias_valid <= debias_state and (debias_sreg(1) xor debias_sreg(0));
-  debias_data  <= debias_sreg(0);
+  debias_दत्त  <= debias_sreg(0);
 
 
   -- Sampling Control -----------------------------------------------------------------------
@@ -395,7 +395,7 @@ begin
         sample_cnt  <= (others => '0');
         sample_sreg <= (others => '0');
       elsif (debias_valid = '1') then -- valid raw random bit
-        sample_cnt <= std_ulogic_vector(unsigned(sample_cnt) + 1);
+        sample_cnt <= std_ulogic_सदिशम्(unsigned(sample_cnt) + 1);
         -- CRC-style sampling shift-register to mix random stream --
         if ((sample_sreg(sample_sreg'left) xor debias_data) = '1') then -- feedback bit
           sample_sreg <= (sample_sreg(sample_sreg'left-1 downto 0) & '0') xor poly_c;
@@ -407,8 +407,8 @@ begin
   end process;
 
   -- TRNG output stream --
-  data_o  <= sample_sreg;
-  valid_o <= sample_cnt(sample_cnt'left);
+  दत्त_o  <= sample_sreg;
+  valid_o <= sample_cnt(sample_cnt'वामः);
 
 end architecture;
 
@@ -424,8 +424,8 @@ use ieee.std_logic_1164.all;
 
 entity neoTRNG_cell is
   generic (
-    NUM_INV  : natural; -- number of inverters, has to be odd, min 3
-    SIM_MODE : boolean  -- enable simulation mode (no physical random if enabled!)
+    अङ्कः_INV  : natural; -- number of inverters, has to be odd, min 3
+    SIM_बहुलकम् : boolean  -- enable simulation mode (no physical random if enabled!)
   );
   port (
     clk_i  : in  std_ulogic; -- clock
@@ -438,11 +438,11 @@ end entity;
 
 architecture neoTRNG_cell_rtl of neoTRNG_cell is
 
-  signal sreg    : std_ulogic_vector(NUM_INV-1 downto 0); -- enable-shift-register
-  signal latch   : std_ulogic_vector(NUM_INV-1 downto 0); -- ring oscillator: latches
-  signal inv_in  : std_ulogic_vector(NUM_INV-1 downto 0); -- ring oscillator: inverter inputs
-  signal inv_out : std_ulogic_vector(NUM_INV-1 downto 0); -- ring oscillator: inverter outputs
-  signal sync    : std_ulogic_vector(1 downto 0); -- output synchronizer
+  signal sreg    : std_ulogic_सदिशम्(अङ्कः_INV-1 downto 0); -- enable-shift-register
+  signal latch   : std_ulogic_सदिशम्(अङ्कः_INV-1 downto 0); -- ring oscillator: latches
+  signal inv_अन्तर्  : std_ulogic_सदिशम्(अङ्कः_INV-1 downto 0); -- ring oscillator: inverter inputs
+  signal inv_बहिर्गमनम् : std_ulogic_सदिशम्(अङ्कः_INV-1 downto 0); -- ring oscillator: inverter outputs
+  signal sync    : std_ulogic_सदिशम्(1 downto 0); -- output synchronizer
 
 begin
 
@@ -453,17 +453,17 @@ begin
   -- identical functions"). This makes the TRNG platform independent as we do not require tool-/
   -- technology-specific primitives, attributes or other options.
 
-  en_shift_reg: process(rstn_i, clk_i)
+  en_सरणम्_reg: process(rstn_i, clk_i)
   begin
     if (rstn_i = '0') then
       sreg <= (others => '0');
     elsif rising_edge(clk_i) then
-      sreg <= sreg(sreg'left-1 downto 0) & en_i;
+      sreg <= sreg(sreg'वामः-1 downto 0) & en_i;
     end if;
   end process;
 
   -- output for global enable chain --
-  en_o <= sreg(sreg'left);
+  en_o <= sreg(sreg'वामः);
 
 
   -- Physical Entropy Source: Ring Oscillator -----------------------------------------------
@@ -474,26 +474,26 @@ begin
   -- one by the enable shift register.
 
   ring_osc_gen:
-  for i in 0 to NUM_INV-1 generate
+  for i in 0 to अङ्कः_INV-1 generate
 
     -- latch with global reset and individual enable --
-    latch(i) <= '0' when (en_i = '0') else latch(i) when (sreg(i) = '0') else inv_out(i);
+    latch(i) <= '0' when (en_i = '0') else latch(i) when (sreg(i) = '0') else inv_बहिर्गमनम्(i);
 
     -- inverter for actual synthesis --
     inverter_phy:
-    if not SIM_MODE generate
-      inv_out(i) <= not inv_in(i); -- this is one part of the ring oscillator's physical propagation delay
+    if not SIM_बहुलकम् generate
+      inv_बहिर्गमनम्(i) <= not inv_अन्तर्(i); -- this is one part of the ring oscillator's physical propagation delay
     end generate;
 
     -- inverter with "propagation delay" (implemented as a simple FF) --
     inverter_sim:
-    if SIM_MODE generate -- for SIMULATION ONLY!
+    if SIM_बहुलकम् generate -- for SIMULATION ONLY!
       inverter_sim_ff: process(rstn_i, clk_i) -- this will NOT generate true random numbers
       begin
         if (rstn_i = '0') then
-          inv_out(i) <= '0';
+          inv_बहिर्गमनम्(i) <= '0';
         elsif rising_edge(clk_i) then
-          inv_out(i) <= not inv_in(i);
+          inv_बहिर्गमनम्(i) <= not inv_अन्तर्(i);
         end if;
       end process;
     end generate;
@@ -501,7 +501,7 @@ begin
   end generate;
 
   -- chaining --
-  inv_in <= latch(NUM_INV-2 downto 0) & latch(NUM_INV-1);
+  inv_अन्तर् <= latch(अङ्कः_INV-2 downto 0) & latch(अङ्कः_INV-1);
 
 
   -- Output Synchronizer --------------------------------------------------------------------
@@ -513,7 +513,7 @@ begin
     if (rstn_i = '0') then
       sync <= (others => '0');
     elsif rising_edge(clk_i) then
-      sync <= sync(0) & latch(latch'left);
+      sync <= sync(0) & latch(latch'वामः);
     end if;
   end process;
 

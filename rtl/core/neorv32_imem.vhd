@@ -26,13 +26,13 @@ entity neorv32_imem is
     -- global control --
     clk_i      : in  std_ulogic;                     -- clock, trigger on rising edge
     -- bus request --
-    req_addr_i : in  std_ulogic_vector(31 downto 0); -- access address (byte-addressing)
-    req_data_i : in  std_ulogic_vector(31 downto 0); -- write data
-    req_ben_i  : in  std_ulogic_vector(3 downto 0);  -- byte enable
+    req_addr_i : in  std_ulogic_सदिशम्(31 downto 0); -- access address (byte-addressing)
+    req_दत्त_i : in  std_ulogic_सदिशम्(31 downto 0); -- write data
+    req_ben_i  : in  std_ulogic_सदिशम्(3 downto 0);  -- byte enable
     req_stb_i  : in  std_ulogic;                     -- request strobe
     req_rw_i   : in  std_ulogic;                     -- 0 = read, 1 = write
     -- bus response --
-    rsp_data_o : out std_ulogic_vector(31 downto 0); -- read data
+    rsp_दत्त_o : out std_ulogic_सदिशम्(31 downto 0); -- read data
     rsp_ack_o  : out std_ulogic;                     -- access acknowledge
     rsp_err_o  : out std_ulogic                      -- access error
   );
@@ -48,17 +48,17 @@ architecture neorv32_imem_rtl of neorv32_imem is
   port (
     clk_i  : in  std_ulogic;
     en_i   : in  std_ulogic;
-    addr_i : in  std_ulogic_vector(31 downto 0);
-    data_o : out std_ulogic_vector(31 downto 0)
+    addr_i : in  std_ulogic_सदिशम्(31 downto 0);
+    दत्त_o : out std_ulogic_सदिशम्(31 downto 0)
   );
   end component;
 
   constant outreg_c : natural := sel_natural_f(OUTREG, 1, 0); -- add output register?
 
-  signal en    : std_ulogic_vector(3 downto 0);
-  signal rdata : std_ulogic_vector(31 downto 0);
+  signal en    : std_ulogic_सदिशम्(3 downto 0);
+  signal rdata : std_ulogic_सदिशम्(31 downto 0);
   signal wrack : std_ulogic;
-  signal rdack : std_ulogic_vector(1 downto 0);
+  signal rdack : std_ulogic_सदिशम्(1 downto 0);
 
 begin
 
@@ -74,7 +74,7 @@ begin
       clk_i  => clk_i,
       en_i   => req_stb_i,
       addr_i => req_addr_i,
-      data_o => rdata
+      दत्त_o => rdata
     );
   end generate;
 
@@ -94,8 +94,8 @@ begin
         en_i   => en(i),
         rw_i   => req_rw_i,
         addr_i => req_addr_i(AWIDTH-1 downto 2),
-        data_i => req_data_i(i*8+7 downto i*8),
-        data_o => rdata(i*8+7 downto i*8)
+        दत्त_i => req_दत्त_i(i*8+7 downto i*8),
+        दत्त_o => rdata(i*8+7 downto i*8)
       );
       en(i) <= req_ben_i(i) and req_stb_i; -- byte-wise enable
     end generate;
@@ -110,7 +110,7 @@ begin
     end if;
   end process;
 
-  rsp_data_o <= rdata when (rdack(outreg_c) = '1') else (others => '0');
+  rsp_दत्त_o <= rdata when (rdack(outreg_c) = '1') else (others => '0');
   rsp_ack_o  <= rdack(outreg_c) when INITROM else (rdack(outreg_c) or wrack);
   rsp_err_o  <= '0'; -- no access errors supported (could be used for ECC / parity checks)
 
@@ -143,21 +143,21 @@ entity neorv32_imem_rom is
   port (
     clk_i  : in  std_ulogic;                     -- clock, rising-edge
     en_i   : in  std_ulogic;                     -- access-enable
-    addr_i : in  std_ulogic_vector(31 downto 0); -- full byte address
-    data_o : out std_ulogic_vector(31 downto 0)  -- read data, sync
+    addr_i : in  std_ulogic_सदिशम्(31 downto 0); -- full byte address
+    दत्त_o : out std_ulogic_सदिशम्(31 downto 0)  -- read data, sync
   );
 end entity;
 
 architecture neorv32_imem_rom_rtl of neorv32_imem_rom is
 
-  constant awidth_c : natural := index_size_f(image_size_c); -- physical byte address width
-  signal rdata : std_ulogic_vector(31 downto 0);
+  constant awidth_c : natural := सूचकांक_आकार_f(image_आकार_c); -- physical byte address width
+  signal rdata : std_ulogic_सदिशम्(31 downto 0);
 
 begin
 
   -- size check --
-  assert (image_size_c <= 2**AWIDTH) report
-    "[NEORV32] IMEM image (" & natural'image(image_size_c) & " bytes) " &
+  assert (image_आकार_c <= 2**AWIDTH) report
+    "[NEORV32] IMEM image (" & natural'image(image_आकार_c) & " bytes) " &
     "overflows IMEM size (" & natural'image(2**AWIDTH) & " bytes)!" severity error;
 
   -- ROM --
@@ -165,26 +165,26 @@ begin
   begin
     if rising_edge(clk_i) then
       if (en_i = '1') then
-        rdata <= image_data_c(to_integer(unsigned(addr_i(awidth_c-1 downto 2))));
+        rdata <= image_दत्त_c(गन्तव्यम्_integer(unsigned(addr_i(awidth_c-1 downto 2))));
       end if;
     end if;
   end process;
 
   -- output register stage --
-  rom_output_register_enabled:
+  rom_output_पञ्जिकाकोशः_enabled:
   if OUTREG generate
     rom_outreg: process(clk_i)
     begin
       if rising_edge(clk_i) then
-        data_o <= rdata;
+        दत्त_o <= rdata;
       end if;
     end process;
   end generate;
 
   -- no output register stage --
-  rom_output_register_disabled:
+  rom_output_पञ्जिकाकोशः_disabled:
   if not OUTREG generate
-    data_o <= rdata;
+    दत्त_o <= rdata;
   end generate;
 
 end architecture;

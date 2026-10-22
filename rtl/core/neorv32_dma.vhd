@@ -33,11 +33,11 @@ end entity;
 architecture neorv32_dma_rtl of neorv32_dma is
 
   -- FIFO size helper --
-  constant log2_fifo_size_c : natural := index_size_f(DSC_FIFO); -- extend to next power of two
+  constant log2_fifo_आकार_c : natural := सूचकांक_आकार_f(DSC_FIFO); -- extend to next power of two
 
   -- transfer configuration (part of the descriptor) --
-  constant conf_num_lo_c : natural :=  0; -- r/w: number of elements to transfer, LSB
-  constant conf_num_hi_c : natural := 23; -- r/w: number of elements to transfer, MSB
+  constant conf_अङ्कः_lo_c : natural :=  0; -- r/w: number of elements to transfer, LSB
+  constant conf_अङ्कः_hi_c : natural := 23; -- r/w: number of elements to transfer, MSB
   constant conf_bswap_c  : natural := 27; -- r/w: swap byte order
   constant conf_src_lo_c : natural := 28; -- r/w: source addressing (0=byte, 1=word)
   constant conf_src_hi_c : natural := 29; -- r/w: source addressing (0=const, 1=inc)
@@ -53,12 +53,12 @@ architecture neorv32_dma_rtl of neorv32_dma is
   constant ctrl_dempty_c : natural := 27; -- r/-: descriptor buffer is empty
   constant ctrl_dfull_c  : natural := 28; -- r/-: descriptor buffer is full
   constant ctrl_error_c  : natural := 29; -- r/-: bus access error during transfer
-  constant ctrl_done_c   : natural := 30; -- r/-: transfer has completed
+  constant ctrl_समाप्तम्_c   : natural := 30; -- r/-: transfer has completed
   constant ctrl_busy_c   : natural := 31; -- r/-: DMA transfer in progress
 
   -- one-hot encoding --
-  function onehot_f(sel : std_ulogic_vector(1 downto 0)) return std_ulogic_vector is
-    variable res_v : std_ulogic_vector(3 downto 0);
+  function onehot_f(sel : std_ulogic_सदिशम्(1 downto 0)) return std_ulogic_सदिशम् is
+    variable res_v : std_ulogic_सदिशम्(3 downto 0);
   begin
     case sel is
       when "00"    => res_v := "0001";
@@ -71,11 +71,11 @@ architecture neorv32_dma_rtl of neorv32_dma is
 
   -- host bus interface --
   signal bus_ack, bus_rden : std_ulogic;
-  signal bus_rdata : std_ulogic_vector(31 downto 0);
+  signal bus_rdata : std_ulogic_सदिशम्(31 downto 0);
 
   -- control and status register --
   type ctrl_t is record
-    enable, start, err, done : std_ulogic;
+    enable, start, err, समाप्तम् : std_ulogic;
   end record;
   signal ctrl : ctrl_t;
 
@@ -84,7 +84,7 @@ architecture neorv32_dma_rtl of neorv32_dma is
     clr   : std_ulogic;
     we    : std_ulogic;
     re    : std_ulogic;
-    rdata : std_ulogic_vector(31 downto 0);
+    rdata : std_ulogic_सदिशम्(31 downto 0);
     avail : std_ulogic;
     free  : std_ulogic;
   end record;
@@ -94,24 +94,24 @@ architecture neorv32_dma_rtl of neorv32_dma is
   type state_t is (S_CHECK, S_GET_0, S_GET_1, S_GET_2, S_GET_3, S_READ_REQ, S_READ_RSP, S_WRITE_REQ, S_WRITE_RSP);
   type engine_t is record
     state    : state_t;
-    run      : std_ulogic;
-    done     : std_ulogic;
+    सततम्      : std_ulogic;
+    समाप्तम्     : std_ulogic;
     err      : std_ulogic;
-    src_addr : std_ulogic_vector(31 downto 0);
-    dst_addr : std_ulogic_vector(31 downto 0);
-    num      : std_ulogic_vector(23 downto 0);
-    num_or   : std_ulogic;
+    src_addr : std_ulogic_सदिशम्(31 downto 0);
+    dst_addr : std_ulogic_सदिशम्(31 downto 0);
+    अङ्कः      : std_ulogic_सदिशम्(23 downto 0);
+    अङ्कः_or   : std_ulogic;
     bswap    : std_ulogic; -- swap byte order
-    src_type : std_ulogic_vector(1 downto 0);
-    dst_type : std_ulogic_vector(1 downto 0);
+    src_type : std_ulogic_सदिशम्(1 downto 0);
+    dst_type : std_ulogic_सदिशम्(1 downto 0);
   end record;
   signal engine : engine_t;
 
   -- address increment --
-  signal src_add, dst_add : unsigned(31 downto 0);
+  signal src_सङ्कलय, dst_सङ्कलय : unsigned(31 downto 0);
 
   -- data buffer --
-  signal data_buf : std_ulogic_vector(31 downto 0);
+  signal दत्त_buf : std_ulogic_सदिशम्(31 downto 0);
 
 begin
 
@@ -132,19 +132,19 @@ begin
       ctrl.enable <= '0';
       ctrl.start  <= '0';
       ctrl.err    <= '0';
-      ctrl.done   <= '0';
+      ctrl.समाप्तम्   <= '0';
     elsif rising_edge(clk_i) then
       -- defaults --
       ctrl.start <= '0';
       ctrl.err   <= ctrl.enable and (ctrl.err  or engine.err);
-      ctrl.done  <= ctrl.enable and (ctrl.done or engine.done);
+      ctrl.समाप्तम्  <= ctrl.enable and (ctrl.समाप्तम् or engine.समाप्तम्);
       -- write access --
       if (bus_req_i.stb = '1') and (bus_req_i.rw = '1') and (bus_req_i.addr(2) = '0') then
-        ctrl.enable <= bus_req_i.data(ctrl_en_c);
-        ctrl.start  <= bus_req_i.data(ctrl_start_c);
-        if (bus_req_i.data(ctrl_start_c) = '1') or (bus_req_i.data(ctrl_ack_c) = '1') then -- write 1 to clear
+        ctrl.enable <= bus_req_i.दत्त(ctrl_en_c);
+        ctrl.start  <= bus_req_i.दत्त(ctrl_start_c);
+        if (bus_req_i.दत्त(ctrl_start_c) = '1') or (bus_req_i.दत्त(ctrl_ack_c) = '1') then -- write 1 to clear
           ctrl.err  <= '0';
-          ctrl.done <= '0';
+          ctrl.समाप्तम् <= '0';
         end if;
       end if;
     end if;
@@ -156,29 +156,29 @@ begin
     bus_rdata <= (others => '0');
     if (bus_rden = '1') and (bus_req_i.addr(2) = '0') then -- output gating
       bus_rdata(ctrl_en_c)                        <= ctrl.enable;
-      bus_rdata(ctrl_fifo3_c downto ctrl_fifo0_c) <= std_ulogic_vector(to_unsigned(log2_fifo_size_c, 4));
+      bus_rdata(ctrl_fifo3_c downto ctrl_fifo0_c) <= std_ulogic_सदिशम्(गन्तव्यम्_unsigned(log2_fifo_आकार_c, 4));
       bus_rdata(ctrl_dempty_c)                    <= not fifo.avail;
       bus_rdata(ctrl_dfull_c)                     <= not fifo.free;
       bus_rdata(ctrl_error_c)                     <= ctrl.err;
-      bus_rdata(ctrl_done_c)                      <= ctrl.done;
-      bus_rdata(ctrl_busy_c)                      <= engine.run;
+      bus_rdata(ctrl_समाप्तम्_c)                      <= ctrl.समाप्तम्;
+      bus_rdata(ctrl_busy_c)                      <= engine.सततम्;
     end if;
   end process;
 
   -- bus response --
   bus_rsp_o.ack  <= bus_ack;
   bus_rsp_o.err  <= '0'; -- no access errors supported
-  bus_rsp_o.data <= bus_rdata;
+  bus_rsp_o.दत्त <= bus_rdata;
 
   -- transfer-done interrupt --
-  irq_o <= ctrl.done;
+  irq_o <= ctrl.समाप्तम्;
 
 
   -- Descriptor Buffer (FIFO) ---------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  descriptor_buffer: entity neorv32.neorv32_prim_fifo
+  descriptor_बफर: entity neorv32.neorv32_prim_fifo
   generic map (
-    AWIDTH  => log2_fifo_size_c,
+    AWIDTH  => log2_fifo_आकार_c,
     DWIDTH  => 32,
     OUTGATE => false,
     ASYNCRD => false
@@ -190,7 +190,7 @@ begin
     clear_i => fifo.clr,
     level_o => open,
     -- write port --
-    wdata_i => bus_req_i.data,
+    wdata_i => bus_req_i.दत्त,
     we_i    => fifo.we,
     free_o  => fifo.free,
     -- read port --
@@ -211,13 +211,13 @@ begin
   begin
     if (rstn_i = '0') then
       engine.state    <= S_CHECK;
-      engine.run      <= '0';
-      engine.done     <= '0';
+      engine.सततम्      <= '0';
+      engine.समाप्तम्     <= '0';
       engine.err      <= '0';
       engine.src_addr <= (others => '0');
       engine.dst_addr <= (others => '0');
-      engine.num      <= (others => '0');
-      engine.num_or   <= '0';
+      engine.अङ्कः      <= (others => '0');
+      engine.अङ्कः_or   <= '0';
       engine.bswap    <= '0';
       engine.src_type <= (others => '0');
       engine.dst_type <= (others => '0');
@@ -226,21 +226,21 @@ begin
 
         when S_CHECK => -- waiting for trigger
         -- ------------------------------------------------------------
-          engine.done   <= '0';
+          engine.समाप्तम्   <= '0';
           engine.err    <= '0';
-          engine.num_or <= '0';
-          if (engine.run = '0') then -- start new transfer if descriptor available and no pending error
+          engine.अङ्कः_or <= '0';
+          if (engine.सततम् = '0') then -- start new transfer if descriptor available and no pending error
             if (fifo.avail = '1') and (ctrl.start = '1') and (ctrl.err = '0') then
-              engine.run   <= '1';
+              engine.सततम्   <= '1';
               engine.state <= S_GET_0;
             end if;
           else -- transfer in progress
             if (fifo.avail = '1') and (engine.err = '0') and (ctrl.err = '0') then -- next descriptor?
-              engine.run   <= '1';
+              engine.सततम्   <= '1';
               engine.state <= S_GET_0;
             else
-              engine.run  <= '0';
-              engine.done <= '1'; -- all transfers completed
+              engine.सततम्  <= '0';
+              engine.समाप्तम् <= '1'; -- all transfers completed
             end if;
           end if;
 
@@ -264,7 +264,7 @@ begin
 
         when S_GET_3 => -- get descriptor: transfer configuration
         -- ------------------------------------------------------------
-          engine.num      <= fifo.rdata(conf_num_hi_c downto conf_num_lo_c);
+          engine.अङ्कः      <= fifo.rdata(conf_अङ्कः_hi_c downto conf_अङ्कः_lo_c);
           engine.bswap    <= fifo.rdata(conf_bswap_c);
           engine.src_type <= fifo.rdata(conf_src_hi_c downto conf_src_lo_c);
           engine.dst_type <= fifo.rdata(conf_dst_hi_c downto conf_dst_lo_c);
@@ -272,10 +272,10 @@ begin
 
         when S_READ_REQ => -- read request
         -- ------------------------------------------------------------
-          if (engine.num_or = '1') then -- hacky! do not increment in first iteration
-            engine.dst_addr <= std_ulogic_vector(unsigned(engine.dst_addr) + dst_add);
+          if (engine.अङ्कः_or = '1') then -- hacky! do not increment in first iteration
+            engine.dst_addr <= std_ulogic_सदिशम्(unsigned(engine.dst_addr) + dst_सङ्कलय);
           end if;
-          engine.num   <= std_ulogic_vector(unsigned(engine.num) - 1);
+          engine.अङ्कः   <= std_ulogic_सदिशम्(unsigned(engine.अङ्कः) - 1);
           engine.state <= S_READ_RSP;
 
         when S_READ_RSP => -- read response
@@ -291,15 +291,15 @@ begin
 
         when S_WRITE_REQ => -- write request
         -- ------------------------------------------------------------
-          engine.src_addr <= std_ulogic_vector(unsigned(engine.src_addr) + src_add);
-          engine.num_or   <= or_reduce_f(engine.num);
+          engine.src_addr <= std_ulogic_सदिशम्(unsigned(engine.src_addr) + src_सङ्कलय);
+          engine.अङ्कः_or   <= or_reduce_f(engine.अङ्कः);
           engine.state    <= S_WRITE_RSP;
 
         when S_WRITE_RSP => -- write response
         -- ------------------------------------------------------------
           if (dma_rsp_i.ack = '1') then
             engine.err <= dma_rsp_i.err;
-            if (engine.num_or = '0') or (ctrl.enable = '0') or (dma_rsp_i.err = '1') then -- done/abort/error?
+            if (engine.अङ्कः_or = '0') or (ctrl.enable = '0') or (dma_rsp_i.err = '1') then -- done/abort/error?
               engine.state <= S_CHECK;
             else
               engine.state <= S_READ_REQ;
@@ -317,19 +317,19 @@ begin
 
   -- Address Increment ----------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  address_inc: process(engine)
+  स्थानाङ्कः_inc: process(engine)
   begin
     -- source --
     case engine.src_type is
-      when "10"   => src_add <= to_unsigned(1, 32); -- incrementing byte
-      when "11"   => src_add <= to_unsigned(4, 32); -- incrementing word
-      when others => src_add <= to_unsigned(0, 32); -- constant byte/word
+      when "10"   => src_सङ्कलय <= गन्तव्यम्_unsigned(1, 32); -- incrementing byte
+      when "11"   => src_सङ्कलय <= गन्तव्यम्_unsigned(4, 32); -- incrementing word
+      when others => src_सङ्कलय <= गन्तव्यम्_unsigned(0, 32); -- constant byte/word
     end case;
     -- destination --
     case engine.dst_type is
-      when "10"   => dst_add <= to_unsigned(1, 32); -- incrementing byte
-      when "11"   => dst_add <= to_unsigned(4, 32); -- incrementing word
-      when others => dst_add <= to_unsigned(0, 32); -- constant byte/word
+      when "10"   => dst_सङ्कलय <= गन्तव्यम्_unsigned(1, 32); -- incrementing byte
+      when "11"   => dst_सङ्कलय <= गन्तव्यम्_unsigned(4, 32); -- incrementing word
+      when others => dst_सङ्कलय <= गन्तव्यम्_unsigned(0, 32); -- constant byte/word
     end case;
   end process;
 
@@ -337,26 +337,26 @@ begin
   -- Input Data Alignment -------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   src_align: process(rstn_i, clk_i)
-    variable byte_v : std_ulogic_vector(7 downto 0);
+    variable byte_v : std_ulogic_सदिशम्(7 downto 0);
   begin
     if (rstn_i = '0') then
-      data_buf <= (others => '0');
+      दत्त_buf <= (others => '0');
     elsif rising_edge(clk_i) then
       if (engine.state = S_READ_RSP) then
         if (engine.src_type(0) = '0') then -- byte
           case engine.src_addr(1 downto 0) is
-            when "00"   => byte_v := dma_rsp_i.data( 7 downto  0);
-            when "01"   => byte_v := dma_rsp_i.data(15 downto  8);
-            when "10"   => byte_v := dma_rsp_i.data(23 downto 16);
-            when others => byte_v := dma_rsp_i.data(31 downto 24);
+            when "00"   => byte_v := dma_rsp_i.दत्त( 7 downto  0);
+            when "01"   => byte_v := dma_rsp_i.दत्त(15 downto  8);
+            when "10"   => byte_v := dma_rsp_i.दत्त(23 downto 16);
+            when others => byte_v := dma_rsp_i.दत्त(31 downto 24);
           end case;
           if (engine.dst_type(0) = '1') then -- to word
-            data_buf <= x"000000" & byte_v;
+            दत्त_buf <= x"000000" & byte_v;
           else -- to byte
-            data_buf <= byte_v & byte_v & byte_v & byte_v;
+            दत्त_buf <= byte_v & byte_v & byte_v & byte_v;
           end if;
         else -- word
-          data_buf <= dma_rsp_i.data;
+          दत्त_buf <= dma_rsp_i.दत्त;
         end if;
       end if;
     end if;
@@ -365,14 +365,14 @@ begin
 
   -- Bus Output Control ---------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  bus_control: process(engine, data_buf)
+  bus_control: process(engine, दत्त_buf)
   begin
     dma_req_o <= req_terminate_c; -- all-zero by default
     -- access type --
-    dma_req_o.meta  <= "10" & '0' & priv_mode_m_c & '0'; -- ID=2, non-debug, privileged, data
+    dma_req_o.meta  <= "10" & '0' & priv_बहुलकम्_m_c & '0'; -- ID=2, non-debug, privileged, data
     dma_req_o.amo   <= '0'; -- no atomic operations
     dma_req_o.burst <= '0'; -- no burst transfers
-    dma_req_o.lock  <= '0'; -- no locked accesses
+    dma_req_o.तालकम्  <= '0'; -- no locked accesses
     -- read/write --
     if (engine.state = S_READ_REQ) or (engine.state = S_READ_RSP) then -- read access
       dma_req_o.addr <= engine.src_addr(31 downto 2) & "00";
@@ -397,12 +397,12 @@ begin
     end if;
     -- output data alignment --
     if (engine.bswap = '0') then
-      dma_req_o.data <= data_buf;
+      dma_req_o.दत्त <= दत्त_buf;
     else -- swap Endianness
-      dma_req_o.data( 7 downto  0) <= data_buf(31 downto 24);
-      dma_req_o.data(15 downto  8) <= data_buf(23 downto 16);
-      dma_req_o.data(23 downto 16) <= data_buf(15 downto  8);
-      dma_req_o.data(31 downto 24) <= data_buf( 7 downto  0);
+      dma_req_o.दत्त( 7 downto  0) <= दत्त_buf(31 downto 24);
+      dma_req_o.दत्त(15 downto  8) <= दत्त_buf(23 downto 16);
+      dma_req_o.दत्त(23 downto 16) <= दत्त_buf(15 downto  8);
+      dma_req_o.दत्त(31 downto 24) <= दत्त_buf( 7 downto  0);
     end if;
     -- request strobe --
     if (engine.state = S_READ_REQ) or (engine.state = S_WRITE_REQ) then

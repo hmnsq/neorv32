@@ -33,7 +33,7 @@ entity neorv32_uart is
     rstn_i      : in  std_ulogic;                    -- global reset line, low-active, async
     bus_req_i   : in  bus_req_t;                     -- bus request
     bus_rsp_o   : out bus_rsp_t;                     -- bus response
-    clkgen_i    : in  std_ulogic_vector(7 downto 0); -- prescaled clock enables
+    clkgen_i    : in  std_ulogic_सदिशम्(7 downto 0); -- prescaled clock enables
     uart_txd_o  : out std_ulogic;                    -- serial TX line
     uart_rxd_i  : in  std_ulogic;                    -- serial RX line
     uart_rtsn_o : out std_ulogic;                    -- ready to receive ("RTR"), low-active, optional
@@ -53,32 +53,32 @@ architecture neorv32_uart_rtl of neorv32_uart is
   constant ctrl_baud0_c         : natural :=  6; -- r/w: baud divisor, bit 0 (LSB)
   constant ctrl_baud9_c         : natural := 15; -- r/w: baud divisor, bit 9 (MSB)
   constant ctrl_rx_nempty_c     : natural := 16; -- r/-: RX FIFO not empty
-  constant ctrl_rx_full_c       : natural := 17; -- r/-: RX FIFO full
-  constant ctrl_tx_empty_c      : natural := 18; -- r/-: TX FIFO empty
+  constant ctrl_rx_पूर्णम्_c       : natural := 17; -- r/-: RX FIFO full
+  constant ctrl_tx_रिक्तानि_c      : natural := 18; -- r/-: TX FIFO empty
   constant ctrl_tx_nfull_c      : natural := 19; -- r/-: TX FIFO not full
   constant ctrl_irq_rx_nempty_c : natural := 20; -- r/w: IRQ if RX FIFO not empty
-  constant ctrl_irq_rx_full_c   : natural := 21; -- r/w: IRQ if RX FIFO full
-  constant ctrl_irq_tx_empty_c  : natural := 22; -- r/w: IRQ if TX FIFO empty
+  constant ctrl_irq_rx_पूर्णम्_c   : natural := 21; -- r/w: IRQ if RX FIFO full
+  constant ctrl_irq_tx_रिक्तानि_c  : natural := 22; -- r/w: IRQ if TX FIFO empty
   constant ctrl_irq_tx_nfull_c  : natural := 23; -- r/w: IRQ if TX FIFO not full
   --
   constant ctrl_rx_over_c       : natural := 30; -- r/-: RX FIFO overflow
   constant ctrl_tx_busy_c       : natural := 31; -- r/-: UART transmitter is busy and TX FIFO not empty
 
   -- data register bits --
-  constant data_rtx_lsb_c     : natural :=  0; -- r/w: RX/TX data LSB
-  constant data_rtx_msb_c     : natural :=  7; -- r/w: RX/TX data MSB
-  constant data_rx_fifo_lsb_c : natural :=  8; -- r/-: log2(RX FIFO size) LSB
-  constant data_rx_fifo_msb_c : natural := 11; -- r/-: log2(RX FIFO size) MSB
-  constant data_tx_fifo_lsb_c : natural := 12; -- r/-: log2(TX FIFO size) LSB
-  constant data_tx_fifo_msb_c : natural := 15; -- r/-: log2(TX FIFO size) MSB
+  constant दत्त_rtx_lsb_c     : natural :=  0; -- r/w: RX/TX data LSB
+  constant दत्त_rtx_msb_c     : natural :=  7; -- r/w: RX/TX data MSB
+  constant दत्त_rx_fifo_lsb_c : natural :=  8; -- r/-: log2(RX FIFO size) LSB
+  constant दत्त_rx_fifo_msb_c : natural := 11; -- r/-: log2(RX FIFO size) MSB
+  constant दत्त_tx_fifo_lsb_c : natural := 12; -- r/-: log2(TX FIFO size) LSB
+  constant दत्त_tx_fifo_msb_c : natural := 15; -- r/-: log2(TX FIFO size) MSB
 
   -- helpers --
-  constant log2_rx_fifo_c : natural := index_size_f(UART_RX_FIFO);
-  constant log2_tx_fifo_c : natural := index_size_f(UART_TX_FIFO);
+  constant log2_rx_fifo_c : natural := सूचकांक_आकार_f(UART_RX_FIFO);
+  constant log2_tx_fifo_c : natural := सूचकांक_आकार_f(UART_TX_FIFO);
 
   -- bus interface --
   signal bus_ack, bus_rden : std_ulogic;
-  signal bus_rdata : std_ulogic_vector(31 downto 0);
+  signal bus_rdata : std_ulogic_सदिशम्(31 downto 0);
 
   -- clock generator --
   signal uart_clk : std_ulogic;
@@ -86,25 +86,25 @@ architecture neorv32_uart_rtl of neorv32_uart is
   -- control register --
   type ctrl_t is record
     enable        : std_ulogic;
-    sim_mode      : std_ulogic;
+    sim_बहुलकम्      : std_ulogic;
     hwfc_en       : std_ulogic;
-    prsc          : std_ulogic_vector(2 downto 0);
-    baud          : std_ulogic_vector(9 downto 0);
+    prsc          : std_ulogic_सदिशम्(2 downto 0);
+    baud          : std_ulogic_सदिशम्(9 downto 0);
     irq_rx_nempty : std_ulogic;
-    irq_rx_full   : std_ulogic;
-    irq_tx_empty  : std_ulogic;
+    irq_rx_पूर्णम्   : std_ulogic;
+    irq_tx_रिक्तानि  : std_ulogic;
     irq_tx_nfull  : std_ulogic;
   end record;
   signal ctrl : ctrl_t; -- register set
 
   -- serial engines --
   type serial_engine_t is record
-    state   : std_ulogic_vector(1 downto 0); -- FSM state
-    sreg    : std_ulogic_vector(8 downto 0); -- data shift register
-    bitcnt  : std_ulogic_vector(3 downto 0); -- frame bit counter
-    baudcnt : std_ulogic_vector(9 downto 0); -- baud rate counter
-    sync    : std_ulogic_vector(2 downto 0); -- input synchronizer
-    done    : std_ulogic; -- operation done
+    state   : std_ulogic_सदिशम्(1 downto 0); -- FSM state
+    sreg    : std_ulogic_सदिशम्(8 downto 0); -- data shift register
+    bitcnt  : std_ulogic_सदिशम्(3 downto 0); -- frame bit counter
+    baudcnt : std_ulogic_सदिशम्(9 downto 0); -- baud rate counter
+    sync    : std_ulogic_सदिशम्(2 downto 0); -- input synchronizer
+    समाप्तम्    : std_ulogic; -- operation done
   end record;
   signal tx, rx : serial_engine_t; -- FSM
   signal rx_overrun : std_ulogic;
@@ -112,7 +112,7 @@ architecture neorv32_uart_rtl of neorv32_uart is
   -- FIFO interface --
   type fifo_t is record
     clr, we, re  : std_ulogic;
-    wdata, rdata : std_ulogic_vector(7 downto 0);
+    wdata, rdata : std_ulogic_सदिशम्(7 downto 0);
     free, avail  : std_ulogic;
   end record;
   signal rx_fifo, tx_fifo : fifo_t;
@@ -134,26 +134,26 @@ begin
   begin
     if (rstn_i = '0') then
       ctrl.enable        <= '0';
-      ctrl.sim_mode      <= '0';
+      ctrl.sim_बहुलकम्      <= '0';
       ctrl.hwfc_en       <= '0';
       ctrl.prsc          <= (others => '0');
       ctrl.baud          <= (others => '0');
       ctrl.irq_rx_nempty <= '0';
-      ctrl.irq_rx_full   <= '0';
-      ctrl.irq_tx_empty  <= '0';
+      ctrl.irq_rx_पूर्णम्   <= '0';
+      ctrl.irq_tx_रिक्तानि  <= '0';
       ctrl.irq_tx_nfull  <= '0';
     elsif rising_edge(clk_i) then
       if (bus_req_i.stb = '1') and (bus_req_i.rw = '1') then
         if (bus_req_i.addr(2) = '0') then -- control register
-          ctrl.enable        <= bus_req_i.data(ctrl_en_c);
-          ctrl.sim_mode      <= bus_req_i.data(ctrl_sim_en_c) and bool_to_ulogic_f(is_simulation_c);
-          ctrl.hwfc_en       <= bus_req_i.data(ctrl_hwfc_en_c);
-          ctrl.prsc          <= bus_req_i.data(ctrl_prsc2_c downto ctrl_prsc0_c);
-          ctrl.baud          <= bus_req_i.data(ctrl_baud9_c downto ctrl_baud0_c);
-          ctrl.irq_rx_nempty <= bus_req_i.data(ctrl_irq_rx_nempty_c);
-          ctrl.irq_rx_full   <= bus_req_i.data(ctrl_irq_rx_full_c);
-          ctrl.irq_tx_empty  <= bus_req_i.data(ctrl_irq_tx_empty_c);
-          ctrl.irq_tx_nfull  <= bus_req_i.data(ctrl_irq_tx_nfull_c);
+          ctrl.enable        <= bus_req_i.दत्त(ctrl_en_c);
+          ctrl.sim_बहुलकम्      <= bus_req_i.दत्त(ctrl_sim_en_c) and bool_गन्तव्यम्_ulogic_f(is_simulation_c);
+          ctrl.hwfc_en       <= bus_req_i.दत्त(ctrl_hwfc_en_c);
+          ctrl.prsc          <= bus_req_i.दत्त(ctrl_prsc2_c downto ctrl_prsc0_c);
+          ctrl.baud          <= bus_req_i.दत्त(ctrl_baud9_c downto ctrl_baud0_c);
+          ctrl.irq_rx_nempty <= bus_req_i.दत्त(ctrl_irq_rx_nempty_c);
+          ctrl.irq_rx_पूर्णम्   <= bus_req_i.दत्त(ctrl_irq_rx_पूर्णम्_c);
+          ctrl.irq_tx_रिक्तानि  <= bus_req_i.दत्त(ctrl_irq_tx_रिक्तानि_c);
+          ctrl.irq_tx_nfull  <= bus_req_i.दत्त(ctrl_irq_tx_nfull_c);
         end if;
       end if;
     end if;
@@ -166,24 +166,24 @@ begin
     if (bus_rden = '1') then -- output gating
       if (bus_req_i.addr(2) = '0') then -- control register
         bus_rdata(ctrl_en_c)                        <= ctrl.enable;
-        bus_rdata(ctrl_sim_en_c)                    <= ctrl.sim_mode and bool_to_ulogic_f(is_simulation_c);
+        bus_rdata(ctrl_sim_en_c)                    <= ctrl.sim_बहुलकम् and bool_गन्तव्यम्_ulogic_f(is_simulation_c);
         bus_rdata(ctrl_hwfc_en_c)                   <= ctrl.hwfc_en;
         bus_rdata(ctrl_prsc2_c downto ctrl_prsc0_c) <= ctrl.prsc;
         bus_rdata(ctrl_baud9_c downto ctrl_baud0_c) <= ctrl.baud;
         bus_rdata(ctrl_rx_nempty_c)                 <= rx_fifo.avail;
-        bus_rdata(ctrl_rx_full_c)                   <= not rx_fifo.free;
-        bus_rdata(ctrl_tx_empty_c)                  <= not tx_fifo.avail;
+        bus_rdata(ctrl_rx_पूर्णम्_c)                   <= not rx_fifo.free;
+        bus_rdata(ctrl_tx_रिक्तानि_c)                  <= not tx_fifo.avail;
         bus_rdata(ctrl_tx_nfull_c)                  <= tx_fifo.free;
         bus_rdata(ctrl_irq_rx_nempty_c)             <= ctrl.irq_rx_nempty;
-        bus_rdata(ctrl_irq_rx_full_c)               <= ctrl.irq_rx_full;
-        bus_rdata(ctrl_irq_tx_empty_c)              <= ctrl.irq_tx_empty;
+        bus_rdata(ctrl_irq_rx_पूर्णम्_c)               <= ctrl.irq_rx_पूर्णम्;
+        bus_rdata(ctrl_irq_tx_रिक्तानि_c)              <= ctrl.irq_tx_रिक्तानि;
         bus_rdata(ctrl_irq_tx_nfull_c)              <= ctrl.irq_tx_nfull;
         bus_rdata(ctrl_rx_over_c)                   <= rx_overrun;
         bus_rdata(ctrl_tx_busy_c)                   <= tx.state(0) or tx_fifo.avail;
       else -- data register
-        bus_rdata(data_rtx_msb_c     downto data_rtx_lsb_c)     <= rx_fifo.rdata;
-        bus_rdata(data_rx_fifo_msb_c downto data_rx_fifo_lsb_c) <= std_ulogic_vector(to_unsigned(log2_rx_fifo_c, 4));
-        bus_rdata(data_tx_fifo_msb_c downto data_tx_fifo_lsb_c) <= std_ulogic_vector(to_unsigned(log2_tx_fifo_c, 4));
+        bus_rdata(दत्त_rtx_msb_c     downto दत्त_rtx_lsb_c)     <= rx_fifo.rdata;
+        bus_rdata(दत्त_rx_fifo_msb_c downto दत्त_rx_fifo_lsb_c) <= std_ulogic_सदिशम्(गन्तव्यम्_unsigned(log2_rx_fifo_c, 4));
+        bus_rdata(दत्त_tx_fifo_msb_c downto दत्त_tx_fifo_lsb_c) <= std_ulogic_सदिशम्(गन्तव्यम्_unsigned(log2_tx_fifo_c, 4));
       end if;
     end if;
   end process;
@@ -191,10 +191,10 @@ begin
   -- bus response --
   bus_rsp_o.ack  <= bus_ack;
   bus_rsp_o.err  <= '0'; -- no access errors supported
-  bus_rsp_o.data <= bus_rdata;
+  bus_rsp_o.दत्त <= bus_rdata;
 
   -- UART clock tick --
-  uart_clk <= clkgen_i(to_integer(unsigned(ctrl.prsc)));
+  uart_clk <= clkgen_i(गन्तव्यम्_integer(unsigned(ctrl.prsc)));
 
 
   -- TX FIFO --------------------------------------------------------------------------------
@@ -221,10 +221,10 @@ begin
     avail_o => tx_fifo.avail
   );
 
-  tx_fifo.clr   <= '1' when (ctrl.enable = '0') or (ctrl.sim_mode = '1') else '0';
-  tx_fifo.wdata <= bus_req_i.data(data_rtx_msb_c downto data_rtx_lsb_c);
+  tx_fifo.clr   <= '1' when (ctrl.enable = '0') or (ctrl.sim_बहुलकम् = '1') else '0';
+  tx_fifo.wdata <= bus_req_i.दत्त(दत्त_rtx_msb_c downto दत्त_rtx_lsb_c);
   tx_fifo.we    <= '1' when (bus_req_i.stb = '1') and (bus_req_i.rw = '1') and (bus_req_i.addr(2) = '1') else '0';
-  tx_fifo.re    <= tx.done;
+  tx_fifo.re    <= tx.समाप्तम्;
 
 
   -- RX FIFO --------------------------------------------------------------------------------
@@ -251,9 +251,9 @@ begin
     avail_o => rx_fifo.avail
   );
 
-  rx_fifo.clr   <= '1' when (ctrl.enable = '0') or (ctrl.sim_mode = '1') else '0';
+  rx_fifo.clr   <= '1' when (ctrl.enable = '0') or (ctrl.sim_बहुलकम् = '1') else '0';
   rx_fifo.wdata <= rx.sreg(7 downto 0);
-  rx_fifo.we    <= rx.done;
+  rx_fifo.we    <= rx.समाप्तम्;
   rx_fifo.re    <= '1' when (bus_rden = '1') and (bus_req_i.addr(2) = '1') else '0';
 
 
@@ -263,10 +263,10 @@ begin
   begin
     if rising_edge(clk_i) then
       irq_o <= ctrl.enable and (
-               (ctrl.irq_tx_empty  and (not tx_fifo.avail)) or -- TX FIFO empty
+               (ctrl.irq_tx_रिक्तानि  and (not tx_fifo.avail)) or -- TX FIFO empty
                (ctrl.irq_tx_nfull  and tx_fifo.free)        or -- TX FIFO not full
                (ctrl.irq_rx_nempty and rx_fifo.avail)       or -- RX FIFO not empty
-               (ctrl.irq_rx_full   and (not rx_fifo.free)));   -- RX FIFO full
+               (ctrl.irq_rx_पूर्णम्   and (not rx_fifo.free)));   -- RX FIFO full
     end if;
   end process;
 
@@ -281,14 +281,14 @@ begin
       tx.bitcnt  <= (others => '0');
       tx.baudcnt <= (others => '0');
       tx.sync    <= (others => '0');
-      tx.done    <= '0';
+      tx.समाप्तम्    <= '0';
       uart_txd_o <= '1';
     elsif rising_edge(clk_i) then
       if (uart_clk = '1') then
         tx.sync <= tx.sync(1 downto 0) & uart_ctsn_i; -- CTS synchronizer (and spike filter)
       end if;
       uart_txd_o  <= '1'; -- default
-      tx.done     <= '0'; -- default
+      tx.समाप्तम्     <= '0'; -- default
       tx.state(1) <= ctrl.enable; -- disable-override
       case tx.state is
 
@@ -297,7 +297,7 @@ begin
           tx.baudcnt <= ctrl.baud;
           tx.bitcnt  <= "1011"; -- 1 start-bit + 8 data-bits + 1 stop-bit + 1 pause-bit
           tx.sreg    <= tx_fifo.rdata & '0'; -- data & start-bit
-          if (tx_fifo.avail = '1') and (tx.done = '0') then -- data available and previous transfer done
+          if (tx_fifo.avail = '1') and (tx.समाप्तम् = '0') then -- data available and previous transfer done
             if (uart_clk = '1') and -- start with next clock tick
                ((tx.sync(1) = '0') or (ctrl.hwfc_en = '0')) then -- allowed to send OR flow-control disabled
               tx.state(0) <= '1';
@@ -310,14 +310,14 @@ begin
           if (uart_clk = '1') then
             if (or_reduce_f(tx.baudcnt) = '0') then -- bit done
               tx.baudcnt <= ctrl.baud;
-              tx.bitcnt  <= std_ulogic_vector(unsigned(tx.bitcnt) - 1);
-              tx.sreg    <= '1' & tx.sreg(tx.sreg'left downto 1);
+              tx.bitcnt  <= std_ulogic_सदिशम्(unsigned(tx.bitcnt) - 1);
+              tx.sreg    <= '1' & tx.sreg(tx.sreg'वामः downto 1);
             else
-              tx.baudcnt <= std_ulogic_vector(unsigned(tx.baudcnt) - 1);
+              tx.baudcnt <= std_ulogic_सदिशम्(unsigned(tx.baudcnt) - 1);
             end if;
           end if;
           if (tx.bitcnt = "0000") then -- all bits sent
-            tx.done     <= '1';
+            tx.समाप्तम्     <= '1';
             tx.state(0) <= '0';
           end if;
 
@@ -340,12 +340,12 @@ begin
       rx.bitcnt  <= (others => '0');
       rx.baudcnt <= (others => '0');
       rx.sync    <= (others => '0');
-      rx.done    <= '0';
+      rx.समाप्तम्    <= '0';
     elsif rising_edge(clk_i) then
       if (uart_clk = '1') then
         rx.sync <= rx.sync(1 downto 0) & uart_rxd_i; -- RXD synchronizer (and spike filter)
       end if;
-      rx.done     <= '0'; -- default
+      rx.समाप्तम्     <= '0'; -- default
       rx.state(1) <= ctrl.enable; -- disable-override
       case rx.state is
 
@@ -364,14 +364,14 @@ begin
           if (uart_clk = '1') then
             if (or_reduce_f(rx.baudcnt) = '0') then -- bit done
               rx.baudcnt <= ctrl.baud;
-              rx.bitcnt  <= std_ulogic_vector(unsigned(rx.bitcnt) - 1);
-              rx.sreg    <= (rx.sync(2) and rx.sync(1)) & rx.sreg(rx.sreg'left downto 1);
+              rx.bitcnt  <= std_ulogic_सदिशम्(unsigned(rx.bitcnt) - 1);
+              rx.sreg    <= (rx.sync(2) and rx.sync(1)) & rx.sreg(rx.sreg'वामः downto 1);
             else
-              rx.baudcnt <= std_ulogic_vector(unsigned(rx.baudcnt) - 1);
+              rx.baudcnt <= std_ulogic_सदिशम्(unsigned(rx.baudcnt) - 1);
             end if;
           end if;
           if (rx.bitcnt = "0000") then -- all bits received
-            rx.done     <= '1';
+            rx.समाप्तम्     <= '1';
             rx.state(0) <= '0';
           end if;
 
@@ -411,20 +411,20 @@ begin
   if is_simulation_c generate
     sim_log: process(clk_i)
       variable char_v : integer;
-      variable line_v : line;
+      variable पङ्क्तिः_v : पङ्क्तिः;
     begin
       if rising_edge(clk_i) then -- no reset required
-        if ((ctrl.enable and ctrl.sim_mode and tx_fifo.we) = '1') then
+        if ((ctrl.enable and ctrl.sim_बहुलकम् and tx_fifo.we) = '1') then
           -- convert to printable ASCII char --
-          char_v := to_integer(unsigned(bus_req_i.data(data_rtx_msb_c downto data_rtx_lsb_c)));
+          char_v := गन्तव्यम्_integer(unsigned(bus_req_i.दत्त(दत्त_rtx_msb_c downto दत्त_rtx_lsb_c)));
           if (char_v >= 128) then
             char_v := 0;
           end if;
           -- screen output --
           if (char_v /= 10) and (char_v /= 13) then -- skip line breaks
-            write(line_v, character'val(char_v));
+            write(पङ्क्तिः_v, character'val(char_v));
           elsif (char_v = 10) then -- flush line to screen
-            writeline(output, line_v);
+            writeline(output, पङ्क्तिः_v);
           end if;
         end if;
       end if;

@@ -28,16 +28,16 @@ entity neorv32_slink is
     bus_rsp_o        : out bus_rsp_t;                      -- bus response
     irq_o            : out std_ulogic;                     -- interrupt
     -- RX stream interface --
-    slink_rx_data_i  : in  std_ulogic_vector(31 downto 0); -- input data
-    slink_rx_src_i   : in  std_ulogic_vector(3 downto 0);  -- routing information
+    slink_rx_दत्त_i  : in  std_ulogic_सदिशम्(31 downto 0); -- input data
+    slink_rx_src_i   : in  std_ulogic_सदिशम्(3 downto 0);  -- routing information
     slink_rx_valid_i : in  std_ulogic;                     -- valid input
-    slink_rx_last_i  : in  std_ulogic;                     -- end of stream
+    slink_rx_चरमः_i  : in  std_ulogic;                     -- end of stream
     slink_rx_ready_o : out std_ulogic;                     -- ready to receive
     -- TX stream interface --
-    slink_tx_data_o  : out std_ulogic_vector(31 downto 0); -- output data
-    slink_tx_dst_o   : out std_ulogic_vector(3 downto 0);  -- routing destination
+    slink_tx_दत्त_o  : out std_ulogic_सदिशम्(31 downto 0); -- output data
+    slink_tx_dst_o   : out std_ulogic_सदिशम्(3 downto 0);  -- routing destination
     slink_tx_valid_o : out std_ulogic;                     -- valid output
-    slink_tx_last_o  : out std_ulogic;                     -- end of stream
+    slink_tx_चरमः_o  : out std_ulogic;                     -- end of stream
     slink_tx_ready_i : in  std_ulogic                      -- ready to send
   );
 end entity;
@@ -47,15 +47,15 @@ architecture neorv32_slink_rtl of neorv32_slink is
   -- control register --
   constant ctrl_en_c            : natural :=  0; -- r/w: Global module enable
   --
-  constant ctrl_rx_empty_c      : natural :=  8; -- r/-: RX FIFO empty
-  constant ctrl_rx_full_c       : natural :=  9; -- r/-: RX FIFO full
-  constant ctrl_tx_empty_c      : natural := 10; -- r/-: TX FIFO empty
-  constant ctrl_tx_full_c       : natural := 11; -- r/-: TX FIFO full
-  constant ctrl_rx_last_c       : natural := 12; -- r/-: RX end-of-stream (according to previous read RX data)
+  constant ctrl_rx_रिक्तानि_c      : natural :=  8; -- r/-: RX FIFO empty
+  constant ctrl_rx_पूर्णम्_c       : natural :=  9; -- r/-: RX FIFO full
+  constant ctrl_tx_रिक्तानि_c      : natural := 10; -- r/-: TX FIFO empty
+  constant ctrl_tx_पूर्णम्_c       : natural := 11; -- r/-: TX FIFO full
+  constant ctrl_rx_चरमः_c       : natural := 12; -- r/-: RX end-of-stream (according to previous read RX data)
   --
   constant ctrl_irq_rx_nempty_c : natural := 16; -- r/w: interrupt if RX FIFO not empty
-  constant ctrl_irq_rx_full_c   : natural := 17; -- r/w: interrupt if RX FIFO full
-  constant ctrl_irq_tx_empty_c  : natural := 18; -- r/w: interrupt if TX FIFO empty
+  constant ctrl_irq_rx_पूर्णम्_c   : natural := 17; -- r/w: interrupt if RX FIFO full
+  constant ctrl_irq_tx_रिक्तानि_c  : natural := 18; -- r/w: interrupt if TX FIFO empty
   constant ctrl_irq_tx_nfull_c  : natural := 19; -- r/w: interrupt if TX FIFO not full
   --
   constant ctrl_rx_fifo0_c      : natural := 24; -- r/-: log2(RX FIFO size), bit 0 (LSB)
@@ -64,29 +64,29 @@ architecture neorv32_slink_rtl of neorv32_slink is
   constant ctrl_tx_fifo3_c      : natural := 31; -- r/-: log2(TX FIFO size), bit 3 (MSB)
 
   -- helpers --
-  constant log2_rx_fifo_c : natural := index_size_f(SLINK_RX_FIFO);
-  constant log2_tx_fifo_c : natural := index_size_f(SLINK_TX_FIFO);
+  constant log2_rx_fifo_c : natural := सूचकांक_आकार_f(SLINK_RX_FIFO);
+  constant log2_tx_fifo_c : natural := सूचकांक_आकार_f(SLINK_TX_FIFO);
 
   -- bus interface --
   signal bus_ack, bus_rden : std_ulogic;
-  signal bus_rdata : std_ulogic_vector(31 downto 0);
+  signal bus_rdata : std_ulogic_सदिशम्(31 downto 0);
 
   -- control register --
   type ctrl_t is record
-    enable, irq_rx_nempty, irq_rx_full, irq_tx_empty, irq_tx_nfull : std_ulogic;
+    enable, irq_rx_nempty, irq_rx_पूर्णम्, irq_tx_रिक्तानि, irq_tx_nfull : std_ulogic;
   end record;
   signal ctrl : ctrl_t; -- register set
 
   -- routing information --
-  signal tx_route, rx_route : std_ulogic_vector(3 downto 0);
+  signal tx_route, rx_route : std_ulogic_सदिशम्(3 downto 0);
 
   -- stream attributes --
-  signal rx_last : std_ulogic; -- RX end-of-stream indicator
+  signal rx_चरमः : std_ulogic; -- RX end-of-stream indicator
 
   -- FIFO interface --
   type fifo_t is record
     we, re, clr  : std_ulogic;
-    wdata, rdata : std_ulogic_vector((1+4+32)-1 downto 0);
+    wdata, rdata : std_ulogic_सदिशम्((1+4+32)-1 downto 0);
     avail, free  : std_ulogic;
   end record;
   signal tx_fifo, rx_fifo : fifo_t;
@@ -109,47 +109,47 @@ begin
     if (rstn_i = '0') then
       ctrl.enable        <= '0';
       ctrl.irq_rx_nempty <= '0';
-      ctrl.irq_rx_full   <= '0';
-      ctrl.irq_tx_empty  <= '0';
+      ctrl.irq_rx_पूर्णम्   <= '0';
+      ctrl.irq_tx_रिक्तानि  <= '0';
       ctrl.irq_tx_nfull  <= '0';
       tx_route           <= (others => '0');
     elsif rising_edge(clk_i) then
       if (bus_req_i.stb = '1') and (bus_req_i.rw = '1') then
         -- control register --
         if (bus_req_i.addr(3 downto 2) = "00") then
-          ctrl.enable        <= bus_req_i.data(ctrl_en_c);
-          ctrl.irq_rx_nempty <= bus_req_i.data(ctrl_irq_rx_nempty_c);
-          ctrl.irq_rx_full   <= bus_req_i.data(ctrl_irq_rx_full_c);
-          ctrl.irq_tx_empty  <= bus_req_i.data(ctrl_irq_tx_empty_c);
-          ctrl.irq_tx_nfull  <= bus_req_i.data(ctrl_irq_tx_nfull_c);
+          ctrl.enable        <= bus_req_i.दत्त(ctrl_en_c);
+          ctrl.irq_rx_nempty <= bus_req_i.दत्त(ctrl_irq_rx_nempty_c);
+          ctrl.irq_rx_पूर्णम्   <= bus_req_i.दत्त(ctrl_irq_rx_पूर्णम्_c);
+          ctrl.irq_tx_रिक्तानि  <= bus_req_i.दत्त(ctrl_irq_tx_रिक्तानि_c);
+          ctrl.irq_tx_nfull  <= bus_req_i.दत्त(ctrl_irq_tx_nfull_c);
         end if;
         -- routing information --
         if (bus_req_i.addr(3 downto 2) = "01") then
-          tx_route <= bus_req_i.data(3 downto 0);
+          tx_route <= bus_req_i.दत्त(3 downto 0);
         end if;
       end if;
     end if;
   end process;
 
   -- read access (asynchronous) --
-  bus_read: process(bus_rden, bus_req_i.addr, ctrl, rx_fifo, tx_fifo, rx_last, rx_route)
+  bus_read: process(bus_rden, bus_req_i.addr, ctrl, rx_fifo, tx_fifo, rx_चरमः, rx_route)
   begin
     bus_rdata <= (others => '0');
     if (bus_rden = '1') then -- output gating
       case bus_req_i.addr(3 downto 2) is
         when "00" => -- control register
           bus_rdata(ctrl_en_c)                              <= ctrl.enable;
-          bus_rdata(ctrl_rx_empty_c)                        <= not rx_fifo.avail;
-          bus_rdata(ctrl_rx_full_c)                         <= not rx_fifo.free;
-          bus_rdata(ctrl_tx_empty_c)                        <= not tx_fifo.avail;
-          bus_rdata(ctrl_tx_full_c)                         <= not tx_fifo.free;
-          bus_rdata(ctrl_rx_last_c)                         <= rx_last;
+          bus_rdata(ctrl_rx_रिक्तानि_c)                        <= not rx_fifo.avail;
+          bus_rdata(ctrl_rx_पूर्णम्_c)                         <= not rx_fifo.free;
+          bus_rdata(ctrl_tx_रिक्तानि_c)                        <= not tx_fifo.avail;
+          bus_rdata(ctrl_tx_पूर्णम्_c)                         <= not tx_fifo.free;
+          bus_rdata(ctrl_rx_चरमः_c)                         <= rx_चरमः;
           bus_rdata(ctrl_irq_rx_nempty_c)                   <= ctrl.irq_rx_nempty;
-          bus_rdata(ctrl_irq_rx_full_c)                     <= ctrl.irq_rx_full;
-          bus_rdata(ctrl_irq_tx_empty_c)                    <= ctrl.irq_tx_empty;
+          bus_rdata(ctrl_irq_rx_पूर्णम्_c)                     <= ctrl.irq_rx_पूर्णम्;
+          bus_rdata(ctrl_irq_tx_रिक्तानि_c)                    <= ctrl.irq_tx_रिक्तानि;
           bus_rdata(ctrl_irq_tx_nfull_c)                    <= ctrl.irq_tx_nfull;
-          bus_rdata(ctrl_rx_fifo3_c downto ctrl_rx_fifo0_c) <= std_ulogic_vector(to_unsigned(log2_rx_fifo_c, 4));
-          bus_rdata(ctrl_tx_fifo3_c downto ctrl_tx_fifo0_c) <= std_ulogic_vector(to_unsigned(log2_tx_fifo_c, 4));
+          bus_rdata(ctrl_rx_fifo3_c downto ctrl_rx_fifo0_c) <= std_ulogic_सदिशम्(गन्तव्यम्_unsigned(log2_rx_fifo_c, 4));
+          bus_rdata(ctrl_tx_fifo3_c downto ctrl_tx_fifo0_c) <= std_ulogic_सदिशम्(गन्तव्यम्_unsigned(log2_tx_fifo_c, 4));
         when "01" => -- routing information
           bus_rdata(3 downto 0) <= rx_route;
         when others => -- RX data
@@ -161,7 +161,7 @@ begin
   -- bus response --
   bus_rsp_o.ack  <= bus_ack;
   bus_rsp_o.err  <= '0'; -- no access errors supported
-  bus_rsp_o.data <= bus_rdata;
+  bus_rsp_o.दत्त <= bus_rdata;
 
 
   -- RX Data FIFO ---------------------------------------------------------------------------
@@ -192,18 +192,18 @@ begin
   rx_fifo.clr      <= not ctrl.enable;
   rx_fifo.re       <= bus_rden and bus_req_i.addr(3);
   rx_fifo.we       <= slink_rx_valid_i;
-  rx_fifo.wdata    <= slink_rx_last_i & slink_rx_src_i & slink_rx_data_i;
+  rx_fifo.wdata    <= slink_rx_चरमः_i & slink_rx_src_i & slink_rx_दत्त_i;
   slink_rx_ready_o <= rx_fifo.free and ctrl.enable;
 
   -- backup RX attributes for current access --
-  rx_attributes: process(rstn_i, clk_i)
+  rx_गुणाः: process(rstn_i, clk_i)
   begin
     if (rstn_i = '0') then
-      rx_last  <= '0';
+      rx_चरमः  <= '0';
       rx_route <= (others => '0');
     elsif rising_edge(clk_i) then
       if (rx_fifo.re = '1') then
-        rx_last  <= rx_fifo.rdata(36);
+        rx_चरमः  <= rx_fifo.rdata(36);
         rx_route <= rx_fifo.rdata(35 downto 32);
       end if;
     end if;
@@ -237,11 +237,11 @@ begin
 
   tx_fifo.clr      <= not ctrl.enable;
   tx_fifo.we       <= bus_req_i.stb and bus_req_i.rw and bus_req_i.addr(3);
-  tx_fifo.wdata    <= bus_req_i.addr(2) & tx_route & bus_req_i.data; -- last-flag is set implicitly via access address
+  tx_fifo.wdata    <= bus_req_i.addr(2) & tx_route & bus_req_i.दत्त; -- last-flag is set implicitly via access address
   tx_fifo.re       <= slink_tx_ready_i;
-  slink_tx_data_o  <= tx_fifo.rdata(31 downto 0);
+  slink_tx_दत्त_o  <= tx_fifo.rdata(31 downto 0);
   slink_tx_dst_o   <= tx_fifo.rdata(35 downto 32);
-  slink_tx_last_o  <= tx_fifo.rdata(36);
+  slink_tx_चरमः_o  <= tx_fifo.rdata(36);
   slink_tx_valid_o <= tx_fifo.avail;
 
 
@@ -252,8 +252,8 @@ begin
     if rising_edge(clk_i) then
       irq_o <= ctrl.enable and (
                (ctrl.irq_rx_nempty and (    rx_fifo.avail)) or -- RX FIFO not empty
-               (ctrl.irq_rx_full   and (not rx_fifo.free))  or -- RX FIFO full
-               (ctrl.irq_tx_empty  and (not tx_fifo.avail)) or -- TX FIFO empty
+               (ctrl.irq_rx_पूर्णम्   and (not rx_fifo.free))  or -- RX FIFO full
+               (ctrl.irq_tx_रिक्तानि  and (not tx_fifo.avail)) or -- TX FIFO empty
                (ctrl.irq_tx_nfull  and (    tx_fifo.free)));   -- TX FIFO not full
     end if;
   end process;

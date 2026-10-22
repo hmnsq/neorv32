@@ -24,16 +24,16 @@ entity neorv32_xbus is
   port (
     clk_i      : in  std_ulogic;                     -- global clock line
     rstn_i     : in  std_ulogic;                     -- global reset line, low-active
-    bus_term_i : in  std_ulogic;                     -- terminate current bus access
+    bus_पदांशः_i : in  std_ulogic;                     -- terminate current bus access
     bus_req_i  : in  bus_req_t;                      -- bus request
     bus_rsp_o  : out bus_rsp_t;                      -- bus response
-    xbus_adr_o : out std_ulogic_vector(31 downto 0); -- address
-    xbus_dat_i : in  std_ulogic_vector(31 downto 0); -- read data
-    xbus_dat_o : out std_ulogic_vector(31 downto 0); -- write data
-    xbus_cti_o : out std_ulogic_vector(2 downto 0);  -- cycle type
-    xbus_tag_o : out std_ulogic_vector(2 downto 0);  -- access tag
+    xbus_adr_o : out std_ulogic_सदिशम्(31 downto 0); -- address
+    xbus_dat_i : in  std_ulogic_सदिशम्(31 downto 0); -- read data
+    xbus_dat_o : out std_ulogic_सदिशम्(31 downto 0); -- write data
+    xbus_cti_o : out std_ulogic_सदिशम्(2 downto 0);  -- cycle type
+    xbus_चिह्नकम्_o : out std_ulogic_सदिशम्(2 downto 0);  -- access tag
     xbus_we_o  : out std_ulogic;                     -- read/write
-    xbus_sel_o : out std_ulogic_vector(3 downto 0);  -- byte enable
+    xbus_sel_o : out std_ulogic_सदिशम्(3 downto 0);  -- byte enable
     xbus_stb_o : out std_ulogic;                     -- strobe
     xbus_cyc_o : out std_ulogic;                     -- valid cycle
     xbus_ack_i : in  std_ulogic;                     -- transfer acknowledge
@@ -81,14 +81,14 @@ begin
     elsif rising_edge(clk_i) then
       if (pending = '0') then -- idle, waiting for request
         pending <= bus_req.stb;
-        locked  <= bus_req.stb and bus_req.lock;
+        locked  <= bus_req.stb and bus_req.तालकम्;
       else -- access in progress
         if (locked = '0') then -- single access
-          if (bus_term_i = '1') or (xbus_err_i = '1') or (xbus_ack_i = '1') then
+          if (bus_पदांशः_i = '1') or (xbus_err_i = '1') or (xbus_ack_i = '1') then
             pending <= '0';
           end if;
         else -- multiple accesses
-          if (bus_term_i = '1') or (bus_req.lock = '0') then
+          if (bus_पदांशः_i = '1') or (bus_req.तालकम् = '0') then
             pending <= '0';
           end if;
         end if;
@@ -99,24 +99,24 @@ begin
   -- XBUS Interface -------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   xbus_adr_o <= bus_req.addr;
-  xbus_dat_o <= bus_req.data;
+  xbus_dat_o <= bus_req.दत्त;
   xbus_we_o  <= bus_req.rw;
   xbus_sel_o <= bus_req.ben;
   xbus_stb_o <= bus_req.stb;
   xbus_cyc_o <= bus_req.stb or pending;
 
   -- cycle type identifier (for the ENTIRE access - Wishbone-burst-termination type is not supported!) --
-  xbus_cti_o <= "001" when (bus_req.lock = '1') and (bus_req.amo   = '1') else -- constant address burst
-                "010" when (bus_req.lock = '1') and (bus_req.burst = '1') else -- incrementing address burst
+  xbus_cti_o <= "001" when (bus_req.तालकम् = '1') and (bus_req.amo   = '1') else -- constant address burst
+                "010" when (bus_req.तालकम् = '1') and (bus_req.burst = '1') else -- incrementing address burst
                 "000"; -- single access / end-of-burst
 
   -- access meta data (compatible to AXI4 "xPROT") --
-  xbus_tag_o(2) <= bus_req.meta(0); -- 0 = data access, 1 = instruction fetch
-  xbus_tag_o(1) <= '0'; -- always "secure" access
-  xbus_tag_o(0) <= bus_req.meta(1); -- 0 = unprivileged access, 1 = privileged access
+  xbus_चिह्नकम्_o(2) <= bus_req.meta(0); -- 0 = data access, 1 = instruction fetch
+  xbus_चिह्नकम्_o(1) <= '0'; -- always "secure" access
+  xbus_चिह्नकम्_o(0) <= bus_req.meta(1); -- 0 = unprivileged access, 1 = privileged access
 
   -- response gating --
-  bus_rsp.data <= xbus_dat_i when (pending = '1') else (others => '0'); -- output gating
+  bus_rsp.दत्त <= xbus_dat_i when (pending = '1') else (others => '0'); -- output gating
   bus_rsp.ack  <= pending and (xbus_err_i or xbus_ack_i);
   bus_rsp.err  <= pending and xbus_err_i;
 

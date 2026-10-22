@@ -19,22 +19,22 @@ entity neorv32_sysinfo is
   generic (
     BUS_TMO_INT       : natural; -- internal bus timeout value
     BUS_TMO_EXT       : natural; -- internal bus timeout value
-    NUM_HARTS         : natural; -- number of physical CPU cores
+    अङ्कः_HARTS         : natural; -- number of physical CPU cores
     CLOCK_FREQUENCY   : natural; -- clock frequency of clk_i in Hz
-    BOOT_MODE_SELECT  : natural; -- boot configuration select (default = 0 = bootloader)
+    BOOT_बहुलकम्_SELECT  : natural; -- boot configuration select (default = 0 = bootloader)
     INT_BOOTLOADER_EN : boolean; -- boot configuration: true = boot explicit bootloader; false = boot from int/ext (I)MEM
     IMEM_EN           : boolean; -- implement processor-internal instruction memory
     IMEM_ROM          : boolean; -- implement processor-internal instruction memory as pre-initialized ROM
-    IMEM_SIZE         : natural; -- size of processor-internal instruction memory in bytes
+    IMEM_आकार         : natural; -- size of processor-internal instruction memory in bytes
     DMEM_EN           : boolean; -- implement processor-internal data memory
-    DMEM_SIZE         : natural; -- size of processor-internal data memory in bytes
+    DMEM_आकार         : natural; -- size of processor-internal data memory in bytes
     ICACHE_EN         : boolean; -- implement instruction cache
-    ICACHE_NUM_BLOCKS : natural; -- i-cache: number of blocks (min 2), has to be a power of 2
+    ICACHE_अङ्कः_खण्डानि : natural; -- i-cache: number of blocks (min 2), has to be a power of 2
     DCACHE_EN         : boolean; -- implement data cache
-    DCACHE_NUM_BLOCKS : natural; -- d-cache: number of blocks (min 2), has to be a power of 2
-    CACHE_BLOCK_SIZE  : natural; -- i-cache/d-cache: block size in bytes (min 4), has to be a power of 2
+    DCACHE_अङ्कः_खण्डानि : natural; -- d-cache: number of blocks (min 2), has to be a power of 2
+    CACHE_खण्डम्_आकार  : natural; -- i-cache/d-cache: block size in bytes (min 4), has to be a power of 2
     CACHE_BURSTS_EN   : boolean; -- i-cache/d-cache: enable issuing of burst transfer for cache update
-    CACHE_UC_BASE     : std_ulogic_vector(3 downto 0); -- start of uncached address space (256MB page)
+    CACHE_UC_आधारः     : std_ulogic_सदिशम्(3 downto 0); -- start of uncached address space (256MB page)
     SMC_EN            : boolean; -- implement serial memory controller (SMC)
     XBUS_EN           : boolean; -- implement external memory bus interface (XBUS)
     OCD_EN            : boolean; -- implement on-chip debugger (OCD)
@@ -69,19 +69,19 @@ end entity;
 architecture neorv32_sysinfo_rtl of neorv32_sysinfo is
 
   -- helpers --
-  constant int_imem_en_c    : boolean := IMEM_EN and boolean(IMEM_SIZE > 0);
-  constant int_dmem_en_c    : boolean := DMEM_EN and boolean(DMEM_SIZE > 0);
+  constant int_imem_en_c    : boolean := IMEM_EN and boolean(IMEM_आकार > 0);
+  constant int_dmem_en_c    : boolean := DMEM_EN and boolean(DMEM_आकार > 0);
   constant int_imem_rom_c   : boolean := int_imem_en_c and IMEM_ROM;
-  constant log2_int_tmo_c   : natural := index_size_f(BUS_TMO_INT);
-  constant log2_ext_tmo_c   : natural := index_size_f(BUS_TMO_EXT);
-  constant log2_imem_size_c : natural := index_size_f(IMEM_SIZE);
-  constant log2_dmem_size_c : natural := index_size_f(DMEM_SIZE);
-  constant log2_ic_bnum_c   : natural := index_size_f(ICACHE_NUM_BLOCKS);
-  constant log2_dc_bnum_c   : natural := index_size_f(DCACHE_NUM_BLOCKS);
-  constant log2_c_bsize_c   : natural := index_size_f(CACHE_BLOCK_SIZE);
+  constant log2_int_tmo_c   : natural := सूचकांक_आकार_f(BUS_TMO_INT);
+  constant log2_ext_tmo_c   : natural := सूचकांक_आकार_f(BUS_TMO_EXT);
+  constant log2_imem_आकार_c : natural := सूचकांक_आकार_f(IMEM_आकार);
+  constant log2_dmem_आकार_c : natural := सूचकांक_आकार_f(DMEM_आकार);
+  constant log2_ic_bnum_c   : natural := सूचकांक_आकार_f(ICACHE_अङ्कः_खण्डानि);
+  constant log2_dc_bnum_c   : natural := सूचकांक_आकार_f(DCACHE_अङ्कः_खण्डानि);
+  constant log2_c_bsize_c   : natural := सूचकांक_आकार_f(CACHE_खण्डम्_आकार);
 
   -- system information memory --
-  type sysinfo_t is array (3 downto 0) of std_ulogic_vector(31 downto 0);
+  type sysinfo_t is array (3 downto 0) of std_ulogic_सदिशम्(31 downto 0);
   signal sysinfo : sysinfo_t;
 
   -- bus access --
@@ -94,22 +94,22 @@ begin
   sysinfo_clk: process(rstn_i, clk_i)
   begin
     if (rstn_i = '0') then
-      sysinfo(0) <= std_ulogic_vector(to_unsigned(CLOCK_FREQUENCY, 32)); -- initialize from generic
+      sysinfo(0) <= std_ulogic_सदिशम्(गन्तव्यम्_unsigned(CLOCK_FREQUENCY, 32)); -- initialize from generic
     elsif rising_edge(clk_i) then
       if (bus_req_i.stb = '1') and (bus_req_i.rw = '1') and (bus_req_i.addr(3 downto 2) = "00") then
-        sysinfo(0) <= bus_req_i.data;
+        sysinfo(0) <= bus_req_i.दत्त;
       end if;
     end if;
   end process;
 
   -- SYSINFO(1): Misc -----------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  sysinfo(1)(7  downto 0)  <= std_ulogic_vector(to_unsigned(log2_imem_size_c, 8)) when int_imem_en_c else (others => '0'); -- log2(IMEM size)
-  sysinfo(1)(15 downto 8)  <= std_ulogic_vector(to_unsigned(log2_dmem_size_c, 8)) when int_dmem_en_c else (others => '0'); -- log2(DMEM size)
-  sysinfo(1)(19 downto 16) <= std_ulogic_vector(to_unsigned(NUM_HARTS,        4)); -- number of physical CPU cores
-  sysinfo(1)(21 downto 20) <= std_ulogic_vector(to_unsigned(BOOT_MODE_SELECT, 2)); -- boot configuration
-  sysinfo(1)(26 downto 22) <= std_ulogic_vector(to_unsigned(log2_int_tmo_c,   5)); -- internal bus timeout
-  sysinfo(1)(31 downto 27) <= std_ulogic_vector(to_unsigned(log2_ext_tmo_c,   5)); -- external bus timeout
+  sysinfo(1)(7  downto 0)  <= std_ulogic_सदिशम्(गन्तव्यम्_unsigned(log2_imem_आकार_c, 8)) when int_imem_en_c else (others => '0'); -- log2(IMEM size)
+  sysinfo(1)(15 downto 8)  <= std_ulogic_सदिशम्(गन्तव्यम्_unsigned(log2_dmem_आकार_c, 8)) when int_dmem_en_c else (others => '0'); -- log2(DMEM size)
+  sysinfo(1)(19 downto 16) <= std_ulogic_सदिशम्(गन्तव्यम्_unsigned(अङ्कः_HARTS,        4)); -- number of physical CPU cores
+  sysinfo(1)(21 downto 20) <= std_ulogic_सदिशम्(गन्तव्यम्_unsigned(BOOT_बहुलकम्_SELECT, 2)); -- boot configuration
+  sysinfo(1)(26 downto 22) <= std_ulogic_सदिशम्(गन्तव्यम्_unsigned(log2_int_tmo_c,   5)); -- internal bus timeout
+  sysinfo(1)(31 downto 27) <= std_ulogic_सदिशम्(गन्तव्यम्_unsigned(log2_ext_tmo_c,   5)); -- external bus timeout
 
   -- SYSINFO(2): SoC Configuration ----------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
@@ -148,10 +148,10 @@ begin
 
   -- SYSINFO(3): Cache Configuration --------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  sysinfo(3)(3 downto 0)   <= std_ulogic_vector(to_unsigned(log2_c_bsize_c, 4)) when ICACHE_EN or DCACHE_EN else (others => '0'); -- I$/D$ log2(block_size)
-  sysinfo(3)(7 downto 4)   <= std_ulogic_vector(to_unsigned(log2_ic_bnum_c, 4)) when ICACHE_EN else (others => '0'); -- I$ log2(number_of_blocks)
-  sysinfo(3)(11 downto 8)  <= std_ulogic_vector(to_unsigned(log2_dc_bnum_c, 4)) when DCACHE_EN else (others => '0'); -- D$ log2(number_of_blocks)
-  sysinfo(3)(15 downto 12) <= CACHE_UC_BASE when ICACHE_EN or DCACHE_EN else (others => '0'); -- start of non-cached address space (256MB page)
+  sysinfo(3)(3 downto 0)   <= std_ulogic_सदिशम्(गन्तव्यम्_unsigned(log2_c_bsize_c, 4)) when ICACHE_EN or DCACHE_EN else (others => '0'); -- I$/D$ log2(block_size)
+  sysinfo(3)(7 downto 4)   <= std_ulogic_सदिशम्(गन्तव्यम्_unsigned(log2_ic_bnum_c, 4)) when ICACHE_EN else (others => '0'); -- I$ log2(number_of_blocks)
+  sysinfo(3)(11 downto 8)  <= std_ulogic_सदिशम्(गन्तव्यम्_unsigned(log2_dc_bnum_c, 4)) when DCACHE_EN else (others => '0'); -- D$ log2(number_of_blocks)
+  sysinfo(3)(15 downto 12) <= CACHE_UC_आधारः when ICACHE_EN or DCACHE_EN else (others => '0'); -- start of non-cached address space (256MB page)
   sysinfo(3)(16)           <= '1' when CACHE_BURSTS_EN and (ICACHE_EN or DCACHE_EN) else '0'; -- burst transfers enabled
   sysinfo(3)(31 downto 17) <= (others => '0'); -- reserved
 
@@ -173,6 +173,6 @@ begin
 
   bus_rsp_o.ack  <= ack;
   bus_rsp_o.err  <= err;
-  bus_rsp_o.data <= sysinfo(to_integer(unsigned(bus_req_i.addr(3 downto 2)))) when (ack = '1') else (others => '0');
+  bus_rsp_o.दत्त <= sysinfo(गन्तव्यम्_integer(unsigned(bus_req_i.addr(3 downto 2)))) when (ack = '1') else (others => '0');
 
 end architecture;
