@@ -43,49 +43,49 @@ architecture neorv32_sdi_rtl of neorv32_sdi is
   constant ctrl_fifo3_c         : natural :=  7; -- r/-: log2(FIFO size), bit 3 (MSB)
   --
   constant ctrl_irq_rx_nempty_c : natural := 16; -- r/w: interrupt if RX FIFO not empty
-  constant ctrl_irq_rx_full_c   : natural := 17; -- r/w: interrupt if RX FIFO full
-  constant ctrl_irq_tx_empty_c  : natural := 18; -- r/w: interrupt if TX FIFO empty
+  constant ctrl_irq_rx_ډک_c   : natural := 17; -- r/w: interrupt if RX FIFO full
+  constant ctrl_irq_tx_تشه_c  : natural := 18; -- r/w: interrupt if TX FIFO empty
   --
-  constant ctrl_rx_empty_c      : natural := 24; -- r/-: RX FIFO empty
-  constant ctrl_rx_full_c       : natural := 25; -- r/-: RX FIFO full
-  constant ctrl_tx_empty_c      : natural := 26; -- r/-: TX FIFO empty
-  constant ctrl_tx_full_c       : natural := 27; -- r/-: TX FIFO full
+  constant ctrl_rx_تشه_c      : natural := 24; -- r/-: RX FIFO empty
+  constant ctrl_rx_ډک_c       : natural := 25; -- r/-: RX FIFO full
+  constant ctrl_tx_تشه_c      : natural := 26; -- r/-: TX FIFO empty
+  constant ctrl_tx_ډک_c       : natural := 27; -- r/-: TX FIFO full
   --
-  constant ctrl_cs_active_c     : natural := 31; -- r/-: chip-select is active when set
+  constant ctrl_cs_فعال_c     : natural := 31; -- r/-: chip-select is active when set
 
   -- helpers --
-  constant log2_fifo_size_c : natural := index_size_f(RTX_FIFO);
+  constant log2_fifo_اندازه_c : natural := شاخص_اندازه_f(RTX_FIFO);
 
   -- bus interface --
   signal bus_ack, bus_rden : std_ulogic;
-  signal bus_rdata : std_ulogic_vector(31 downto 0);
+  signal bus_rdata : std_ulogic_ویکټور(31 downto 0);
 
   -- control register (see bit definitions above) --
   type ctrl_t is record
-    enable, clr_rx, clr_tx, irq_rx_nempty, irq_rx_full, irq_tx_empty : std_ulogic;
+    enable, clr_rx, clr_tx, irq_rx_nempty, irq_rx_ډک, irq_tx_تشه : std_ulogic;
   end record;
   signal ctrl : ctrl_t;
 
   -- input synchronizer --
-  signal sync_sck_ff : std_ulogic_vector(2 downto 0);
-  signal sync_csn_ff : std_ulogic_vector(1 downto 0);
-  signal sync_sdi_ff : std_ulogic_vector(1 downto 0);
+  signal sync_sck_ff : std_ulogic_ویکټور(2 downto 0);
+  signal sync_csn_ff : std_ulogic_ویکټور(1 downto 0);
+  signal sync_sdi_ff : std_ulogic_ویکټور(1 downto 0);
   signal sync_sck, sync_csn, sync_sdi : std_ulogic;
 
   -- serial engine --
   type serial_t is record
-    state  : std_ulogic_vector(2 downto 0);
-    cnt    : std_ulogic_vector(3 downto 0);
-    sreg   : std_ulogic_vector(7 downto 0);
+    state  : std_ulogic_ویکټور(2 downto 0);
+    cnt    : std_ulogic_ویکټور(3 downto 0);
+    sreg   : std_ulogic_ویکټور(7 downto 0);
     sdi_ff : std_ulogic;
-    done   : std_ulogic;
+    بشپړ   : std_ulogic;
   end record;
   signal serial : serial_t;
 
   -- RX/TX FIFO interface --
   type fifo_t is record
     we, re, clr  : std_ulogic;
-    wdata, rdata : std_ulogic_vector(7 downto 0);
+    wdata, rdata : std_ulogic_ویکټور(7 downto 0);
     avail, free  : std_ulogic;
   end record;
   signal tx_fifo, rx_fifo : fifo_t;
@@ -96,7 +96,7 @@ begin
   -- -------------------------------------------------------------------------------------------
   bus_handshake: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_څنډه(clk_i) then
       bus_ack  <= bus_req_i.stb;
       bus_rden <= bus_req_i.stb and (not bus_req_i.rw);
     end if;
@@ -110,19 +110,19 @@ begin
       ctrl.clr_rx        <= '0';
       ctrl.clr_tx        <= '0';
       ctrl.irq_rx_nempty <= '0';
-      ctrl.irq_rx_full   <= '0';
-      ctrl.irq_tx_empty  <= '0';
-    elsif rising_edge(clk_i) then
+      ctrl.irq_rx_ډک   <= '0';
+      ctrl.irq_tx_تشه  <= '0';
+    elsif rising_څنډه(clk_i) then
       ctrl.clr_rx <= '0';
       ctrl.clr_tx <= '0';
       if (bus_req_i.stb = '1') and (bus_req_i.rw = '1') then
         if (bus_req_i.addr(2) = '0') then -- control register
-          ctrl.enable        <= bus_req_i.data(ctrl_en_c);
-          ctrl.clr_rx        <= bus_req_i.data(ctrl_clr_rx_c);
-          ctrl.clr_tx        <= bus_req_i.data(ctrl_clr_tx_c);
-          ctrl.irq_rx_nempty <= bus_req_i.data(ctrl_irq_rx_nempty_c);
-          ctrl.irq_rx_full   <= bus_req_i.data(ctrl_irq_rx_full_c);
-          ctrl.irq_tx_empty  <= bus_req_i.data(ctrl_irq_tx_empty_c);
+          ctrl.enable        <= bus_req_i.معلومات(ctrl_en_c);
+          ctrl.clr_rx        <= bus_req_i.معلومات(ctrl_clr_rx_c);
+          ctrl.clr_tx        <= bus_req_i.معلومات(ctrl_clr_tx_c);
+          ctrl.irq_rx_nempty <= bus_req_i.معلومات(ctrl_irq_rx_nempty_c);
+          ctrl.irq_rx_ډک   <= bus_req_i.معلومات(ctrl_irq_rx_ډک_c);
+          ctrl.irq_tx_تشه  <= bus_req_i.معلومات(ctrl_irq_tx_تشه_c);
         end if;
       end if;
     end if;
@@ -135,15 +135,15 @@ begin
     if (bus_rden = '1') then -- output gating
       if (bus_req_i.addr(2) = '0') then -- control register
         bus_rdata(ctrl_en_c)                        <= ctrl.enable;
-        bus_rdata(ctrl_fifo3_c downto ctrl_fifo0_c) <= std_ulogic_vector(to_unsigned(log2_fifo_size_c, 4));
+        bus_rdata(ctrl_fifo3_c downto ctrl_fifo0_c) <= std_ulogic_ویکټور(منزل_unsigned(log2_fifo_اندازه_c, 4));
         bus_rdata(ctrl_irq_rx_nempty_c)             <= ctrl.irq_rx_nempty;
-        bus_rdata(ctrl_irq_rx_full_c)               <= ctrl.irq_rx_full;
-        bus_rdata(ctrl_irq_tx_empty_c)              <= ctrl.irq_tx_empty;
-        bus_rdata(ctrl_rx_empty_c)                  <= not rx_fifo.avail;
-        bus_rdata(ctrl_rx_full_c)                   <= not rx_fifo.free;
-        bus_rdata(ctrl_tx_empty_c)                  <= not tx_fifo.avail;
-        bus_rdata(ctrl_tx_full_c)                   <= not tx_fifo.free;
-        bus_rdata(ctrl_cs_active_c)                 <= not sync_csn;
+        bus_rdata(ctrl_irq_rx_ډک_c)               <= ctrl.irq_rx_ډک;
+        bus_rdata(ctrl_irq_tx_تشه_c)              <= ctrl.irq_tx_تشه;
+        bus_rdata(ctrl_rx_تشه_c)                  <= not rx_fifo.avail;
+        bus_rdata(ctrl_rx_ډک_c)                   <= not rx_fifo.free;
+        bus_rdata(ctrl_tx_تشه_c)                  <= not tx_fifo.avail;
+        bus_rdata(ctrl_tx_ډک_c)                   <= not tx_fifo.free;
+        bus_rdata(ctrl_cs_فعال_c)                 <= not sync_csn;
       else -- data register
         bus_rdata(7 downto 0) <= rx_fifo.rdata;
       end if;
@@ -153,7 +153,7 @@ begin
   -- bus response --
   bus_rsp_o.ack  <= bus_ack;
   bus_rsp_o.err  <= '0'; -- no access errors supported
-  bus_rsp_o.data <= bus_rdata;
+  bus_rsp_o.معلومات <= bus_rdata;
 
 
   -- Data FIFO ("Ring Buffer") --------------------------------------------------------------
@@ -162,7 +162,7 @@ begin
   -- TX --
   tx_fifo_inst: entity neorv32.neorv32_prim_fifo
   generic map (
-    AWIDTH  => log2_fifo_size_c,
+    AWIDTH  => log2_fifo_اندازه_c,
     DWIDTH  => 8,
     OUTGATE => true, -- send zero if no TX data available
     ASYNCRD => false
@@ -184,15 +184,15 @@ begin
   );
 
   tx_fifo.clr   <= (not ctrl.enable) or ctrl.clr_tx;
-  tx_fifo.wdata <= bus_req_i.data(7 downto 0);
+  tx_fifo.wdata <= bus_req_i.معلومات(7 downto 0);
   tx_fifo.we    <= bus_req_i.stb and bus_req_i.rw and bus_req_i.addr(2);
-  tx_fifo.re    <= serial.done;
+  tx_fifo.re    <= serial.بشپړ;
 
 
   -- RX --
   rx_fifo_inst: entity neorv32.neorv32_prim_fifo
   generic map (
-    AWIDTH  => log2_fifo_size_c,
+    AWIDTH  => log2_fifo_اندازه_c,
     DWIDTH  => 8,
     OUTGATE => false,
     ASYNCRD => false
@@ -215,18 +215,18 @@ begin
 
   rx_fifo.clr   <= (not ctrl.enable) or ctrl.clr_rx;
   rx_fifo.wdata <= serial.sreg;
-  rx_fifo.we    <= serial.done;
+  rx_fifo.we    <= serial.بشپړ;
   rx_fifo.re    <= bus_rden and bus_req_i.addr(2);
 
 
   -- interrupt generator --
   irq_generator: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_څنډه(clk_i) then
       irq_o <= ctrl.enable and (
                (ctrl.irq_rx_nempty and      rx_fifo.avail) or -- RX FIFO not empty
-               (ctrl.irq_rx_full   and (not rx_fifo.free)) or -- RX FIFO full
-               (ctrl.irq_tx_empty  and (not tx_fifo.avail))); -- TX FIFO empty
+               (ctrl.irq_rx_ډک   and (not rx_fifo.free)) or -- RX FIFO full
+               (ctrl.irq_tx_تشه  and (not tx_fifo.avail))); -- TX FIFO empty
     end if;
   end process;
 
@@ -235,7 +235,7 @@ begin
   -- -------------------------------------------------------------------------------------------
   synchronizer: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_څنډه(clk_i) then
       sync_sck_ff <= sync_sck_ff(1 downto 0) & sdi_clk_i;
       sync_csn_ff <= sync_csn_ff(0) & sdi_csn_i;
       sync_sdi_ff <= sync_sdi_ff(0) & sdi_dat_i;
@@ -256,16 +256,16 @@ begin
       serial.cnt    <= (others => '0');
       serial.sreg   <= (others => '0');
       serial.sdi_ff <= '0';
-      serial.done   <= '0';
-    elsif rising_edge(clk_i) then
-      serial.done     <= '0'; -- default
+      serial.بشپړ   <= '0';
+    elsif rising_څنډه(clk_i) then
+      serial.بشپړ     <= '0'; -- default
       serial.state(2) <= ctrl.enable;
       case serial.state is
 
         when "100" => -- enabled but idle, waiting for new transmission trigger
         -- ------------------------------------------------------------
           serial.cnt <= (others => '0');
-          if (sync_csn = '0') and (serial.done = '0') then -- start new transmission on falling edge of CS
+          if (sync_csn = '0') and (serial.بشپړ = '0') then -- start new transmission on falling edge of CS
             serial.state(1 downto 0) <= "01";
           end if;
 
@@ -281,7 +281,7 @@ begin
           if (sync_csn = '1') then -- transmission aborted?
             serial.state(1 downto 0) <= "00";
           elsif (sync_sck = '1') then
-            serial.cnt               <= std_ulogic_vector(unsigned(serial.cnt) + 1);
+            serial.cnt               <= std_ulogic_ویکټور(unsigned(serial.cnt) + 1);
             serial.state(1 downto 0) <= "11";
           end if;
 
@@ -290,9 +290,9 @@ begin
           if (sync_csn = '1') then -- transmission aborted?
             serial.state(1 downto 0) <= "00";
           elsif (sync_sck = '1') then
-            serial.sreg <= serial.sreg(serial.sreg'left-1 downto 0) & serial.sdi_ff;
+            serial.sreg <= serial.sreg(serial.sreg'کیڼ-1 downto 0) & serial.sdi_ff;
             if (serial.cnt(3) = '1') then -- done?
-              serial.done              <= '1'; -- push RX byte to FIFO and get next TX byte
+              serial.بشپړ              <= '1'; -- push RX byte to FIFO and get next TX byte
               serial.state(1 downto 0) <= "00";
             else
               serial.state(1 downto 0) <= "10";
@@ -308,6 +308,6 @@ begin
   end process;
 
   -- serial data output --
-  sdi_dat_o <= serial.sreg(serial.sreg'left);
+  sdi_dat_o <= serial.sreg(serial.sreg'کیڼ);
 
 end architecture;

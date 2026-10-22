@@ -28,14 +28,14 @@ entity neorv32_prim_fifo is
     clk_i   : in  std_ulogic;                           -- clock, rising edge
     rstn_i  : in  std_ulogic;                           -- async reset, low-active
     clear_i : in  std_ulogic;                           -- sync reset, high-active
-    level_o : out std_ulogic_vector(AWIDTH downto 0);   -- fill level
+    level_o : out std_ulogic_ویکټور(AWIDTH downto 0);   -- fill level
     -- write port --
-    wdata_i : in  std_ulogic_vector(DWIDTH-1 downto 0); -- write data
+    wdata_i : in  std_ulogic_ویکټور(DWIDTH-1 downto 0); -- write data
     we_i    : in  std_ulogic;                           -- write enable
     free_o  : out std_ulogic;                           -- at least one entry is free when set
     -- read port --
     re_i    : in  std_ulogic;                           -- read enable
-    rdata_o : out std_ulogic_vector(DWIDTH-1 downto 0); -- read data
+    rdata_o : out std_ulogic_ویکټور(DWIDTH-1 downto 0); -- read data
     avail_o : out std_ulogic                            -- data available when set
   );
 end entity;
@@ -44,129 +44,129 @@ architecture neorv32_prim_fifo_rtl of neorv32_prim_fifo is
 
   -- memory core; the actual RAM signal is declared per generate-branch as a shared
   -- architecture-scope signal would defeat RAM extraction on some synthesis tools --
-  type ram_t is array ((2**AWIDTH)-1 downto 0) of std_ulogic_vector(DWIDTH-1 downto 0);
+  type ram_t is array ((2**AWIDTH)-1 downto 0) of std_ulogic_ویکټور(DWIDTH-1 downto 0);
 
   -- local signals --
-  signal rdata : std_ulogic_vector(DWIDTH-1 downto 0);
-  signal we, re, match, full, empty, avail : std_ulogic;
-  signal w_pnt, w_nxt, r_pnt, r_nxt : std_ulogic_vector(AWIDTH downto 0);
+  signal rdata : std_ulogic_ویکټور(DWIDTH-1 downto 0);
+  signal we, re, سمون, ډک, تشه, avail : std_ulogic;
+  signal w_pnt, w_nxt, r_pnt, r_nxt : std_ulogic_ویکټور(AWIDTH downto 0);
 
 begin
 
   -- Pointers -------------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  pointer_reg: process(rstn_i, clk_i)
+  اشاره_ګر_reg: process(rstn_i, clk_i)
   begin
     if (rstn_i = '0') then
       w_pnt <= (others => '0');
       r_pnt <= (others => '0');
-    elsif rising_edge(clk_i) then
+    elsif rising_څنډه(clk_i) then
       w_pnt <= w_nxt;
       r_pnt <= r_nxt;
     end if;
   end process;
 
   -- access control --
-  re <= re_i and (not empty); -- read only if data available
-  we <= we_i and (not full);  -- write only if free space available
+  re <= re_i and (not تشه); -- read only if data available
+  we <= we_i and (not ډک);  -- write only if free space available
 
   -- pointer update --
-  w_nxt <= (others => '0') when (clear_i = '1') else std_ulogic_vector(unsigned(w_pnt) + 1) when (we = '1') else w_pnt;
-  r_nxt <= (others => '0') when (clear_i = '1') else std_ulogic_vector(unsigned(r_pnt) + 1) when (re = '1') else r_pnt;
+  w_nxt <= (others => '0') when (clear_i = '1') else std_ulogic_ویکټور(unsigned(w_pnt) + 1) when (we = '1') else w_pnt;
+  r_nxt <= (others => '0') when (clear_i = '1') else std_ulogic_ویکټور(unsigned(r_pnt) + 1) when (re = '1') else r_pnt;
 
   -- fill level --
-  level_o <= std_ulogic_vector(unsigned(w_pnt) - unsigned(r_pnt));
+  level_o <= std_ulogic_ویکټور(unsigned(w_pnt) - unsigned(r_pnt));
 
   -- Status ---------------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   -- more than 1 FIFO entry --
-  status_large:
+  حالت_large:
   if (AWIDTH > 0) generate
-    match <= '1' when (r_pnt(AWIDTH-1 downto 0) = w_pnt(AWIDTH-1 downto 0)) else '0';
-    full  <= '1' when (r_pnt(AWIDTH) /= w_pnt(AWIDTH)) and (match = '1') else '0';
-    empty <= '1' when (r_pnt(AWIDTH)  = w_pnt(AWIDTH)) and (match = '1') else '0';
+    سمون <= '1' when (r_pnt(AWIDTH-1 downto 0) = w_pnt(AWIDTH-1 downto 0)) else '0';
+    ډک  <= '1' when (r_pnt(AWIDTH) /= w_pnt(AWIDTH)) and (سمون = '1') else '0';
+    تشه <= '1' when (r_pnt(AWIDTH)  = w_pnt(AWIDTH)) and (سمون = '1') else '0';
 
     -- synchronous read: "avail" is synchronized to the read port --
-    status_large_sync_read:
+    حالت_large_sync_read:
     if not ASYNCRD generate
       avail_reg: process(clk_i)
       begin
-        if rising_edge(clk_i) then
-          avail <= (not empty) and (not clear_i);
+        if rising_څنډه(clk_i) then
+          avail <= (not تشه) and (not clear_i);
         end if;
       end process;
     end generate;
 
     -- asynchronous read --
-    status_large_async_read:
+    حالت_large_async_read:
     if ASYNCRD generate
-      avail <= not empty;
+      avail <= not تشه;
     end generate;
 
   end generate;
 
   -- just 1 FIFO entry --
-  status_small:
+  حالت_small:
   if (AWIDTH = 0) generate
-    match <= '1' when (r_pnt(0) = w_pnt(0)) else '0';
-    full  <= not match;
-    empty <= not full;
-    avail <= not empty;
+    سمون <= '1' when (r_pnt(0) = w_pnt(0)) else '0';
+    ډک  <= not سمون;
+    تشه <= not ډک;
+    avail <= not تشه;
   end generate;
 
   -- status output --
-  free_o  <= not full;
+  free_o  <= not ډک;
   avail_o <= avail;
 
 
   -- Memory ---------------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   -- more than 1 FIFO entry --
-  memory_large:
+  حافظه_large:
   if (AWIDTH > 0) generate
 
     -- memory with synchronous read --
-    memory_large_sync_read:
+    حافظه_large_sync_read:
     if not ASYNCRD generate
       signal fifo : ram_t;
     begin
-      memory_core: process(clk_i) -- simple dual-port RAM
+      حافظه_core: process(clk_i) -- simple dual-port RAM
       begin
-        if rising_edge(clk_i) then
+        if rising_څنډه(clk_i) then
           if (we = '1') then
-            fifo(to_integer(unsigned(w_pnt(AWIDTH-1 downto 0)))) <= wdata_i;
+            fifo(منزل_integer(unsigned(w_pnt(AWIDTH-1 downto 0)))) <= wdata_i;
           end if;
-          rdata <= fifo(to_integer(unsigned(r_pnt(AWIDTH-1 downto 0))));
+          rdata <= fifo(منزل_integer(unsigned(r_pnt(AWIDTH-1 downto 0))));
         end if;
       end process;
     end generate;
 
     -- memory with asynchronous read --
-    memory_large_async_read:
+    حافظه_large_async_read:
     if ASYNCRD generate
       signal fifo : ram_t;
     begin
-      memory_core: process(clk_i) -- simple dual-port RAM
+      حافظه_core: process(clk_i) -- simple dual-port RAM
       begin
-        if rising_edge(clk_i) then
+        if rising_څنډه(clk_i) then
           if (we = '1') then
-            fifo(to_integer(unsigned(w_pnt(AWIDTH-1 downto 0)))) <= wdata_i;
+            fifo(منزل_integer(unsigned(w_pnt(AWIDTH-1 downto 0)))) <= wdata_i;
           end if;
         end if;
       end process;
-      rdata <= fifo(to_integer(unsigned(r_pnt(AWIDTH-1 downto 0))));
+      rdata <= fifo(منزل_integer(unsigned(r_pnt(AWIDTH-1 downto 0))));
     end generate;
 
   end generate;
 
   -- just 1 FIFO entry --
-  memory_small:
+  حافظه_small:
   if (AWIDTH = 0) generate
     signal fifo : ram_t;
   begin
-    memory_core: process(clk_i) -- single register
+    حافظه_core: process(clk_i) -- single register
     begin
-      if rising_edge(clk_i) then
+      if rising_څنډه(clk_i) then
         if (we = '1') then
           fifo(0) <= wdata_i;
         end if;
@@ -210,9 +210,9 @@ entity neorv32_prim_spram is
     -- read/write port --
     en_i   : in  std_ulogic;                           -- access enable
     rw_i   : in  std_ulogic;                           -- 0=read, 1=write
-    addr_i : in  std_ulogic_vector(AWIDTH-1 downto 0); -- address
-    data_i : in  std_ulogic_vector(DWIDTH-1 downto 0); -- write data
-    data_o : out std_ulogic_vector(DWIDTH-1 downto 0)  -- read data
+    addr_i : in  std_ulogic_ویکټور(AWIDTH-1 downto 0); -- address
+    معلومات_i : in  std_ulogic_ویکټور(DWIDTH-1 downto 0); -- write data
+    معلومات_o : out std_ulogic_ویکټور(DWIDTH-1 downto 0)  -- read data
   );
 end entity;
 
@@ -220,40 +220,40 @@ architecture neorv32_prim_spram_rtl of neorv32_prim_spram is
 
   -- memory core; the actual RAM signal is declared per generate-branch as a shared
   -- architecture-scope signal would defeat RAM extraction on some synthesis tools --
-  type ram_t is array ((2**AWIDTH)-1 downto 0) of std_ulogic_vector(DWIDTH-1 downto 0);
-  signal rdata : std_ulogic_vector(DWIDTH-1 downto 0);
+  type ram_t is array ((2**AWIDTH)-1 downto 0) of std_ulogic_ویکټور(DWIDTH-1 downto 0);
+  signal rdata : std_ulogic_ویکټور(DWIDTH-1 downto 0);
 
 begin
 
   -- Memory Core ----------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  memory_large:
+  حافظه_large:
   if (AWIDTH > 0) generate
     signal spram : ram_t;
   begin
-    memory_core: process(clk_i)
+    حافظه_core: process(clk_i)
     begin
-      if rising_edge(clk_i) then
+      if rising_څنډه(clk_i) then
         if (en_i = '1') then
           if (rw_i = '1') then
-            spram(to_integer(unsigned(addr_i))) <= data_i;
+            spram(منزل_integer(unsigned(addr_i))) <= معلومات_i;
           end if;
-          rdata <= spram(to_integer(unsigned(addr_i)));
+          rdata <= spram(منزل_integer(unsigned(addr_i)));
         end if;
       end if;
     end process;
   end generate;
 
   -- single entry only --
-  memory_small:
+  حافظه_small:
   if (AWIDTH = 0) generate
     signal spram : ram_t;
   begin
-    memory_core: process(clk_i)
+    حافظه_core: process(clk_i)
     begin
-      if rising_edge(clk_i) then
+      if rising_څنډه(clk_i) then
         if (en_i = '1') and (rw_i = '1') then
-          spram(0) <= data_i;
+          spram(0) <= معلومات_i;
         end if;
       end if;
     end process;
@@ -262,20 +262,20 @@ begin
 
   -- Output Register ------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  output_register_enabled:
+  output_ثبتوونکی_enabled:
   if OUTREG generate -- might improve FPGA mapping and/or timing results
     read_outreg: process(clk_i)
     begin
-      if rising_edge(clk_i) then
-        data_o <= rdata;
+      if rising_څنډه(clk_i) then
+        معلومات_o <= rdata;
       end if;
     end process;
   end generate;
 
   -- no output register --
-  output_register_disabled:
+  output_ثبتوونکی_disabled:
   if not OUTREG generate
-    data_o <= rdata;
+    معلومات_o <= rdata;
   end generate;
 
 end architecture;
@@ -300,18 +300,18 @@ use ieee.numeric_std.all;
 entity neorv32_prim_mul is
   generic (
     DWIDTH   : natural;                   -- operand width
-    NUM_REGS : natural range 1 to 3 := 1  -- number of multiplier register stages
+    عدد_REGS : natural range 1 to 3 := 1  -- number of multiplier register stages
   );
   port (
     -- global control --
     clk_i  : in  std_ulogic;                              -- clock, rising edge
     -- data path --
     en_i   : in  std_ulogic;                              -- enable input operand registers
-    opa_i  : in  std_ulogic_vector(DWIDTH-1 downto 0);    -- operand A
+    opa_i  : in  std_ulogic_ویکټور(DWIDTH-1 downto 0);    -- operand A
     opas_i : in  std_ulogic;                              -- operand A is a signed number
-    opb_i  : in  std_ulogic_vector(DWIDTH-1 downto 0);    -- operand B
+    opb_i  : in  std_ulogic_ویکټور(DWIDTH-1 downto 0);    -- operand B
     opbs_i : in  std_ulogic;                              -- operand B is a signed number
-    res_o  : out std_ulogic_vector((2*DWIDTH)-1 downto 0) -- resulting product
+    res_o  : out std_ulogic_ویکټور((2*DWIDTH)-1 downto 0) -- resulting product
   );
 end entity;
 
@@ -324,12 +324,12 @@ begin
 
   -- Input Registers ------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  in_reg: process(clk_i)
+  دننه_reg: process(clk_i)
   begin
-    if rising_edge(clk_i) then
+    if rising_څنډه(clk_i) then
       if (en_i = '1') then
-        opa <= signed((opa_i(opa_i'left) and opas_i) & opa_i);
-        opb <= signed((opb_i(opb_i'left) and opbs_i) & opb_i);
+        opa <= signed((opa_i(opa_i'کیڼ) and opas_i) & opa_i);
+        opb <= signed((opb_i(opb_i'کیڼ) and opbs_i) & opb_i);
       end if;
     end if;
   end process;
@@ -337,77 +337,77 @@ begin
   -- Multiplier -----------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   one_reg:
-  if (NUM_REGS = 1) generate
+  if (عدد_REGS = 1) generate
     mul_reg: process(clk_i)
     begin
-      if rising_edge(clk_i) then -- no reset to improve multiplier mapping
+      if rising_څنډه(clk_i) then -- no reset to improve multiplier mapping
         res <= opa * opb;
       end if;
     end process;
   end generate;
 
   two_regs:
-  if (NUM_REGS = 2) generate
+  if (عدد_REGS = 2) generate
     signal mul_res : signed((2*DWIDTH)+1 downto 0);
   begin
     mul_reg: process(clk_i)
     begin
-      if rising_edge(clk_i) then -- no reset to improve multiplier mapping
+      if rising_څنډه(clk_i) then -- no reset to improve multiplier mapping
         mul_res <= opa * opb;
       end if;
     end process;
 
-    result_reg: process(clk_i)
+    پایله_reg: process(clk_i)
     begin
-      if rising_edge(clk_i) then -- no reset to improve multiplier mapping
+      if rising_څنډه(clk_i) then -- no reset to improve multiplier mapping
         res <= mul_res;
       end if;
     end process;
   end generate;
 
   three_regs:
-  if (NUM_REGS = 3) generate
-    constant lo_width_c : natural := DWIDTH / 2;
-    constant hi_width_c : natural := (DWIDTH + 1) - lo_width_c;
-    constant pp_width_c : natural := 2 * hi_width_c;
-    constant pr_width_c : natural := (2 * DWIDTH) + 2;
+  if (عدد_REGS = 3) generate
+    constant lo_پلنوالی_c : natural := DWIDTH / 2;
+    constant hi_پلنوالی_c : natural := (DWIDTH + 1) - lo_پلنوالی_c;
+    constant pp_پلنوالی_c : natural := 2 * hi_پلنوالی_c;
+    constant pr_پلنوالی_c : natural := (2 * DWIDTH) + 2;
 
-    signal q_ll, q_lh, q_hl, q_hh : signed(pp_width_c-1 downto 0);
-    signal q_sum_lo, q_sum_hi     : signed(pr_width_c-1 downto 0);
+    signal q_ll, q_lh, q_hl, q_hh : signed(pp_پلنوالی_c-1 downto 0);
+    signal q_مجموعه_lo, q_مجموعه_hi     : signed(pr_پلنوالی_c-1 downto 0);
   begin
-    partial_product_reg: process(clk_i)
+    partial_حاصل_ضرب_reg: process(clk_i)
     begin
-      if rising_edge(clk_i) then -- no reset to improve multiplier mapping
-        q_ll <= resize(signed('0' & std_ulogic_vector(opa(lo_width_c-1 downto 0))) *
-                       signed('0' & std_ulogic_vector(opb(lo_width_c-1 downto 0))), pp_width_c);
-        q_lh <= resize(signed('0' & std_ulogic_vector(opa(lo_width_c-1 downto 0))) *
-                       resize(opb(opb'left downto lo_width_c), hi_width_c), pp_width_c);
-        q_hl <= resize(resize(opa(opa'left downto lo_width_c), hi_width_c) *
-                       signed('0' & std_ulogic_vector(opb(lo_width_c-1 downto 0))), pp_width_c);
-        q_hh <= resize(resize(opa(opa'left downto lo_width_c), hi_width_c) *
-                       resize(opb(opb'left downto lo_width_c), hi_width_c), pp_width_c);
+      if rising_څنډه(clk_i) then -- no reset to improve multiplier mapping
+        q_ll <= resize(signed('0' & std_ulogic_ویکټور(opa(lo_پلنوالی_c-1 downto 0))) *
+                       signed('0' & std_ulogic_ویکټور(opb(lo_پلنوالی_c-1 downto 0))), pp_پلنوالی_c);
+        q_lh <= resize(signed('0' & std_ulogic_ویکټور(opa(lo_پلنوالی_c-1 downto 0))) *
+                       resize(opb(opb'کیڼ downto lo_پلنوالی_c), hi_پلنوالی_c), pp_پلنوالی_c);
+        q_hl <= resize(resize(opa(opa'کیڼ downto lo_پلنوالی_c), hi_پلنوالی_c) *
+                       signed('0' & std_ulogic_ویکټور(opb(lo_پلنوالی_c-1 downto 0))), pp_پلنوالی_c);
+        q_hh <= resize(resize(opa(opa'کیڼ downto lo_پلنوالی_c), hi_پلنوالی_c) *
+                       resize(opb(opb'کیڼ downto lo_پلنوالی_c), hi_پلنوالی_c), pp_پلنوالی_c);
       end if;
     end process;
 
-    partial_sum_reg: process(clk_i)
+    partial_مجموعه_reg: process(clk_i)
     begin
-      if rising_edge(clk_i) then -- no reset to improve multiplier mapping
-        q_sum_lo <= resize(q_ll, pr_width_c) + shift_left(resize(q_lh, pr_width_c), lo_width_c);
-        q_sum_hi <= shift_left(resize(q_hl, pr_width_c), lo_width_c) +
-                    shift_left(resize(q_hh, pr_width_c), 2*lo_width_c);
+      if rising_څنډه(clk_i) then -- no reset to improve multiplier mapping
+        q_مجموعه_lo <= resize(q_ll, pr_پلنوالی_c) + ښويدنه_کیڼ(resize(q_lh, pr_پلنوالی_c), lo_پلنوالی_c);
+        q_مجموعه_hi <= ښويدنه_کیڼ(resize(q_hl, pr_پلنوالی_c), lo_پلنوالی_c) +
+                    ښويدنه_کیڼ(resize(q_hh, pr_پلنوالی_c), 2*lo_پلنوالی_c);
       end if;
     end process;
 
-    result_reg: process(clk_i)
+    پایله_reg: process(clk_i)
     begin
-      if rising_edge(clk_i) then -- no reset to improve multiplier mapping
-        res <= q_sum_lo + q_sum_hi;
+      if rising_څنډه(clk_i) then -- no reset to improve multiplier mapping
+        res <= q_مجموعه_lo + q_مجموعه_hi;
       end if;
     end process;
   end generate;
 
   -- result --
-  res_o <= std_ulogic_vector(res((2*DWIDTH)-1 downto 0));
+  res_o <= std_ulogic_ویکټور(res((2*DWIDTH)-1 downto 0));
 
 end architecture;
 
@@ -440,18 +440,18 @@ entity neorv32_prim_cnt is
     rstn_i : in  std_ulogic;                     -- reset, low-active, async
     inc_i  : in  std_ulogic;                     -- enable counter increment
     -- read/write access --
-    we_i   : in  std_ulogic_vector(1 downto 0);  -- subword write enable
-    data_i : in  std_ulogic_vector(31 downto 0); -- subword write data
+    we_i   : in  std_ulogic_ویکټور(1 downto 0);  -- subword write enable
+    معلومات_i : in  std_ulogic_ویکټور(31 downto 0); -- subword write data
     oe_i   : in  std_ulogic;                     -- output enable
-    cnt_o  : out std_ulogic_vector(63 downto 0)  -- trimmed counter output
+    cnt_o  : out std_ulogic_ویکټور(63 downto 0)  -- trimmed counter output
   );
 end entity;
 
 architecture neorv32_prim_cnt_rtl of neorv32_prim_cnt is
 
-  signal count : std_ulogic_vector(63 downto 0);
-  signal carry, incen : std_ulogic_vector(0 downto 0);
-  signal inc_lo, inc_hi : std_ulogic_vector(32 downto 0);
+  signal شمېر : std_ulogic_ویکټور(63 downto 0);
+  signal لېږد, incen : std_ulogic_ویکټور(0 downto 0);
+  signal inc_lo, inc_hi : std_ulogic_ویکټور(32 downto 0);
 
 begin
 
@@ -461,39 +461,39 @@ begin
   begin
     if (rstn_i = '0') then
       incen <= (others => '0');
-      count <= (others => '0');
-      carry <= (others => '0');
-    elsif rising_edge(clk_i) then
+      شمېر <= (others => '0');
+      لېږد <= (others => '0');
+    elsif rising_څنډه(clk_i) then
       -- increment enable --
       incen(0) <= inc_i;
       -- low-word --
       if (we_i(0) = '1') then
-        count(31 downto 0) <= data_i;
+        شمېر(31 downto 0) <= معلومات_i;
       else
-        count(31 downto 0) <= inc_lo(31 downto 0);
+        شمېر(31 downto 0) <= inc_lo(31 downto 0);
       end if;
       -- low-to-high carry --
-      carry(0) <= inc_lo(32);
+      لېږد(0) <= inc_lo(32);
       -- high-word --
       if (we_i(1) = '1') then
-        count(63 downto 32) <= data_i;
+        شمېر(63 downto 32) <= معلومات_i;
       else
-        count(63 downto 32) <= inc_hi(31 downto 0);
+        شمېر(63 downto 32) <= inc_hi(31 downto 0);
       end if;
     end if;
   end process;
 
   -- increments --
-  inc_lo <= std_ulogic_vector(unsigned('0' & count(31 downto  0)) + unsigned(incen));
-  inc_hi <= std_ulogic_vector(unsigned('0' & count(63 downto 32)) + unsigned(carry));
+  inc_lo <= std_ulogic_ویکټور(unsigned('0' & شمېر(31 downto  0)) + unsigned(incen));
+  inc_hi <= std_ulogic_ویکټور(unsigned('0' & شمېر(63 downto 32)) + unsigned(لېږد));
 
   -- Output Gating and Trimming -------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  trim: process(oe_i, count)
+  trim: process(oe_i, شمېر)
   begin
     cnt_o <= (others => '0');
     if (oe_i = '1') and (CWIDTH > 0) then
-      cnt_o(CWIDTH-1 downto 0) <= count(CWIDTH-1 downto 0);
+      cnt_o(CWIDTH-1 downto 0) <= شمېر(CWIDTH-1 downto 0);
     end if;
   end process;
 

@@ -18,23 +18,23 @@ use ieee.std_logic_1164.all;
 library neorv32;
 use neorv32.neorv32_package.all;
 
-entity neorv32_top is
+entity neorv32_سر is
   generic (
     -- General --
     CLOCK_FREQUENCY     : natural                        := 0;             -- clock frequency of clk_i in Hz
     DUAL_CORE_EN        : boolean                        := false;         -- enable dual-core homogeneous SMP
-    TRACE_PORT_EN       : boolean                        := false;         -- enable CPU execution trace port
+    TRACE_پورټ_EN       : boolean                        := false;         -- enable CPU execution trace port
     TRACE_SIMLOG_EN     : boolean                        := false;         -- enable simulation trace logging
 
     -- Boot Configuration --
-    BOOT_MODE_SELECT    : natural range 0 to 2           := 0;             -- boot configuration select (default = 0 = bootloader)
-    BOOT_ADDR_CUSTOM    : std_ulogic_vector(31 downto 0) := x"00000000";   -- custom CPU boot address (if boot_config = 1)
+    BOOT_ډېرپېښ_SELECT    : natural range 0 to 2           := 0;             -- boot configuration select (default = 0 = bootloader)
+    BOOT_ADDR_CUSTOM    : std_ulogic_ویکټور(31 downto 0) := x"00000000";   -- custom CPU boot address (if boot_config = 1)
 
     -- On-Chip Debugger (OCD) --
     OCD_EN              : boolean                        := false;         -- implement on-chip debugger
-    OCD_NUM_HW_TRIGGERS : natural range 0 to 16          := 0;             -- number of hardware break-/watchpoints
+    OCD_عدد_HW_TRIGGERS : natural range 0 to 16          := 0;             -- number of hardware break-/watchpoints
     OCD_AUTHENTICATION  : boolean                        := false;         -- implement on-chip debugger authentication
-    OCD_JEDEC_ID        : std_ulogic_vector(10 downto 0) := "00000000000"; -- JEDEC ID: continuation codes + vendor ID
+    OCD_JEDEC_ID        : std_ulogic_ویکټور(10 downto 0) := "00000000000"; -- JEDEC ID: continuation codes + vendor ID
 
     -- RISC-V CPU Extensions --
     RISCV_ISA_C         : boolean                        := false;         -- compressed extension
@@ -71,43 +71,43 @@ entity neorv32_top is
     CPU_CONSTT_BR_EN    : boolean                        := false;         -- enable constant-time branches
     CPU_FAST_MUL_EN     : boolean                        := false;         -- use DSPs for M extension's multiplier
     CPU_FAST_MUL_REGS   : natural range 1 to 3           := 1;             -- number of fast multiplier register stages (needs CPU_FAST_MUL_EN)
-    CPU_FAST_SHIFT_EN   : boolean                        := false;         -- use barrel shifter for shift operations
+    CPU_FAST_ښويدنه_EN   : boolean                        := false;         -- use barrel shifter for shift operations
     CPU_RF_ARCH_SEL     : natural range 0 to 3           := 0;             -- register file implementation style select
 
     -- Physical Memory Protection (PMP) --
-    PMP_NUM_REGIONS     : natural range 0 to 16          := 0;             -- number of regions
+    PMP_عدد_REGIONS     : natural range 0 to 16          := 0;             -- number of regions
     PMP_MIN_GRANULARITY : natural                        := 4;             -- minimal region granularity in bytes, has to be a power of 2, min 4 bytes
-    PMP_TOR_MODE_EN     : boolean                        := false;         -- implement TOR mode
-    PMP_NAP_MODE_EN     : boolean                        := false;         -- implement NAPOT/NA4 modes
+    PMP_TOR_ډېرپېښ_EN     : boolean                        := false;         -- implement TOR mode
+    PMP_NAP_ډېرپېښ_EN     : boolean                        := false;         -- implement NAPOT/NA4 modes
 
     -- Hardware Performance Monitors (HPM) --
-    HPM_NUM_CNTS        : natural range 0 to 29          := 0;             -- number of implemented HPM counters
-    HPM_CNT_WIDTH       : natural range 0 to 64          := 64;            -- total size of HPM counters
+    HPM_عدد_CNTS        : natural range 0 to 29          := 0;             -- number of implemented HPM counters
+    HPM_CNT_پلنوالی       : natural range 0 to 64          := 64;            -- total size of HPM counters
 
     -- Internal Instruction memory (IMEM) --
     IMEM_EN             : boolean                        := false;         -- implement processor-internal instruction memory
-    IMEM_BASE           : std_ulogic_vector(31 downto 0) := x"00000000";   -- base address of processor-internal instruction memory (naturally aligned)
-    IMEM_SIZE           : natural                        := 16*1024;       -- size of processor-internal instruction memory in bytes (use a power of 2)
+    IMEM_بنسټ           : std_ulogic_ویکټور(31 downto 0) := x"00000000";   -- base address of processor-internal instruction memory (naturally aligned)
+    IMEM_اندازه           : natural                        := 16*1024;       -- size of processor-internal instruction memory in bytes (use a power of 2)
     IMEM_OUTREG_EN      : boolean                        := false;         -- enable IMEM output register stage (for improved mapping/timing)
 
     -- Internal Data memory (DMEM) --
     DMEM_EN             : boolean                        := false;         -- implement processor-internal data memory
-    DMEM_BASE           : std_ulogic_vector(31 downto 0) := x"80000000";   -- base address of processor-internal data memory (naturally aligned)
-    DMEM_SIZE           : natural                        := 8*1024;        -- size of processor-internal data memory in bytes (use a power of 2)
+    DMEM_بنسټ           : std_ulogic_ویکټور(31 downto 0) := x"80000000";   -- base address of processor-internal data memory (naturally aligned)
+    DMEM_اندازه           : natural                        := 8*1024;        -- size of processor-internal data memory in bytes (use a power of 2)
     DMEM_OUTREG_EN      : boolean                        := false;         -- enable DMEM output register stage (for improved mapping/timing)
 
     -- CPU Caches --
     ICACHE_EN           : boolean                        := false;         -- implement instruction cache (i-cache)
-    ICACHE_NUM_BLOCKS   : natural range 1 to 4096        := 4;             -- i-cache: number of blocks, has to be a power of 2
+    ICACHE_عدد_بلاکونه   : natural range 1 to 4096        := 4;             -- i-cache: number of blocks, has to be a power of 2
     DCACHE_EN           : boolean                        := false;         -- implement data cache (d-cache)
-    DCACHE_NUM_BLOCKS   : natural range 1 to 4096        := 4;             -- d-cache: number of blocks, has to be a power of 2
-    CACHE_BLOCK_SIZE    : natural range 4 to 1024        := 64;            -- i-cache/d-cache: block size in bytes, has to be a power of 2
+    DCACHE_عدد_بلاکونه   : natural range 1 to 4096        := 4;             -- d-cache: number of blocks, has to be a power of 2
+    CACHE_بلاک_اندازه    : natural range 4 to 1024        := 64;            -- i-cache/d-cache: block size in bytes, has to be a power of 2
     CACHE_BURSTS_EN     : boolean                        := true;          -- i-cache/d-cache: enable issuing of burst transfer for cache update
-    CACHE_UC_BASE       : std_ulogic_vector(31 downto 0) := x"F0000000";   -- base address of uncached address space (has to be 256MB-aligned)
+    CACHE_UC_بنسټ       : std_ulogic_ویکټور(31 downto 0) := x"F0000000";   -- base address of uncached address space (has to be 256MB-aligned)
 
     -- Serial Memory Controller (SMC) --
     SMC_EN              : boolean                        := false;         -- implement serial memory controller
-    SMC_BASE            : std_ulogic_vector(31 downto 0) := x"E0000000";   -- serial memory base address (256MB-aligned)
+    SMC_بنسټ            : std_ulogic_ویکټور(31 downto 0) := x"E0000000";   -- serial memory base address (256MB-aligned)
 
     -- External Bus Interface (XBUS) --
     XBUS_EN             : boolean                        := false;         -- implement external bus interface
@@ -115,7 +115,7 @@ entity neorv32_top is
     XBUS_REGSTAGE_EN    : boolean                        := false;         -- add XBUS register stage
 
     -- General-Purpose Input/Output Controller (GPIO) --
-    IO_GPIO_NUM         : natural range 0 to 32          := 0;             -- number of GPIO input/output pairs
+    IO_GPIO_عدد         : natural range 0 to 32          := 0;             -- number of GPIO input/output pairs
     IO_GPIO_DIR_EN      : boolean                        := false;         -- enable GPIO direction control port
 
     -- RISC-V Core-Local Interruptor (CLINT) --
@@ -143,7 +143,7 @@ entity neorv32_top is
     IO_TWD_TX_FIFO      : natural range 1 to 32768       := 1;             -- TX FIFO depth, has to be zero or a power of two
 
     -- Pulse-Width Modulation Controller (PWM) --
-    IO_PWM_NUM          : natural range 0 to 32          := 0;             -- number of PWM channels to implement
+    IO_PWM_عدد          : natural range 0 to 32          := 0;             -- number of PWM channels to implement
 
     -- Watchdog Timer (WDT) --
     IO_WDT_EN           : boolean                        := false;         -- implement watch dog timer (WDT)
@@ -151,9 +151,9 @@ entity neorv32_top is
     -- True-Random Number Generator (TRNG) --
     IO_TRNG_EN          : boolean                        := false;         -- implement true random number generator (TRNG)
     IO_TRNG_FIFO        : natural range 1 to 32768       := 1;             -- data FIFO depth, has to be a power of two
-    IO_TRNG_NUM_RO      : natural range 1 to 255         := 3;             -- total number of ring-oscillators
-    IO_TRNG_NUM_INV     : natural range 3 to 4095        := 5;             -- number of inverters in first ring-oscillator; has to be odd
-    IO_TRNG_NUM_RBIT    : natural range 8 to 4096        := 64;            -- number of raw bits to process for one output byte; has to be power of two
+    IO_TRNG_عدد_RO      : natural range 1 to 255         := 3;             -- total number of ring-oscillators
+    IO_TRNG_عدد_INV     : natural range 3 to 4095        := 5;             -- number of inverters in first ring-oscillator; has to be odd
+    IO_TRNG_عدد_RBIT    : natural range 8 to 4096        := 64;            -- number of raw bits to process for one output byte; has to be power of two
 
     -- Custom Functions Subsystem (CFS) --
     IO_CFS_EN           : boolean                        := false;         -- implement custom functions subsystem (CFS)
@@ -163,7 +163,7 @@ entity neorv32_top is
     IO_NEOLED_TX_FIFO   : natural range 1 to 32768       := 1;             -- NEOLED FIFO depth, has to be a power of two
 
     -- General-Purpose Timer (GPTMR) --
-    IO_GPTMR_NUM        : natural range 0 to 16          := 0;             -- number of GPTMR timer slices to implement (0..16)
+    IO_GPTMR_عدد        : natural range 0 to 16          := 0;             -- number of GPTMR timer slices to implement (0..16)
 
     -- 1-Wire Interface (ONEWIRE) --
     IO_ONEWIRE_EN       : boolean                        := false;         -- implement 1-wire interface (ONEWIRE)
@@ -180,7 +180,7 @@ entity neorv32_top is
 
     -- Execution Trace Buffer (TRACEBUF) --
     IO_TRACEBUF_EN      : boolean                        := false;         -- implement instruction trace buffer
-    IO_TRACEBUF_DEPTH   : natural range 1 to 32768       := 1              -- trace buffer depth, has to be a power of two
+    IO_TRACEBUF_ژوروالی   : natural range 1 to 32768       := 1              -- trace buffer depth, has to be a power of two
   );
   port (
     -- Global control --
@@ -190,8 +190,8 @@ entity neorv32_top is
     rstn_wdt_o     : out std_ulogic;                                         -- watchdog reset output, low-active, sync
 
     -- Execution trace (available if TRACE_PORT_EN = true) --
-    trace_cpu0_o   : out trace_port_t;                                       -- CPU 0 trace port
-    trace_cpu1_o   : out trace_port_t;                                       -- CPU 1 trace port
+    trace_cpu0_o   : out trace_پورټ_t;                                       -- CPU 0 trace port
+    trace_cpu1_o   : out trace_پورټ_t;                                       -- CPU 1 trace port
 
     -- JTAG on-chip debugger interface (available if OCD_EN = true) --
     jtag_tck_i     : in  std_ulogic := 'L';                                  -- serial clock
@@ -202,39 +202,39 @@ entity neorv32_top is
     -- Serial memory controller interface (available if SMC_EN = true) --
     smc_ioen_o     : out std_ulogic;                                         -- SMC pin enable, can be used for IO multiplexing
     smc_sck_o      : out std_ulogic;                                         -- clock
-    smc_csn_o      : out std_ulogic_vector(1 downto 0);                      -- bank/chip select, low-active
+    smc_csn_o      : out std_ulogic_ویکټور(1 downto 0);                      -- bank/chip select, low-active
     smc_sdo_o      : out std_ulogic;                                         -- controller data out, memory data in
     smc_sdi_i      : in  std_ulogic := 'L';                                  -- controller data in, memory data out
 
     -- External bus interface (available if XBUS_EN = true) --
-    xbus_adr_o     : out std_ulogic_vector(31 downto 0);                     -- address
-    xbus_dat_o     : out std_ulogic_vector(31 downto 0);                     -- write data
-    xbus_cti_o     : out std_ulogic_vector(2 downto 0);                      -- cycle type
-    xbus_tag_o     : out std_ulogic_vector(2 downto 0);                      -- access tag
+    xbus_adr_o     : out std_ulogic_ویکټور(31 downto 0);                     -- address
+    xbus_dat_o     : out std_ulogic_ویکټور(31 downto 0);                     -- write data
+    xbus_cti_o     : out std_ulogic_ویکټور(2 downto 0);                      -- cycle type
+    xbus_نښان_o     : out std_ulogic_ویکټور(2 downto 0);                      -- access tag
     xbus_we_o      : out std_ulogic;                                         -- read/write
-    xbus_sel_o     : out std_ulogic_vector(3 downto 0);                      -- byte enable
+    xbus_sel_o     : out std_ulogic_ویکټور(3 downto 0);                      -- byte enable
     xbus_stb_o     : out std_ulogic;                                         -- strobe
     xbus_cyc_o     : out std_ulogic;                                         -- valid cycle
-    xbus_dat_i     : in  std_ulogic_vector(31 downto 0) := (others => 'L');  -- read data
+    xbus_dat_i     : in  std_ulogic_ویکټور(31 downto 0) := (others => 'L');  -- read data
     xbus_ack_i     : in  std_ulogic := 'L';                                  -- transfer acknowledge
     xbus_err_i     : in  std_ulogic := 'L';                                  -- transfer error
 
     -- Stream link interface (available if IO_SLINK_EN = true) --
-    slink_rx_dat_i : in  std_ulogic_vector(31 downto 0) := (others => 'L');  -- RX input data
-    slink_rx_src_i : in  std_ulogic_vector(3 downto 0)  := (others => 'L');  -- RX source routing information
+    slink_rx_dat_i : in  std_ulogic_ویکټور(31 downto 0) := (others => 'L');  -- RX input data
+    slink_rx_src_i : in  std_ulogic_ویکټور(3 downto 0)  := (others => 'L');  -- RX source routing information
     slink_rx_val_i : in  std_ulogic := 'L';                                  -- RX valid input
     slink_rx_lst_i : in  std_ulogic := 'L';                                  -- RX last element of stream
     slink_rx_rdy_o : out std_ulogic;                                         -- RX ready to receive
-    slink_tx_dat_o : out std_ulogic_vector(31 downto 0);                     -- TX output data
-    slink_tx_dst_o : out std_ulogic_vector(3 downto 0);                      -- TX destination routing information
+    slink_tx_dat_o : out std_ulogic_ویکټور(31 downto 0);                     -- TX output data
+    slink_tx_dst_o : out std_ulogic_ویکټور(3 downto 0);                      -- TX destination routing information
     slink_tx_val_o : out std_ulogic;                                         -- TX valid output
     slink_tx_lst_o : out std_ulogic;                                         -- TX last element of stream
     slink_tx_rdy_i : in  std_ulogic := 'L';                                  -- TX ready to send
 
     -- GPIO (available if IO_GPIO_NUM > 0) --
-    gpio_dir_o     : out std_ulogic_vector(31 downto 0);                     -- direction control (0=in, 1=out)
-    gpio_o         : out std_ulogic_vector(31 downto 0);                     -- parallel output
-    gpio_i         : in  std_ulogic_vector(31 downto 0) := (others => 'L');  -- parallel input; interrupt-capable
+    gpio_dir_o     : out std_ulogic_ویکټور(31 downto 0);                     -- direction control (0=in, 1=out)
+    gpio_o         : out std_ulogic_ویکټور(31 downto 0);                     -- parallel output
+    gpio_i         : in  std_ulogic_ویکټور(31 downto 0) := (others => 'L');  -- parallel input; interrupt-capable
 
     -- Primary UART0 (available if IO_UART0_EN = true) --
     uart0_txd_o    : out std_ulogic;                                         -- send data
@@ -252,7 +252,7 @@ entity neorv32_top is
     spi_clk_o      : out std_ulogic;                                         -- SPI serial clock
     spi_dat_o      : out std_ulogic;                                         -- controller data out, peripheral data in
     spi_dat_i      : in  std_ulogic := 'L';                                  -- controller data in, peripheral data out
-    spi_csn_o      : out std_ulogic_vector(7 downto 0);                      -- chip-select, low-active
+    spi_csn_o      : out std_ulogic_ویکټور(7 downto 0);                      -- chip-select, low-active
 
     -- SDI (available if IO_SDI_EN = true) --
     sdi_clk_i      : in  std_ulogic := 'L';                                  -- SDI serial clock
@@ -276,17 +276,17 @@ entity neorv32_top is
     onewire_o      : out std_ulogic;                                         -- 1-wire bus output (pull low only)
 
     -- PWM (available if IO_PWM_NUM > 0) --
-    pwm_o          : out std_ulogic_vector(31 downto 0);                     -- PWM channels
+    pwm_o          : out std_ulogic_ویکټور(31 downto 0);                     -- PWM channels
 
     -- Custom Functions Subsystem IO (available if IO_CFS_EN = true) --
-    cfs_in_i       : in  std_ulogic_vector(255 downto 0) := (others => 'L'); -- custom CFS inputs conduit
-    cfs_out_o      : out std_ulogic_vector(255 downto 0);                    -- custom CFS outputs conduit
+    cfs_دننه_i       : in  std_ulogic_ویکټور(255 downto 0) := (others => 'L'); -- custom CFS inputs conduit
+    cfs_بهر_o      : out std_ulogic_ویکټور(255 downto 0);                    -- custom CFS outputs conduit
 
     -- NeoPixel-compatible smart LED interface (available if IO_NEOLED_EN = true) --
     neoled_o       : out std_ulogic;                                         -- async serial data line
 
     -- Machine timer system time (available if IO_CLINT_EN = true) --
-    mtime_time_o   : out std_ulogic_vector(63 downto 0);                     -- current system time
+    mtime_وخت_o   : out std_ulogic_ویکټور(63 downto 0);                     -- current system time
 
     -- CPU interrupts --
     irq_msi_i      : in  std_ulogic := 'L';                                  -- machine software interrupt, available if IO_CLINT_EN = false
@@ -295,7 +295,7 @@ entity neorv32_top is
   );
 end entity;
 
-architecture neorv32_top_rtl of neorv32_top is
+architecture neorv32_سر_rtl of neorv32_سر is
 
   -- ----------------------------------------------------------
   -- Boot Configuration (BOOT_MODE_SELECT)
@@ -304,37 +304,37 @@ architecture neorv32_top_rtl of neorv32_top is
   -- 1: Custom (use BOOT_ADDR_CUSTOM)
   -- 2: Internal IMEM initialized with application image
   -- ----------------------------------------------------------
-  constant bootrom_en_c    : boolean := boolean(BOOT_MODE_SELECT = 0);
-  constant imem_as_rom_c   : boolean := boolean(BOOT_MODE_SELECT = 2);
-  constant cpu_boot_addr_c : std_ulogic_vector(31 downto 0) :=
-    sel_suv_f(boolean(BOOT_MODE_SELECT = 0), base_io_bootrom_c,
-    sel_suv_f(boolean(BOOT_MODE_SELECT = 1), BOOT_ADDR_CUSTOM,
-    sel_suv_f(boolean(BOOT_MODE_SELECT = 2), IMEM_BASE, x"00000000")));
+  constant bootrom_en_c    : boolean := boolean(BOOT_ډېرپېښ_SELECT = 0);
+  constant imem_as_rom_c   : boolean := boolean(BOOT_ډېرپېښ_SELECT = 2);
+  constant cpu_boot_addr_c : std_ulogic_ویکټور(31 downto 0) :=
+    sel_suv_f(boolean(BOOT_ډېرپېښ_SELECT = 0), بنسټ_io_bootrom_c,
+    sel_suv_f(boolean(BOOT_ډېرپېښ_SELECT = 1), BOOT_ADDR_CUSTOM,
+    sel_suv_f(boolean(BOOT_ډېرپېښ_SELECT = 2), IMEM_بنسټ, x"00000000")));
 
   -- auto-configuration --
-  constant num_cores_c     : natural := sel_natural_f(DUAL_CORE_EN, 2, 1);
-  constant io_gpio_en_c    : boolean := boolean(IO_GPIO_NUM > 0);
-  constant io_pwm_en_c     : boolean := boolean(IO_PWM_NUM > 0);
-  constant io_gptmr_en_c   : boolean := boolean(IO_GPTMR_NUM > 0);
-  constant cpu_smpmp_en_c  : boolean := boolean(PMP_NUM_REGIONS > 0);
+  constant عدد_cores_c     : natural := sel_natural_f(DUAL_CORE_EN, 2, 1);
+  constant io_gpio_en_c    : boolean := boolean(IO_GPIO_عدد > 0);
+  constant io_pwm_en_c     : boolean := boolean(IO_PWM_عدد > 0);
+  constant io_gptmr_en_c   : boolean := boolean(IO_GPTMR_عدد > 0);
+  constant cpu_smpmp_en_c  : boolean := boolean(PMP_عدد_REGIONS > 0);
   constant ocd_auth_en_c   : boolean := OCD_EN and OCD_AUTHENTICATION;
-  constant cpu_sdtrig_en_c : boolean := OCD_EN and boolean(OCD_NUM_HW_TRIGGERS > 0);
-  constant trace_port_en_c : boolean := TRACE_PORT_EN or IO_TRACEBUF_EN;
-  constant vendorid_c      : std_ulogic_vector(31 downto 0) := x"00000" & '0' & OCD_JEDEC_ID;
-  constant bursts_en_c     : boolean := CACHE_BURSTS_EN and (ICACHE_EN or DCACHE_EN) and boolean(CACHE_BLOCK_SIZE >= 8);
+  constant cpu_sdtrig_en_c : boolean := OCD_EN and boolean(OCD_عدد_HW_TRIGGERS > 0);
+  constant trace_پورټ_en_c : boolean := TRACE_پورټ_EN or IO_TRACEBUF_EN;
+  constant vendorid_c      : std_ulogic_ویکټور(31 downto 0) := x"00000" & '0' & OCD_JEDEC_ID;
+  constant bursts_en_c     : boolean := CACHE_BURSTS_EN and (ICACHE_EN or DCACHE_EN) and boolean(CACHE_بلاک_اندازه >= 8);
   constant cc_reg_en_c     : boolean := DUAL_CORE_EN and ICACHE_EN and DCACHE_EN;
 
   -- make sure physical memory sizes are a power of two --
-  constant log2_imem_size_c : natural := index_size_f(IMEM_SIZE);
-  constant log2_dmem_size_c : natural := index_size_f(DMEM_SIZE);
-  constant imem_size_c      : natural := 2**log2_imem_size_c;
-  constant dmem_size_c      : natural := 2**log2_dmem_size_c;
+  constant log2_imem_اندازه_c : natural := شاخص_اندازه_f(IMEM_اندازه);
+  constant log2_dmem_اندازه_c : natural := شاخص_اندازه_f(DMEM_اندازه);
+  constant imem_اندازه_c      : natural := 2**log2_imem_اندازه_c;
+  constant dmem_اندازه_c      : natural := 2**log2_dmem_اندازه_c;
 
   -- reset nets --
   signal rstn_wdt, rstn_sys, rstn_ext : std_ulogic;
 
   -- pre-scaled clocks (clock enables) --
-  signal clk_gen : std_ulogic_vector(7 downto 0);
+  signal clk_gen : std_ulogic_ویکټور(7 downto 0);
 
   -- debug module interface (DMI) --
   signal dmi_req : dmi_req_t;
@@ -342,15 +342,15 @@ architecture neorv32_top_rtl of neorv32_top is
 
   -- debug core interface (DCI) --
   signal dci_ndmrstn : std_ulogic;
-  signal dci_haltreq : std_ulogic_vector(num_cores_c-1 downto 0);
+  signal dci_haltreq : std_ulogic_ویکټور(عدد_cores_c-1 downto 0);
 
   -- CPU trace interface --
-  type cpu_trace_t is array (num_cores_c-1 downto 0) of trace_port_t;
+  type cpu_trace_t is array (عدد_cores_c-1 downto 0) of trace_پورټ_t;
   signal cpu_trace : cpu_trace_t;
 
   -- bus: core complex --
-  type core_complex_req_t is array (num_cores_c-1 downto 0) of bus_req_t;
-  type core_complex_rsp_t is array (num_cores_c-1 downto 0) of bus_rsp_t;
+  type core_complex_req_t is array (عدد_cores_c-1 downto 0) of bus_req_t;
+  type core_complex_rsp_t is array (عدد_cores_c-1 downto 0) of bus_rsp_t;
   signal core_req : core_complex_req_t;
   signal core_rsp : core_complex_rsp_t;
 
@@ -377,12 +377,12 @@ architecture neorv32_top_rtl of neorv32_top is
   );
   type firq_t is array (firq_enum_t) of std_ulogic;
   signal firq     : firq_t;
-  signal cpu_firq : std_ulogic_vector(15 downto 0);
-  signal mti, msi : std_ulogic_vector(num_cores_c-1 downto 0);
+  signal cpu_firq : std_ulogic_ویکټور(15 downto 0);
+  signal mti, msi : std_ulogic_ویکټور(عدد_cores_c-1 downto 0);
 
   -- system time --
-  signal mtime    : std_ulogic_vector(63 downto 0);
-  signal mtime_lo : std_ulogic_vector(31 downto 0);
+  signal mtime    : std_ulogic_ویکټور(63 downto 0);
+  signal mtime_lo : std_ulogic_ویکټور(31 downto 0);
 
 begin
 
@@ -396,17 +396,17 @@ begin
     -- say hello --
     assert false report
       "[NEORV32] The NEORV32 RISC-V Processor (v" &
-      to_hexstring_f(hw_version_c(31 downto 24)) & "." &
-      to_hexstring_f(hw_version_c(23 downto 16)) & "." &
-      to_hexstring_f(hw_version_c(15 downto 8))  & "." &
-      to_hexstring_f(hw_version_c(7 downto 0))   &
+      منزل_hexstring_f(hw_نسخه_c(31 downto 24)) & "." &
+      منزل_hexstring_f(hw_نسخه_c(23 downto 16)) & "." &
+      منزل_hexstring_f(hw_نسخه_c(15 downto 8))  & "." &
+      منزل_hexstring_f(hw_نسخه_c(7 downto 0))   &
       "), github.com/stnolting/neorv32" severity note;
 
     -- show SoC configuration --
     assert false report
       "[NEORV32] Processor Configuration: CPU " &
-      sel_string_f(boolean(num_cores_c = 1), "(single-core) ",   "") &
-      sel_string_f(boolean(num_cores_c = 2), "(smp-dual-core) ", "") &
+      sel_string_f(boolean(عدد_cores_c = 1), "(single-core) ",   "") &
+      sel_string_f(boolean(عدد_cores_c = 2), "(smp-dual-core) ", "") &
       sel_string_f(IMEM_EN,         sel_string_f(imem_as_rom_c, "IMEM-ROM ", "IMEM "), "") &
       sel_string_f(DMEM_EN,         "DMEM ",     "") &
       sel_string_f(bootrom_en_c,    "BOOTROM ",  "") &
@@ -448,15 +448,15 @@ begin
       "[NEORV32] CLOCK_FREQUENCY must be configured according to the frequency of clk_i port!" severity warning;
 
     -- boot configuration notifier --
-    assert not (BOOT_MODE_SELECT = 0) report
+    assert not (BOOT_ډېرپېښ_SELECT = 0) report
       "[NEORV32] BOOT_MODE_SELECT 0 - booting via bootloader" severity note;
-    assert not (BOOT_MODE_SELECT = 1) report
+    assert not (BOOT_ډېرپېښ_SELECT = 1) report
       "[NEORV32] BOOT_MODE_SELECT 1 - booting from custom address" severity note;
-    assert not (BOOT_MODE_SELECT = 2) report
+    assert not (BOOT_ډېرپېښ_SELECT = 2) report
       "[NEORV32] BOOT_MODE_SELECT 2 - booting IMEM image" severity note;
 
     -- boot configuration: boot from initialized IMEM requires the IMEM to be enabled --
-    assert not ((BOOT_MODE_SELECT = 2) and (not IMEM_EN)) report
+    assert not ((BOOT_ډېرپېښ_SELECT = 2) and (not IMEM_EN)) report
       "[NEORV32] BOOT_MODE_SELECT = 2 (boot IMEM image) requires the internal instruction memory (IMEM)!" severity error;
 
     -- SMP dual-core configuration requires the CLINT --
@@ -464,23 +464,23 @@ begin
       "[NEORV32] SMP dual-core configuration requires the CLINT!" severity error;
 
     -- custom IMEM address --
-    assert not (IMEM_EN and (IMEM_BASE /= x"00000000")) report
+    assert not (IMEM_EN and (IMEM_بنسټ /= x"00000000")) report
       "[NEORV32] Using non-default IMEM base address. Configure SW framework accordingly." severity warning;
-    assert (or_reduce_f(IMEM_BASE(index_size_f(imem_size_c)-1 downto 0)) = '0') report
+    assert (or_reduce_f(IMEM_بنسټ(شاخص_اندازه_f(imem_اندازه_c)-1 downto 0)) = '0') report
       "[NEORV32] IMEM base address has to be naturally aligned to its size!" severity error;
 
     -- custom DMEM address --
-    assert not (DMEM_EN and (DMEM_BASE /= x"80000000")) report
+    assert not (DMEM_EN and (DMEM_بنسټ /= x"80000000")) report
       "[NEORV32] Using non-default DMEM base address. Configure SW framework accordingly." severity warning;
-    assert (or_reduce_f(DMEM_BASE(index_size_f(dmem_size_c)-1 downto 0)) = '0') report
+    assert (or_reduce_f(DMEM_بنسټ(شاخص_اندازه_f(dmem_اندازه_c)-1 downto 0)) = '0') report
       "[NEORV32] DMEM base address has to be naturally aligned to its size!" severity error;
 
     -- custom SMC address --
-    assert (or_reduce_f(SMC_BASE(27 downto 0)) = '0') report
+    assert (or_reduce_f(SMC_بنسټ(27 downto 0)) = '0') report
       "[NEORV32] SMC base address has to be 256MB aligned!" severity error;
 
     -- uncached base address alignment --
-    assert (CACHE_UC_BASE(27 downto 0) = x"0000000") report
+    assert (CACHE_UC_بنسټ(27 downto 0) = x"0000000") report
       "[NEORV32] Base address of uncached address space has to be 256MB-aligned!" severity error;
 
   end generate;
@@ -540,15 +540,15 @@ begin
   -- CPU Core Complex -----------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   core_complex_gen:
-  for i in 0 to num_cores_c-1 generate
+  for i in 0 to عدد_cores_c-1 generate
     core_complex_inst: entity neorv32.neorv32_core_complex
     generic map (
       HART_ID             => i,
       VENDOR_ID           => vendorid_c,
       BOOT_ADDR           => cpu_boot_addr_c,
-      DEBUG_PARK_ADDR     => dm_park_entry_c,
-      DEBUG_EXC_ADDR      => dm_exc_entry_c,
-      TRACE_PORT_EN       => trace_port_en_c,
+      DEBUG_PARK_ADDR     => dm_park_ثبت_c,
+      DEBUG_EXC_ADDR      => dm_exc_ثبت_c,
+      TRACE_پورټ_EN       => trace_پورټ_en_c,
       TRACE_SIMLOG_EN     => TRACE_SIMLOG_EN,
       RISCV_ISA_C         => RISCV_ISA_C,
       RISCV_ISA_E         => RISCV_ISA_E,
@@ -585,22 +585,22 @@ begin
       CPU_CONSTT_BR_EN    => CPU_CONSTT_BR_EN,
       CPU_FAST_MUL_EN     => CPU_FAST_MUL_EN,
       CPU_FAST_MUL_REGS   => CPU_FAST_MUL_REGS,
-      CPU_FAST_SHIFT_EN   => CPU_FAST_SHIFT_EN,
+      CPU_FAST_ښويدنه_EN   => CPU_FAST_ښويدنه_EN,
       CPU_RF_ARCH_SEL     => CPU_RF_ARCH_SEL,
-      PMP_NUM_REGIONS     => PMP_NUM_REGIONS,
+      PMP_عدد_REGIONS     => PMP_عدد_REGIONS,
       PMP_MIN_GRANULARITY => PMP_MIN_GRANULARITY,
-      PMP_TOR_MODE_EN     => PMP_TOR_MODE_EN,
-      PMP_NAP_MODE_EN     => PMP_NAP_MODE_EN,
-      HPM_NUM_CNTS        => HPM_NUM_CNTS,
-      HPM_CNT_WIDTH       => HPM_CNT_WIDTH,
-      NUM_HW_TRIGGERS     => OCD_NUM_HW_TRIGGERS,
+      PMP_TOR_ډېرپېښ_EN     => PMP_TOR_ډېرپېښ_EN,
+      PMP_NAP_ډېرپېښ_EN     => PMP_NAP_ډېرپېښ_EN,
+      HPM_عدد_CNTS        => HPM_عدد_CNTS,
+      HPM_CNT_پلنوالی       => HPM_CNT_پلنوالی,
+      عدد_HW_TRIGGERS     => OCD_عدد_HW_TRIGGERS,
       ICACHE_EN           => ICACHE_EN,
-      ICACHE_NUM_BLOCKS   => ICACHE_NUM_BLOCKS,
+      ICACHE_عدد_بلاکونه   => ICACHE_عدد_بلاکونه,
       DCACHE_EN           => DCACHE_EN,
-      DCACHE_NUM_BLOCKS   => DCACHE_NUM_BLOCKS,
-      CACHE_BLOCK_SIZE    => CACHE_BLOCK_SIZE,
+      DCACHE_عدد_بلاکونه   => DCACHE_عدد_بلاکونه,
+      CACHE_بلاک_اندازه    => CACHE_بلاک_اندازه,
       CACHE_BURSTS_EN     => bursts_en_c,
-      CACHE_UC_BASE       => CACHE_UC_BASE(31 downto 28),
+      CACHE_UC_بنسټ       => CACHE_UC_بنسټ(31 downto 28),
       REGSTAGE_EN         => cc_reg_en_c
     )
     port map (
@@ -620,33 +620,33 @@ begin
   end generate;
 
   -- execution trace ports --
-  trace_cpu0_o <= cpu_trace(core_req'low)  when TRACE_PORT_EN else trace_port_terminate_c;
-  trace_cpu1_o <= cpu_trace(core_req'high) when TRACE_PORT_EN and (num_cores_c = 2) else trace_port_terminate_c;
+  trace_cpu0_o <= cpu_trace(core_req'ټیټ)  when TRACE_پورټ_EN else trace_پورټ_terminate_c;
+  trace_cpu1_o <= cpu_trace(core_req'لوړ) when TRACE_پورټ_EN and (عدد_cores_c = 2) else trace_پورټ_terminate_c;
 
   -- Core Complex Bus Arbiter ---------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   core_complex_dual:
-  if num_cores_c = 2 generate
+  if عدد_cores_c = 2 generate
     core_arbiter_inst: entity neorv32.neorv32_bus_switch
     generic map (
-      ROUND_ROBIN_EN => true, -- fair (and lockable) scheduling
+      پړاو_ROBIN_EN => true, -- fair (and lockable) scheduling
       A_READ_ONLY    => false,
       B_READ_ONLY    => false
     )
     port map (
       clk_i   => clk_i,
       rstn_i  => rstn_sys,
-      a_req_i => core_req(core_req'low),
-      a_rsp_o => core_rsp(core_rsp'low),
-      b_req_i => core_req(core_req'high),
-      b_rsp_o => core_rsp(core_rsp'high),
+      a_req_i => core_req(core_req'ټیټ),
+      a_rsp_o => core_rsp(core_rsp'ټیټ),
+      b_req_i => core_req(core_req'لوړ),
+      b_rsp_o => core_rsp(core_rsp'لوړ),
       x_req_o => sys1_req,
       x_rsp_i => sys1_rsp
     );
   end generate;
 
   core_complex_single:
-  if num_cores_c = 1 generate
+  if عدد_cores_c = 1 generate
     sys1_req    <= core_req(0);
     core_rsp(0) <= sys1_rsp;
   end generate;
@@ -678,7 +678,7 @@ begin
     -- -------------------------------------------------------------------------------------------
     dma_bus_switch_inst: entity neorv32.neorv32_bus_switch
     generic map (
-      ROUND_ROBIN_EN => false, -- use prioritizing arbitration
+      پړاو_ROBIN_EN => false, -- use prioritizing arbitration
       A_READ_ONLY    => false,
       B_READ_ONLY    => false
     )
@@ -764,23 +764,23 @@ begin
   generic map (
     -- port A: internal IMEM --
     A_EN    => IMEM_EN,
-    A_BASE  => IMEM_BASE,
-    A_SIZE  => imem_size_c,
+    A_بنسټ  => IMEM_بنسټ,
+    A_اندازه  => imem_اندازه_c,
     A_TMO   => int_bus_tmo_c,
     -- port B: internal DMEM --
     B_EN    => DMEM_EN,
-    B_BASE  => DMEM_BASE,
-    B_SIZE  => dmem_size_c,
+    B_بنسټ  => DMEM_بنسټ,
+    B_اندازه  => dmem_اندازه_c,
     B_TMO   => int_bus_tmo_c,
     -- port C: internal serial memory controller --
     C_EN    => SMC_EN,
-    C_BASE  => SMC_BASE,
-    C_SIZE  => 256*1024*1024, -- 256MB
+    C_بنسټ  => SMC_بنسټ,
+    C_اندازه  => 256*1024*1024, -- 256MB
     C_TMO   => 2048, -- maximum SMC transfer duration + safety margin
     -- port D: internal IO --
     D_EN    => true,
-    D_BASE  => mem_io_base_c,
-    D_SIZE  => mem_io_size_c,
+    D_بنسټ  => mem_io_بنسټ_c,
+    D_اندازه  => mem_io_اندازه_c,
     D_TMO   => int_bus_tmo_c,
     -- port X (the void): external bus interface --
     X_EN    => XBUS_EN,
@@ -789,7 +789,7 @@ begin
   port map (
     clk_i   => clk_i,
     rstn_i  => rstn_sys,
-    term_o  => xbus_terminate,
+    غړی_o  => xbus_terminate,
     req_i   => sys3_req,
     rsp_o   => sys3_rsp,
     a_req_o => imem_req,
@@ -808,7 +808,7 @@ begin
   -- Memory System
   -- **************************************************************************************************************************
 
-  memory_system:
+  حافظه_system:
   if true generate
 
     -- Processor-Internal Instruction Memory (IMEM) -------------------------------------------
@@ -818,18 +818,18 @@ begin
     if IMEM_EN generate
       imem_inst: neorv32_imem -- component declaration in package file
       generic map (
-        AWIDTH  => log2_imem_size_c,
+        AWIDTH  => log2_imem_اندازه_c,
         INITROM => imem_as_rom_c,
         OUTREG  => IMEM_OUTREG_EN
       )
       port map (
         clk_i      => clk_i,
         req_addr_i => imem_req.addr,
-        req_data_i => imem_req.data,
+        req_معلومات_i => imem_req.معلومات,
         req_ben_i  => imem_req.ben,
         req_stb_i  => imem_req.stb,
         req_rw_i   => imem_req.rw,
-        rsp_data_o => imem_rsp.data,
+        rsp_معلومات_o => imem_rsp.معلومات,
         rsp_ack_o  => imem_rsp.ack
       );
       imem_rsp.err <= '0';
@@ -847,17 +847,17 @@ begin
     if DMEM_EN generate
       dmem_inst: neorv32_dmem -- component declaration in package file
       generic map (
-        AWIDTH => log2_dmem_size_c,
+        AWIDTH => log2_dmem_اندازه_c,
         OUTREG => DMEM_OUTREG_EN
       )
       port map (
         clk_i      => clk_i,
         req_addr_i => dmem_req.addr,
-        req_data_i => dmem_req.data,
+        req_معلومات_i => dmem_req.معلومات,
         req_ben_i  => dmem_req.ben,
         req_stb_i  => dmem_req.stb,
         req_rw_i   => dmem_req.rw,
-        rsp_data_o => dmem_rsp.data,
+        rsp_معلومات_o => dmem_rsp.معلومات,
         rsp_ack_o  => dmem_rsp.ack
       );
       dmem_rsp.err <= '0';
@@ -874,17 +874,17 @@ begin
     if SMC_EN generate
       smc_inst: entity neorv32.neorv32_smc
       generic map (
-        BURST_EN   => bursts_en_c,
-        BURST_SIZE => CACHE_BLOCK_SIZE,
-        MEM_BASE   => SMC_BASE
+        موده_EN   => bursts_en_c,
+        موده_اندازه => CACHE_بلاک_اندازه,
+        MEM_بنسټ   => SMC_بنسټ
       )
       port map (
         clk_i      => clk_i,
         rstn_i     => rstn_sys,
         ctrl_req_i => iodev_req(IODEV_SMC),
         ctrl_rsp_o => iodev_rsp(IODEV_SMC),
-        data_req_i => smc_req,
-        data_rsp_o => smc_rsp,
+        معلومات_req_i => smc_req,
+        معلومات_rsp_o => smc_rsp,
         smc_ioen_o => smc_ioen_o,
         smc_sck_o  => smc_sck_o,
         smc_csn_o  => smc_csn_o,
@@ -914,14 +914,14 @@ begin
       port map (
         clk_i      => clk_i,
         rstn_i     => rstn_sys,
-        bus_term_i => xbus_terminate,
+        bus_غړی_i => xbus_terminate,
         bus_req_i  => xbus_req,
         bus_rsp_o  => xbus_rsp,
         xbus_adr_o => xbus_adr_o,
         xbus_dat_i => xbus_dat_i,
         xbus_dat_o => xbus_dat_o,
         xbus_cti_o => xbus_cti_o,
-        xbus_tag_o => xbus_tag_o,
+        xbus_نښان_o => xbus_نښان_o,
         xbus_we_o  => xbus_we_o,
         xbus_sel_o => xbus_sel_o,
         xbus_stb_o => xbus_stb_o,
@@ -937,7 +937,7 @@ begin
       xbus_adr_o <= (others => '0');
       xbus_dat_o <= (others => '0');
       xbus_cti_o <= (others => '0');
-      xbus_tag_o <= (others => '0');
+      xbus_نښان_o <= (others => '0');
       xbus_we_o  <= '0';
       xbus_sel_o <= (others => '0');
       xbus_stb_o <= '0';
@@ -957,39 +957,39 @@ begin
     -- -------------------------------------------------------------------------------------------
     bus_io_switch_inst: entity neorv32.neorv32_bus_io_switch
     generic map (
-      DEV_SIZE  => mem_io_dev_size_c,
-      DEV_00_EN => bootrom_en_c,      DEV_00_BASE => base_io_bootrom_c,
-      DEV_01_EN => false,             DEV_01_BASE => (others => '0'), -- reserved
-      DEV_02_EN => false,             DEV_02_BASE => (others => '0'), -- reserved
-      DEV_03_EN => false,             DEV_03_BASE => (others => '0'), -- reserved
-      DEV_04_EN => false,             DEV_04_BASE => (others => '0'), -- reserved
-      DEV_05_EN => false,             DEV_05_BASE => (others => '0'), -- reserved
-      DEV_06_EN => false,             DEV_06_BASE => (others => '0'), -- reserved
-      DEV_07_EN => false,             DEV_07_BASE => (others => '0'), -- reserved
-      DEV_08_EN => false,             DEV_08_BASE => (others => '0'), -- reserved
-      DEV_09_EN => false,             DEV_09_BASE => (others => '0'), -- reserved
-      DEV_10_EN => IO_TWD_EN,         DEV_10_BASE => base_io_twd_c,
-      DEV_11_EN => IO_CFS_EN,         DEV_11_BASE => base_io_cfs_c,
-      DEV_12_EN => IO_SLINK_EN,       DEV_12_BASE => base_io_slink_c,
-      DEV_13_EN => IO_DMA_EN,         DEV_13_BASE => base_io_dma_c,
-      DEV_14_EN => false,             DEV_14_BASE => (others => '0'), -- reserved
-      DEV_15_EN => SMC_EN,            DEV_15_BASE => base_io_smc_c,
-      DEV_16_EN => io_pwm_en_c,       DEV_16_BASE => base_io_pwm_c,
-      DEV_17_EN => io_gptmr_en_c,     DEV_17_BASE => base_io_gptmr_c,
-      DEV_18_EN => IO_ONEWIRE_EN,     DEV_18_BASE => base_io_onewire_c,
-      DEV_19_EN => IO_TRACEBUF_EN,    DEV_19_BASE => base_io_tracebuf_c,
-      DEV_20_EN => IO_CLINT_EN,       DEV_20_BASE => base_io_clint_c,
-      DEV_21_EN => IO_UART0_EN,       DEV_21_BASE => base_io_uart0_c,
-      DEV_22_EN => IO_UART1_EN,       DEV_22_BASE => base_io_uart1_c,
-      DEV_23_EN => IO_SDI_EN,         DEV_23_BASE => base_io_sdi_c,
-      DEV_24_EN => IO_SPI_EN,         DEV_24_BASE => base_io_spi_c,
-      DEV_25_EN => IO_TWI_EN,         DEV_25_BASE => base_io_twi_c,
-      DEV_26_EN => IO_TRNG_EN,        DEV_26_BASE => base_io_trng_c,
-      DEV_27_EN => IO_WDT_EN,         DEV_27_BASE => base_io_wdt_c,
-      DEV_28_EN => io_gpio_en_c,      DEV_28_BASE => base_io_gpio_c,
-      DEV_29_EN => IO_NEOLED_EN,      DEV_29_BASE => base_io_neoled_c,
-      DEV_30_EN => true,              DEV_30_BASE => base_io_sysinfo_c, -- always enabled
-      DEV_31_EN => OCD_EN,            DEV_31_BASE => base_io_ocd_c
+      DEV_اندازه  => mem_io_dev_اندازه_c,
+      DEV_00_EN => bootrom_en_c,      DEV_00_بنسټ => بنسټ_io_bootrom_c,
+      DEV_01_EN => false,             DEV_01_بنسټ => (others => '0'), -- reserved
+      DEV_02_EN => false,             DEV_02_بنسټ => (others => '0'), -- reserved
+      DEV_03_EN => false,             DEV_03_بنسټ => (others => '0'), -- reserved
+      DEV_04_EN => false,             DEV_04_بنسټ => (others => '0'), -- reserved
+      DEV_05_EN => false,             DEV_05_بنسټ => (others => '0'), -- reserved
+      DEV_06_EN => false,             DEV_06_بنسټ => (others => '0'), -- reserved
+      DEV_07_EN => false,             DEV_07_بنسټ => (others => '0'), -- reserved
+      DEV_08_EN => false,             DEV_08_بنسټ => (others => '0'), -- reserved
+      DEV_09_EN => false,             DEV_09_بنسټ => (others => '0'), -- reserved
+      DEV_10_EN => IO_TWD_EN,         DEV_10_بنسټ => بنسټ_io_twd_c,
+      DEV_11_EN => IO_CFS_EN,         DEV_11_بنسټ => بنسټ_io_cfs_c,
+      DEV_12_EN => IO_SLINK_EN,       DEV_12_بنسټ => بنسټ_io_slink_c,
+      DEV_13_EN => IO_DMA_EN,         DEV_13_بنسټ => بنسټ_io_dma_c,
+      DEV_14_EN => false,             DEV_14_بنسټ => (others => '0'), -- reserved
+      DEV_15_EN => SMC_EN,            DEV_15_بنسټ => بنسټ_io_smc_c,
+      DEV_16_EN => io_pwm_en_c,       DEV_16_بنسټ => بنسټ_io_pwm_c,
+      DEV_17_EN => io_gptmr_en_c,     DEV_17_بنسټ => بنسټ_io_gptmr_c,
+      DEV_18_EN => IO_ONEWIRE_EN,     DEV_18_بنسټ => بنسټ_io_onewire_c,
+      DEV_19_EN => IO_TRACEBUF_EN,    DEV_19_بنسټ => بنسټ_io_tracebuf_c,
+      DEV_20_EN => IO_CLINT_EN,       DEV_20_بنسټ => بنسټ_io_clint_c,
+      DEV_21_EN => IO_UART0_EN,       DEV_21_بنسټ => بنسټ_io_uart0_c,
+      DEV_22_EN => IO_UART1_EN,       DEV_22_بنسټ => بنسټ_io_uart1_c,
+      DEV_23_EN => IO_SDI_EN,         DEV_23_بنسټ => بنسټ_io_sdi_c,
+      DEV_24_EN => IO_SPI_EN,         DEV_24_بنسټ => بنسټ_io_spi_c,
+      DEV_25_EN => IO_TWI_EN,         DEV_25_بنسټ => بنسټ_io_twi_c,
+      DEV_26_EN => IO_TRNG_EN,        DEV_26_بنسټ => بنسټ_io_trng_c,
+      DEV_27_EN => IO_WDT_EN,         DEV_27_بنسټ => بنسټ_io_wdt_c,
+      DEV_28_EN => io_gpio_en_c,      DEV_28_بنسټ => بنسټ_io_gpio_c,
+      DEV_29_EN => IO_NEOLED_EN,      DEV_29_بنسټ => بنسټ_io_neoled_c,
+      DEV_30_EN => true,              DEV_30_بنسټ => بنسټ_io_sysinfo_c, -- always enabled
+      DEV_31_EN => OCD_EN,            DEV_31_بنسټ => بنسټ_io_ocd_c
     )
     port map (
       clk_i        => clk_i,
@@ -1042,7 +1042,7 @@ begin
         req_ben_i  => iodev_req(IODEV_BOOTROM).ben,
         req_stb_i  => iodev_req(IODEV_BOOTROM).stb,
         req_rw_i   => iodev_req(IODEV_BOOTROM).rw,
-        rsp_data_o => iodev_rsp(IODEV_BOOTROM).data,
+        rsp_معلومات_o => iodev_rsp(IODEV_BOOTROM).معلومات,
         rsp_ack_o  => iodev_rsp(IODEV_BOOTROM).ack
       );
       iodev_rsp(IODEV_BOOTROM).err <= '0';
@@ -1063,15 +1063,15 @@ begin
         clk_i      => clk_i,
         rstn_i     => rstn_sys,
         req_addr_i => iodev_req(IODEV_CFS).addr(15 downto 0),
-        req_data_i => iodev_req(IODEV_CFS).data,
+        req_معلومات_i => iodev_req(IODEV_CFS).معلومات,
         req_ben_i  => iodev_req(IODEV_CFS).ben,
         req_stb_i  => iodev_req(IODEV_CFS).stb,
         req_rw_i   => iodev_req(IODEV_CFS).rw,
-        rsp_data_o => iodev_rsp(IODEV_CFS).data,
+        rsp_معلومات_o => iodev_rsp(IODEV_CFS).معلومات,
         rsp_ack_o  => iodev_rsp(IODEV_CFS).ack,
         irq_o      => firq(FIRQ_CFS),
-        cfs_in_i   => cfs_in_i,
-        cfs_out_o  => cfs_out_o
+        cfs_دننه_i   => cfs_دننه_i,
+        cfs_بهر_o  => cfs_بهر_o
       );
       iodev_rsp(IODEV_CFS).err <= '0';
     end generate;
@@ -1080,7 +1080,7 @@ begin
     if not IO_CFS_EN generate
       iodev_rsp(IODEV_CFS) <= rsp_terminate_c;
       firq(FIRQ_CFS)       <= '0';
-      cfs_out_o            <= (others => '0');
+      cfs_بهر_o            <= (others => '0');
     end generate;
 
     -- Serial Data Interface (SDI) ------------------------------------------------------------
@@ -1117,7 +1117,7 @@ begin
     if io_gpio_en_c generate
       gpio_inst: entity neorv32.neorv32_gpio
       generic map (
-        GPIO_NUM => IO_GPIO_NUM,
+        GPIO_عدد => IO_GPIO_عدد,
         GPIO_DIR => IO_GPIO_DIR_EN
       )
       port map (
@@ -1125,9 +1125,9 @@ begin
         rstn_i     => rstn_sys,
         bus_req_i  => iodev_req(IODEV_GPIO),
         bus_rsp_o  => iodev_rsp(IODEV_GPIO),
-        port_dir_o => gpio_dir_o,
-        port_out_o => gpio_o,
-        port_in_i  => gpio_i,
+        پورټ_dir_o => gpio_dir_o,
+        پورټ_بهر_o => gpio_o,
+        پورټ_دننه_i  => gpio_i,
         irq_o      => firq(FIRQ_GPIO)
       );
     end generate;
@@ -1169,14 +1169,14 @@ begin
     if IO_CLINT_EN generate
       clint_inst: entity neorv32.neorv32_clint
       generic map (
-        NUM_HARTS => num_cores_c
+        عدد_HARTS => عدد_cores_c
       )
       port map (
         clk_i     => clk_i,
         rstn_i    => rstn_sys,
         bus_req_i => iodev_req(IODEV_CLINT),
         bus_rsp_o => iodev_rsp(IODEV_CLINT),
-        time_o    => mtime,
+        وخت_o    => mtime,
         mti_o     => mti,
         msi_o     => msi
       );
@@ -1186,11 +1186,11 @@ begin
       begin
         if (rstn_i = '0') then
           mtime_lo(31 downto 0) <= (others => '0');
-        elsif rising_edge(clk_i) then
+        elsif rising_څنډه(clk_i) then
           mtime_lo(31 downto 0) <= mtime(31 downto 0);
         end if;
       end process;
-      mtime_time_o <= mtime(63 downto 32) & mtime_lo;
+      mtime_وخت_o <= mtime(63 downto 32) & mtime_lo;
     end generate;
 
     clint_disabled:
@@ -1198,7 +1198,7 @@ begin
       iodev_rsp(IODEV_CLINT) <= rsp_terminate_c;
       mtime                  <= (others => '0');
       mtime_lo               <= (others => '0');
-      mtime_time_o           <= (others => '0');
+      mtime_وخت_o           <= (others => '0');
       mti                    <= (others => irq_mti_i); -- [TODO] individual top ports for dual-core w/o internal CLINT
       msi                    <= (others => irq_msi_i); -- [TODO] individual top ports for dual-core w/o internal CLINT
     end generate;
@@ -1361,7 +1361,7 @@ begin
     if io_pwm_en_c generate
       pwm_inst: entity neorv32.neorv32_pwm
       generic map (
-        NUM_CHANNELS => IO_PWM_NUM
+        عدد_CHANNELS => IO_PWM_عدد
       )
       port map (
         clk_i     => clk_i,
@@ -1386,9 +1386,9 @@ begin
       trng_inst: entity neorv32.neorv32_trng
       generic map (
         TRNG_FIFO => IO_TRNG_FIFO,
-        NUM_RO    => IO_TRNG_NUM_RO,
-        NUM_INV   => IO_TRNG_NUM_INV,
-        NUM_RBIT  => IO_TRNG_NUM_RBIT
+        عدد_RO    => IO_TRNG_عدد_RO,
+        عدد_INV   => IO_TRNG_عدد_INV,
+        عدد_RBIT  => IO_TRNG_عدد_RBIT
       )
       port map (
         clk_i     => clk_i,
@@ -1411,7 +1411,7 @@ begin
     if IO_NEOLED_EN generate
       neoled_inst: entity neorv32.neorv32_neoled
       generic map (
-        FIFO_DEPTH => IO_NEOLED_TX_FIFO
+        FIFO_ژوروالی => IO_NEOLED_TX_FIFO
       )
       port map (
         clk_i     => clk_i,
@@ -1437,7 +1437,7 @@ begin
     if io_gptmr_en_c generate
       gptmr_inst: entity neorv32.neorv32_gptmr
       generic map (
-        NUM_SLICES => IO_GPTMR_NUM
+        عدد_SLICES => IO_GPTMR_عدد
       )
       port map (
         clk_i     => clk_i,
@@ -1497,15 +1497,15 @@ begin
         bus_req_i        => iodev_req(IODEV_SLINK),
         bus_rsp_o        => iodev_rsp(IODEV_SLINK),
         irq_o            => firq(FIRQ_SLINK),
-        slink_rx_data_i  => slink_rx_dat_i,
+        slink_rx_معلومات_i  => slink_rx_dat_i,
         slink_rx_src_i   => slink_rx_src_i,
         slink_rx_valid_i => slink_rx_val_i,
-        slink_rx_last_i  => slink_rx_lst_i,
+        slink_rx_وروستی_i  => slink_rx_lst_i,
         slink_rx_ready_o => slink_rx_rdy_o,
-        slink_tx_data_o  => slink_tx_dat_o,
+        slink_tx_معلومات_o  => slink_tx_dat_o,
         slink_tx_dst_o   => slink_tx_dst_o,
         slink_tx_valid_o => slink_tx_val_o,
-        slink_tx_last_o  => slink_tx_lst_o,
+        slink_tx_وروستی_o  => slink_tx_lst_o,
         slink_tx_ready_i => slink_tx_rdy_i
       );
     end generate;
@@ -1528,13 +1528,13 @@ begin
       tracebuf_inst: entity neorv32.neorv32_tracebuf
       generic map (
         DUAL_CORE_EN => DUAL_CORE_EN,
-        TRACE_DEPTH  => IO_TRACEBUF_DEPTH
+        TRACE_ژوروالی  => IO_TRACEBUF_ژوروالی
       )
       port map (
         clk_i     => clk_i,
         rstn_i    => rstn_sys,
-        trace0_i  => cpu_trace(cpu_trace'low),
-        trace1_i  => cpu_trace(cpu_trace'high),
+        trace0_i  => cpu_trace(cpu_trace'ټیټ),
+        trace1_i  => cpu_trace(cpu_trace'لوړ),
         bus_req_i => iodev_req(IODEV_TRACEBUF),
         bus_rsp_o => iodev_rsp(IODEV_TRACEBUF),
         irq_o     => firq(FIRQ_TRACEBUF)
@@ -1553,22 +1553,22 @@ begin
     generic map (
       BUS_TMO_INT       => int_bus_tmo_c,
       BUS_TMO_EXT       => XBUS_TIMEOUT,
-      NUM_HARTS         => num_cores_c,
+      عدد_HARTS         => عدد_cores_c,
       CLOCK_FREQUENCY   => CLOCK_FREQUENCY,
-      BOOT_MODE_SELECT  => BOOT_MODE_SELECT,
+      BOOT_ډېرپېښ_SELECT  => BOOT_ډېرپېښ_SELECT,
       INT_BOOTLOADER_EN => bootrom_en_c,
       IMEM_EN           => IMEM_EN,
       IMEM_ROM          => imem_as_rom_c,
-      IMEM_SIZE         => imem_size_c,
+      IMEM_اندازه         => imem_اندازه_c,
       DMEM_EN           => DMEM_EN,
-      DMEM_SIZE         => dmem_size_c,
+      DMEM_اندازه         => dmem_اندازه_c,
       ICACHE_EN         => ICACHE_EN,
-      ICACHE_NUM_BLOCKS => ICACHE_NUM_BLOCKS,
+      ICACHE_عدد_بلاکونه => ICACHE_عدد_بلاکونه,
       DCACHE_EN         => DCACHE_EN,
-      DCACHE_NUM_BLOCKS => DCACHE_NUM_BLOCKS,
-      CACHE_BLOCK_SIZE  => CACHE_BLOCK_SIZE,
+      DCACHE_عدد_بلاکونه => DCACHE_عدد_بلاکونه,
+      CACHE_بلاک_اندازه  => CACHE_بلاک_اندازه,
       CACHE_BURSTS_EN   => bursts_en_c,
-      CACHE_UC_BASE     => CACHE_UC_BASE(31 downto 28),
+      CACHE_UC_بنسټ     => CACHE_UC_بنسټ(31 downto 28),
       SMC_EN            => SMC_EN,
       XBUS_EN           => XBUS_EN,
       OCD_EN            => OCD_EN,
@@ -1612,7 +1612,7 @@ begin
     -- -------------------------------------------------------------------------------------------
     debug_dtm_inst: entity neorv32.neorv32_debug_dtm
     generic map (
-      IDCODE_VERSION => (others => '0'), -- yet unused
+      IDCODE_نسخه => (others => '0'), -- yet unused
       IDCODE_PARTID  => (others => '0'), -- yet unused
       IDCODE_MANID   => OCD_JEDEC_ID
     )
@@ -1631,7 +1631,7 @@ begin
     -- -------------------------------------------------------------------------------------------
     debug_dm_inst: entity neorv32.neorv32_debug_dm
     generic map (
-      NUM_HARTS     => num_cores_c,
+      عدد_HARTS     => عدد_cores_c,
       AUTHENTICATOR => ocd_auth_en_c
     )
     port map (

@@ -20,7 +20,7 @@ use neorv32.neorv32_package.all;
 
 entity neorv32_cpu_hwtrig is
   generic (
-    NUM_TRIGGERS : natural range 1 to 16; -- number of implemented hardware triggers
+    عدد_TRIGGERS : natural range 1 to 16; -- number of implemented hardware triggers
     RISCV_ISA_U  : boolean := false       -- RISC-V user-mode available
   );
   port (
@@ -29,31 +29,31 @@ entity neorv32_cpu_hwtrig is
     rstn_i : in  std_ulogic; -- global reset, low-active, async
     ctrl_i : in  ctrl_bus_t; -- main control bus
     -- data path --
-    mar_i  : in  std_ulogic_vector(31 downto 0); -- memory address register
-    csr_o  : out std_ulogic_vector(31 downto 0); -- CSR read data
+    mar_i  : in  std_ulogic_ویکټور(31 downto 0); -- memory address register
+    csr_o  : out std_ulogic_ویکټور(31 downto 0); -- CSR read data
     -- trigger firing --
-    hit_o  : out std_ulogic -- high until debug-mode is entered
+    موندنه_o  : out std_ulogic -- high until debug-mode is entered
   );
 end entity;
 
 architecture neorv32_cpu_hwtrig_rtl of neorv32_cpu_hwtrig is
 
   -- log2(NUM_TRIGGERS) --
-  constant log2_num_triggers_c : natural := index_size_f(NUM_TRIGGERS);
+  constant log2_عدد_triggers_c : natural := شاخص_اندازه_f(عدد_TRIGGERS);
 
   -- match control CSRs: tdata1[tselect] and tdata2[tselect] --
-  type tdata2_t is array (NUM_TRIGGERS-1 downto 0) of std_ulogic_vector(31 downto 0);
+  type tdata2_t is array (عدد_TRIGGERS-1 downto 0) of std_ulogic_ویکټور(31 downto 0);
   signal tdata2 : tdata2_t;
-  signal tdata1, tdata1_rb, tdata2_rb, tinfo_rb : std_ulogic_vector(31 downto 0);
-  signal tdata1_ex, tdata1_st, tdata1_ld, tdata1_hit : std_ulogic_vector(NUM_TRIGGERS-1 downto 0);
+  signal tdata1, tdata1_rb, tdata2_rb, tinfo_rb : std_ulogic_ویکټور(31 downto 0);
+  signal tdata1_ex, tdata1_st, tdata1_ld, tdata1_موندنه : std_ulogic_ویکټور(عدد_TRIGGERS-1 downto 0);
 
   -- trigger select --
-  signal tselect     : std_ulogic_vector(log2_num_triggers_c downto 0); -- +1 to detect invalid selection
-  signal sel         : std_ulogic_vector(NUM_TRIGGERS-1 downto 0); -- decoded one-hot trigger select
+  signal tselect     : std_ulogic_ویکټور(log2_عدد_triggers_c downto 0); -- +1 to detect invalid selection
+  signal sel         : std_ulogic_ویکټور(عدد_TRIGGERS-1 downto 0); -- decoded one-hot trigger select
   signal sel_invalid : std_ulogic; -- invalid tselect value
 
   -- match logic --
-  signal cmp_inst, cmp_data, match : std_ulogic_vector(NUM_TRIGGERS-1 downto 0);
+  signal cmp_inst, cmp_معلومات, سمون : std_ulogic_ویکټور(عدد_TRIGGERS-1 downto 0);
 
   -- trigger module CSR access --
   signal csr_en : std_ulogic;
@@ -70,14 +70,14 @@ begin
       tdata1_st <= (others => '0');
       tdata1_ld <= (others => '0');
       tdata2    <= (others => (others => '0'));
-    elsif rising_edge(clk_i) then
+    elsif rising_څنډه(clk_i) then
       if (ctrl_i.csr_we = '1') and (csr_en = '1')  then
         -- tselect --
         if (ctrl_i.csr_addr(2 downto 0) = csr_tselect_c(2 downto 0)) then
-          tselect <= ctrl_i.csr_wdata(log2_num_triggers_c downto 0);
+          tselect <= ctrl_i.csr_wdata(log2_عدد_triggers_c downto 0);
         end if;
         -- tdata1 & tdata2 --
-        for i in 0 to NUM_TRIGGERS-1 loop
+        for i in 0 to عدد_TRIGGERS-1 loop
           if (ctrl_i.cpu_debug = '1') then -- only accept write-accesses from debug-mode (DMODE = 1)
             if (sel(i) = '1') and (sel_invalid = '0') then
               -- match control --
@@ -102,10 +102,10 @@ begin
 
   -- decode selected trigger (one-hot encoding) --
   sel_gen:
-  for i in 0 to NUM_TRIGGERS-1 generate
-    sel(i) <= '1' when (tselect = std_ulogic_vector(to_unsigned(i, log2_num_triggers_c+1))) else '0';
+  for i in 0 to عدد_TRIGGERS-1 generate
+    sel(i) <= '1' when (tselect = std_ulogic_ویکټور(منزل_unsigned(i, log2_عدد_triggers_c+1))) else '0';
   end generate;
-  sel_invalid <= '1' when (unsigned(tselect) >= NUM_TRIGGERS) else '0'; -- invalid trigger selection
+  sel_invalid <= '1' when (unsigned(tselect) >= عدد_TRIGGERS) else '0'; -- invalid trigger selection
 
 
   -- CSR Read Access ------------------------------------------------------------------------
@@ -115,7 +115,7 @@ begin
     csr_o <= (others => '0');
     if (csr_en = '1') then
       case ctrl_i.csr_addr(2 downto 0) is
-        when "000"  => csr_o(log2_num_triggers_c downto 0) <= tselect; -- csr_tselect_c
+        when "000"  => csr_o(log2_عدد_triggers_c downto 0) <= tselect; -- csr_tselect_c
         when "001"  => csr_o <= tdata1_rb; -- csr_tdata1_c
         when "010"  => csr_o <= tdata2_rb; -- csr_tdata2_c
         when "100"  => csr_o <= tinfo_rb; -- csr_tinfo_c
@@ -131,7 +131,7 @@ begin
   tdata1(25)           <= tdata1(22); -- hit1: see hit0
   tdata1(24)           <= '0'; -- vs: VS-mode not implemented
   tdata1(23)           <= '0'; -- vu: VU-mode not implemented
-  tdata1(22)           <= or_reduce_f(tdata1_hit and sel); -- hit0: trigger fired IMMEDIATELY AFTER condition has retired
+  tdata1(22)           <= or_reduce_f(tdata1_موندنه and sel); -- hit0: trigger fired IMMEDIATELY AFTER condition has retired
   tdata1(21)           <= '0'; -- select: only address matching is supported
   tdata1(20 downto 19) <= "00"; -- reserved
   tdata1(18 downto 16) <= "000"; -- size: match accesses of any size
@@ -141,7 +141,7 @@ begin
   tdata1(6)            <= '1'; -- m: trigger always enabled when in machine-mode
   tdata1(5)            <= '0'; -- uncertainen: trigger satisfies the configured conditions
   tdata1(4)            <= '0'; -- s: supervisor-mode not supported
-  tdata1(3)            <= bool_to_ulogic_f(RISCV_ISA_U); -- u: trigger always enabled when in user-mode (if implemented)
+  tdata1(3)            <= bool_منزل_ulogic_f(RISCV_ISA_U); -- u: trigger always enabled when in user-mode (if implemented)
   tdata1(2)            <= or_reduce_f(tdata1_ex and sel); -- execute: enable trigger on instruction address match
   tdata1(1)            <= or_reduce_f(tdata1_st and sel); -- store: enable trigger on store address match
   tdata1(0)            <= or_reduce_f(tdata1_ld and sel); -- load: enable trigger on load address match
@@ -150,10 +150,10 @@ begin
 
   -- tdata2 read-back select --
   tdata2_readback: process(sel, sel_invalid, tdata2)
-    variable res_v : std_ulogic_vector(31 downto 0);
+    variable res_v : std_ulogic_ویکټور(31 downto 0);
   begin
     res_v := (others => '0');
-    for i in 0 to NUM_TRIGGERS-1 loop
+    for i in 0 to عدد_TRIGGERS-1 loop
       if (sel(i) = '1') and (sel_invalid = '0') then
         res_v := res_v or tdata2(i);
       end if;
@@ -169,42 +169,42 @@ begin
   -- -------------------------------------------------------------------------------------------
   -- address comparators --
   cmp_gen:
-  for i in 0 to NUM_TRIGGERS-1 generate
+  for i in 0 to عدد_TRIGGERS-1 generate
     cmp_inst(i) <= '1' when (tdata2(i) = ctrl_i.pc_cur) else '0';
-    cmp_data(i) <= '1' when (tdata2(i) = mar_i) else '0';
+    cmp_معلومات(i) <= '1' when (tdata2(i) = mar_i) else '0';
   end generate;
 
   -- buffer matching triggers and filter events --
-  match_buffer: process(rstn_i, clk_i)
+  سمون_بفر: process(rstn_i, clk_i)
   begin
     if (rstn_i = '0') then
-      match <= (others => '0');
-    elsif rising_edge(clk_i) then
-      for i in 0 to NUM_TRIGGERS-1 loop
-        match(i) <= (not ctrl_i.cpu_debug) and (match(i) or -- keep active until we are in debug-mode
+      سمون <= (others => '0');
+    elsif rising_څنډه(clk_i) then
+      for i in 0 to عدد_TRIGGERS-1 loop
+        سمون(i) <= (not ctrl_i.cpu_debug) and (سمون(i) or -- keep active until we are in debug-mode
                     (tdata1_ex(i) and cmp_inst(i) and ctrl_i.cpu_exec)                     or -- execute
-                    (tdata1_st(i) and cmp_data(i) and ctrl_i.cnt_event(cnt_event_store_c)) or -- store
-                    (tdata1_ld(i) and cmp_data(i) and ctrl_i.cnt_event(cnt_event_load_c)));   -- load
+                    (tdata1_st(i) and cmp_معلومات(i) and ctrl_i.cnt_event(cnt_event_store_c)) or -- store
+                    (tdata1_ld(i) and cmp_معلومات(i) and ctrl_i.cnt_event(cnt_event_بارول_c)));   -- load
       end loop;
     end if;
   end process;
 
   -- notify execution back-end if there is/was any trigger match --
-  hit_o <= or_reduce_f(match);
+  موندنه_o <= or_reduce_f(سمون);
 
   -- notify host that there is/was a trigger match --
-  tdata1_hit_sync: process(rstn_i, clk_i)
+  tdata1_موندنه_sync: process(rstn_i, clk_i)
   begin
     if (rstn_i = '0') then
-      tdata1_hit <= (others => '0');
-    elsif rising_edge(clk_i) then
-      for i in 0 to NUM_TRIGGERS-1 loop
-        if (tdata1_hit(i) = '0') then
-          tdata1_hit(i) <= match(i); -- any match?
+      tdata1_موندنه <= (others => '0');
+    elsif rising_څنډه(clk_i) then
+      for i in 0 to عدد_TRIGGERS-1 loop
+        if (tdata1_موندنه(i) = '0') then
+          tdata1_موندنه(i) <= سمون(i); -- any match?
         elsif (sel(i) = '1') and (ctrl_i.csr_we = '1') and (csr_en = '1') and (ctrl_i.cpu_debug = '1') and
               (ctrl_i.csr_addr(2 downto 0) = csr_tdata1_c(2 downto 0)) and
               (ctrl_i.csr_wdata(22) = '0') then -- clear currently selected tdata1.hit0 by debugger
-          tdata1_hit(i) <= '0';
+          tdata1_موندنه(i) <= '0';
         end if;
       end loop;
     end if;

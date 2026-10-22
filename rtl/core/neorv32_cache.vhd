@@ -27,9 +27,9 @@ use neorv32.neorv32_package.all;
 
 entity neorv32_cache is
   generic (
-    NUM_BLOCKS : natural range 1 to 4096;       -- number of cache blocks, has to be a power of 2
-    BLOCK_SIZE : natural range 4 to 1024;       -- cache block size in bytes, has to be a power of 2
-    UC_BEGIN   : std_ulogic_vector(3 downto 0); -- begin of uncached address space (4 MSBs of address)
+    عدد_بلاکونه : natural range 1 to 4096;       -- number of cache blocks, has to be a power of 2
+    بلاک_اندازه : natural range 4 to 1024;       -- cache block size in bytes, has to be a power of 2
+    UC_BEGIN   : std_ulogic_ویکټور(3 downto 0); -- begin of uncached address space (4 MSBs of address)
     READ_ONLY  : boolean;                       -- cache is read-only accesses for host
     BURSTS_EN  : boolean                        -- enable issuing of burst transfers
   );
@@ -47,38 +47,38 @@ end entity;
 architecture neorv32_cache_rtl of neorv32_cache is
 
   -- cache layout --
-  constant block_num_c    : natural := 2**index_size_f(NUM_BLOCKS);  -- extend if not a power of two
-  constant block_size_c   : natural := 2**index_size_f(BLOCK_SIZE);  -- extend if not a power of two
-  constant offset_width_c : natural := index_size_f(block_size_c/4); -- word offset
-  constant index_width_c  : natural := index_size_f(block_num_c);
-  constant tag_width_c    : natural := 32 - (offset_width_c + index_width_c + 2);
+  constant بلاک_عدد_c    : natural := 2**شاخص_اندازه_f(عدد_بلاکونه);  -- extend if not a power of two
+  constant بلاک_اندازه_c   : natural := 2**شاخص_اندازه_f(بلاک_اندازه);  -- extend if not a power of two
+  constant دننه_واټن_پلنوالی_c : natural := شاخص_اندازه_f(بلاک_اندازه_c/4); -- word offset
+  constant شاخص_پلنوالی_c  : natural := شاخص_اندازه_f(بلاک_عدد_c);
+  constant نښان_پلنوالی_c    : natural := 32 - (دننه_واټن_پلنوالی_c + شاخص_پلنوالی_c + 2);
 
   -- control -> cache interface --
   type cache_o_t is record
-    set  : std_ulogic;
+    سېټ  : std_ulogic;
     vld  : std_ulogic;
     drt  : std_ulogic;
-    addr : std_ulogic_vector(31 downto 0);
-    data : std_ulogic_vector(31 downto 0);
-    we   : std_ulogic_vector(3 downto 0);
+    addr : std_ulogic_ویکټور(31 downto 0);
+    معلومات : std_ulogic_ویکټور(31 downto 0);
+    we   : std_ulogic_ویکټور(3 downto 0);
   end record;
   signal cache_o : cache_o_t;
 
   -- cache -> control interface --
   type cache_i_t is record
     drt  : std_ulogic;
-    hit  : std_ulogic;
-    tag  : std_ulogic_vector(31 downto 0);
-    data : std_ulogic_vector(31 downto 0);
+    موندنه  : std_ulogic;
+    نښان  : std_ulogic_ویکټور(31 downto 0);
+    معلومات : std_ulogic_ویکټور(31 downto 0);
   end record;
   signal cache_i : cache_i_t;
 
   -- control arbiter --
   type state_t is (
     S_IDLE, S_CHECK, S_BYPASS,
-    S_SYNC_START, S_SYNC_DELAY, S_SYNC_CHECK, S_SYNC_NEXT,
-    S_READ_START, S_READ_WAIT, S_READ_BURST, S_READ_DONE,
-    S_WRITE_START, S_WRITE_REQ, S_WRITE_RSP, S_WRITE_WAIT, S_WRITE_BURST, S_WRITE_DONE
+    S_SYNC_پیل, S_SYNC_DELAY, S_SYNC_CHECK, S_SYNC_بل,
+    S_READ_پیل, S_READ_WAIT, S_READ_موده, S_READ_بشپړ,
+    S_WRITE_پیل, S_WRITE_REQ, S_WRITE_RSP, S_WRITE_WAIT, S_WRITE_موده, S_WRITE_بشپړ
   );
   type ctrl_t is record
     state   : state_t;    -- FSM state
@@ -88,25 +88,25 @@ architecture neorv32_cache_rtl of neorv32_cache is
     pnd_syn : std_ulogic; -- pending synchronization request
     pnd_bp  : std_ulogic; -- pending bypass bus request
     bp_req  : std_ulogic; -- cache bypass bus request (STB)
-    hit     : std_ulogic; -- forced cache hit (to skip status update latency)
+    موندنه     : std_ulogic; -- forced cache hit (to skip status update latency)
     cln     : std_ulogic; -- forced clean status (to skip status update latency)
-    tag     : std_ulogic_vector(tag_width_c-1 downto 0);    -- tag
-    idx     : std_ulogic_vector(index_width_c-1 downto 0);  -- index
-    ofs_int : std_ulogic_vector(offset_width_c-1 downto 0); -- cache address offset
-    ofs_ext : std_ulogic_vector(offset_width_c downto 0);   -- bus address offset + overflow bit
-    ofs_buf : std_ulogic_vector(offset_width_c downto 0);   -- delayed bus address offset + overflow bit
+    نښان     : std_ulogic_ویکټور(نښان_پلنوالی_c-1 downto 0);    -- tag
+    idx     : std_ulogic_ویکټور(شاخص_پلنوالی_c-1 downto 0);  -- index
+    ofs_int : std_ulogic_ویکټور(دننه_واټن_پلنوالی_c-1 downto 0); -- cache address offset
+    ofs_ext : std_ulogic_ویکټور(دننه_واټن_پلنوالی_c downto 0);   -- bus address offset + overflow bit
+    ofs_buf : std_ulogic_ویکټور(دننه_واټن_پلنوالی_c downto 0);   -- delayed bus address offset + overflow bit
   end record;
   signal ctrl, ctrl_nxt : ctrl_t; -- FSM
 
   -- status memory --
-  signal valid,    dirty    : std_ulogic_vector(block_num_c-1 downto 0);
+  signal valid,    dirty    : std_ulogic_ویکټور(بلاک_عدد_c-1 downto 0);
   signal valid_rd, dirty_rd : std_ulogic;
 
 begin
 
   -- Configuration Checks -------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  assert not (BURSTS_EN and (BLOCK_SIZE < 8)) report
+  assert not (BURSTS_EN and (بلاک_اندازه < 8)) report
     "[NEORV32] Cache cannot emit burst if BLOCK_SIZE < 8." severity error;
 
 
@@ -122,14 +122,14 @@ begin
       ctrl.pnd_syn <= '0';
       ctrl.pnd_bp  <= '0';
       ctrl.bp_req  <= '0';
-      ctrl.hit     <= '0';
+      ctrl.موندنه     <= '0';
       ctrl.cln     <= '0';
-      ctrl.tag     <= (others => '0');
+      ctrl.نښان     <= (others => '0');
       ctrl.idx     <= (others => '0');
       ctrl.ofs_int <= (others => '0');
       ctrl.ofs_ext <= (others => '0');
       ctrl.ofs_buf <= (others => '0');
-    elsif rising_edge(clk_i) then
+    elsif rising_څنډه(clk_i) then
       ctrl <= ctrl_nxt;
     end if;
   end process;
@@ -147,30 +147,30 @@ begin
     ctrl_nxt.pnd_syn <= ctrl.pnd_syn or sync_i;
     ctrl_nxt.pnd_bp  <= ctrl.pnd_bp;
     ctrl_nxt.bp_req  <= '0';
-    ctrl_nxt.hit     <= '0';
+    ctrl_nxt.موندنه     <= '0';
     ctrl_nxt.cln     <= '0';
-    ctrl_nxt.tag     <= ctrl.tag;
+    ctrl_nxt.نښان     <= ctrl.نښان;
     ctrl_nxt.idx     <= ctrl.idx;
     ctrl_nxt.ofs_int <= ctrl.ofs_int;
     ctrl_nxt.ofs_ext <= ctrl.ofs_ext;
     ctrl_nxt.ofs_buf <= ctrl.ofs_ext;
 
     -- cache access defaults --
-    cache_o.set  <= '0';
+    cache_o.سېټ  <= '0';
     cache_o.vld  <= '0';
     cache_o.drt  <= '0';
     cache_o.addr <= host_req_i.addr;
     cache_o.we   <= (others => '0');
-    cache_o.data <= host_req_i.data;
+    cache_o.معلومات <= host_req_i.معلومات;
 
     -- host response defaults --
     host_rsp_o      <= rsp_terminate_c; -- default: all off
-    host_rsp_o.data <= cache_i.data; -- cache read data (for cache hit)
+    host_rsp_o.معلومات <= cache_i.معلومات; -- cache read data (for cache hit)
 
     -- bus interface defaults --
     bus_req_o      <= req_terminate_c; -- default: all off
     bus_req_o.meta <= host_req_i.meta;
-    bus_req_o.addr <= ctrl.tag & ctrl.idx & ctrl.ofs_ext(offset_width_c-1 downto 0) & "00"; -- cache access
+    bus_req_o.addr <= ctrl.نښان & ctrl.idx & ctrl.ofs_ext(دننه_واټن_پلنوالی_c-1 downto 0) & "00"; -- cache access
     bus_req_o.ben  <= (others => '1'); -- cache updates use full-word accesses only
 
     -- fsm --
@@ -186,7 +186,7 @@ begin
         ctrl_nxt.sync    <= '0'; -- reset sync-in-progress flag
         ctrl_nxt.pnd_bp  <= '0'; -- default: no bypass request
         if (ctrl.pnd_syn = '1') then -- pending sync request: invalidate clean blocks & write-back dirty blocks
-          ctrl_nxt.state <= S_SYNC_START;
+          ctrl_nxt.state <= S_SYNC_پیل;
         elsif (host_req_i.stb = '1') or (ctrl.pnd_req = '1') then -- (pending) access request
           if (unsigned(host_req_i.addr(31 downto 28)) >= unsigned(UC_BEGIN)) or (host_req_i.amo = '1') then
             ctrl_nxt.pnd_bp <= '1'; -- uncached address space access / atomic operation -> bypass cache
@@ -196,26 +196,26 @@ begin
 
       when S_CHECK => -- check access request
       -- ------------------------------------------------------------
-        ctrl_nxt.tag     <= host_req_i.addr(31 downto 31-(tag_width_c-1));
-        ctrl_nxt.idx     <= host_req_i.addr(31-tag_width_c downto 32-(tag_width_c + index_width_c));
+        ctrl_nxt.نښان     <= host_req_i.addr(31 downto 31-(نښان_پلنوالی_c-1));
+        ctrl_nxt.idx     <= host_req_i.addr(31-نښان_پلنوالی_c downto 32-(نښان_پلنوالی_c + شاخص_پلنوالی_c));
         ctrl_nxt.ofs_ext <= (others => '0');
         ctrl_nxt.ofs_int <= (others => '0');
         ctrl_nxt.pnd_req <= '0'; -- access request accepted
         ctrl_nxt.bp_req  <= '1'; -- in case we are doing a bypass request (set STB for one cycle)
         --
         if (ctrl.pnd_bp = '1') then -- cache bypass (uncached or atomic memory operation)
-          if (cache_i.hit = '1') then -- do we have a cached copy of the accessed address (#1540)?
+          if (cache_i.موندنه = '1') then -- do we have a cached copy of the accessed address (#1540)?
             if (cache_i.drt = '1') and (READ_ONLY = false) then
-              ctrl_nxt.state <= S_WRITE_START; -- copy modified line to main memory
+              ctrl_nxt.state <= S_WRITE_پیل; -- copy modified line to main memory
             else
               cache_o.vld    <= '0'; -- invalidate the cached copy so post-BYPASS reads refill from memory
-              cache_o.set    <= '1';
+              cache_o.سېټ    <= '1';
               ctrl_nxt.state <= S_BYPASS;
             end if;
           else
             ctrl_nxt.state <= S_BYPASS;
           end if;
-        elsif (cache_i.hit = '1') then -- cache HIT: read/write from/to cache
+        elsif (cache_i.موندنه = '1') then -- cache HIT: read/write from/to cache
           if (host_req_i.rw = '1') and (READ_ONLY = false) then -- modify cache
             cache_o.we  <= host_req_i.ben;
             cache_o.drt <= '1';
@@ -223,9 +223,9 @@ begin
           host_rsp_o.ack <= '1';
           ctrl_nxt.state <= S_IDLE;
         elsif (cache_i.drt = '1') and (READ_ONLY = false) then -- cache MISS: evicted block is dirty
-          ctrl_nxt.state <= S_WRITE_START;
+          ctrl_nxt.state <= S_WRITE_پیل;
         else -- cache MISS: evicted block is clean
-          ctrl_nxt.state <= S_READ_START;
+          ctrl_nxt.state <= S_READ_پیل;
         end if;
 
       when S_BYPASS => -- cache bypass
@@ -241,7 +241,7 @@ begin
       -- Cache synchronization: invalidate all blocks & write back dirty blocks
       -- ==========================================================================
 
-      when S_SYNC_START => -- start synchronization
+      when S_SYNC_پیل => -- start synchronization
       -- ------------------------------------------------------------
         ctrl_nxt.pnd_syn <= '0'; -- sync request accepted
         if READ_ONLY then
@@ -255,7 +255,7 @@ begin
       when S_SYNC_DELAY => -- cache read access latency
       -- ------------------------------------------------------------
         if not READ_ONLY then
-          cache_o.addr   <= ctrl.tag & ctrl.idx & ctrl.ofs_int & "00";
+          cache_o.addr   <= ctrl.نښان & ctrl.idx & ctrl.ofs_int & "00";
           ctrl_nxt.state <= S_SYNC_CHECK;
         else
           ctrl_nxt.state <= S_IDLE;
@@ -264,27 +264,27 @@ begin
       when S_SYNC_CHECK => -- check if current block is dirty
       -- ------------------------------------------------------------
         if not READ_ONLY then
-          cache_o.addr     <= ctrl.tag & ctrl.idx & ctrl.ofs_int & "00";
+          cache_o.addr     <= ctrl.نښان & ctrl.idx & ctrl.ofs_int & "00";
           ctrl_nxt.ofs_ext <= (others => '0');
           ctrl_nxt.ofs_int <= (others => '0');
           ctrl_nxt.bus_err <= '0'; -- reset bus error flag
           if (cache_i.drt = '1') and (READ_ONLY = false) then -- block is dirty: upload to memory
-            ctrl_nxt.state <= S_WRITE_START;
+            ctrl_nxt.state <= S_WRITE_پیل;
           else -- block is clean: go to next block
-            ctrl_nxt.state <= S_SYNC_NEXT;
+            ctrl_nxt.state <= S_SYNC_بل;
           end if;
         else
           ctrl_nxt.state <= S_IDLE;
         end if;
 
-      when S_SYNC_NEXT => -- update block status and prepare next block
+      when S_SYNC_بل => -- update block status and prepare next block
       -- ------------------------------------------------------------
         if not READ_ONLY then
-          cache_o.addr <= ctrl.tag & ctrl.idx & ctrl.ofs_int & "00";
-          cache_o.set  <= '1'; -- update cache block status
+          cache_o.addr <= ctrl.نښان & ctrl.idx & ctrl.ofs_int & "00";
+          cache_o.سېټ  <= '1'; -- update cache block status
           cache_o.drt  <= ctrl.bus_err; -- block is still dirty if there was a bus error
           cache_o.vld  <= ctrl.bus_err; -- keep block valid if there was a bus error (skip block)
-          ctrl_nxt.idx <= std_ulogic_vector(unsigned(ctrl.idx) + 1);
+          ctrl_nxt.idx <= std_ulogic_ویکټور(unsigned(ctrl.idx) + 1);
           if (and_reduce_f(ctrl.idx) = '1') then -- all blocks checked
             ctrl_nxt.state <= S_IDLE;
           else -- access next block
@@ -298,69 +298,69 @@ begin
       -- Download: read block from main memory
       -- ==========================================================================
 
-      when S_READ_START => -- start block download / send single request (if no bursts)
+      when S_READ_پیل => -- start block download / send single request (if no bursts)
       -- ------------------------------------------------------------
         bus_req_o.rw    <= '0'; -- read access
         bus_req_o.stb   <= '1'; -- send request
-        bus_req_o.lock  <= '1'; -- locked transfer
-        bus_req_o.burst <= bool_to_ulogic_f(BURSTS_EN); -- burst transfer
+        bus_req_o.قلف  <= '1'; -- locked transfer
+        bus_req_o.موده <= bool_منزل_ulogic_f(BURSTS_EN); -- burst transfer
         ctrl_nxt.state  <= S_READ_WAIT;
 
       when S_READ_WAIT => -- wait for exclusive bus access / single response (if no bursts)
       -- ------------------------------------------------------------
-        cache_o.addr    <= ctrl.tag & ctrl.idx & ctrl.ofs_int & "00";
-        cache_o.data    <= bus_rsp_i.data;
+        cache_o.addr    <= ctrl.نښان & ctrl.idx & ctrl.ofs_int & "00";
+        cache_o.معلومات    <= bus_rsp_i.معلومات;
         cache_o.we      <= (others => '1'); -- write full words
         bus_req_o.rw    <= '0'; -- read access
-        bus_req_o.lock  <= '1'; -- locked transfer
-        bus_req_o.burst <= bool_to_ulogic_f(BURSTS_EN); -- burst transfer
+        bus_req_o.قلف  <= '1'; -- locked transfer
+        bus_req_o.موده <= bool_منزل_ulogic_f(BURSTS_EN); -- burst transfer
         -- wait for initial ACK to start actual bursting or to issue next single request --
         if (bus_rsp_i.ack = '1') then
           ctrl_nxt.bus_err <= ctrl.bus_err or bus_rsp_i.err; -- accumulate bus errors
-          ctrl_nxt.ofs_int <= std_ulogic_vector(unsigned(ctrl.ofs_int) + 1);
-          ctrl_nxt.ofs_ext <= std_ulogic_vector(unsigned(ctrl.ofs_ext) + 1);
+          ctrl_nxt.ofs_int <= std_ulogic_ویکټور(unsigned(ctrl.ofs_int) + 1);
+          ctrl_nxt.ofs_ext <= std_ulogic_ویکټور(unsigned(ctrl.ofs_ext) + 1);
           if BURSTS_EN then
-            ctrl_nxt.state <= S_READ_BURST;
+            ctrl_nxt.state <= S_READ_موده;
           elsif (and_reduce_f(ctrl.ofs_int) = '1') then -- block completed
-            ctrl_nxt.state <= S_READ_DONE;
+            ctrl_nxt.state <= S_READ_بشپړ;
           else
-            ctrl_nxt.state <= S_READ_START;
+            ctrl_nxt.state <= S_READ_پیل;
           end if;
         end if;
 
-      when S_READ_BURST => -- issue read burst
+      when S_READ_موده => -- issue read burst
       -- ------------------------------------------------------------
         if BURSTS_EN then
-          cache_o.addr   <= ctrl.tag & ctrl.idx & ctrl.ofs_int & "00";
-          cache_o.data   <= bus_rsp_i.data;
+          cache_o.addr   <= ctrl.نښان & ctrl.idx & ctrl.ofs_int & "00";
+          cache_o.معلومات   <= bus_rsp_i.معلومات;
           cache_o.we     <= (others => '1'); -- write full words
           bus_req_o.rw   <= '0'; -- read access
-          bus_req_o.lock <= '1'; -- locked transfer
+          bus_req_o.قلف <= '1'; -- locked transfer
           -- send requests --
-          if (ctrl.ofs_ext(offset_width_c) = '0') then -- request next transfer
+          if (ctrl.ofs_ext(دننه_واټن_پلنوالی_c) = '0') then -- request next transfer
             bus_req_o.stb    <= '1';
-            ctrl_nxt.ofs_ext <= std_ulogic_vector(unsigned(ctrl.ofs_ext) + 1);
-            if (and_reduce_f(ctrl.ofs_ext(offset_width_c-1 downto 0)) = '0') then
-              bus_req_o.burst <= '1'; -- set burst indicator; except for the very last transfer
+            ctrl_nxt.ofs_ext <= std_ulogic_ویکټور(unsigned(ctrl.ofs_ext) + 1);
+            if (and_reduce_f(ctrl.ofs_ext(دننه_واټن_پلنوالی_c-1 downto 0)) = '0') then
+              bus_req_o.موده <= '1'; -- set burst indicator; except for the very last transfer
             end if;
           end if;
           -- receive responses --
           if (bus_rsp_i.ack = '1') then -- received cache word
             ctrl_nxt.bus_err <= ctrl.bus_err or bus_rsp_i.err; -- accumulate bus errors
-            ctrl_nxt.ofs_int <= std_ulogic_vector(unsigned(ctrl.ofs_int) + 1);
+            ctrl_nxt.ofs_int <= std_ulogic_ویکټور(unsigned(ctrl.ofs_int) + 1);
             if (and_reduce_f(ctrl.ofs_int) = '1') then -- block completed
-              ctrl_nxt.state <= S_READ_DONE;
+              ctrl_nxt.state <= S_READ_بشپړ;
             end if;
           end if;
         else -- single transfers only
           ctrl_nxt.state <= S_IDLE;
         end if;
 
-      when S_READ_DONE => -- update status of downloaded block + host miss access latency delay
+      when S_READ_بشپړ => -- update status of downloaded block + host miss access latency delay
       -- ------------------------------------------------------------
         cache_o.vld  <= not ctrl.bus_err; -- make valid if no error; invalidate otherwise
-        cache_o.set  <= '1'; -- update cache block status
-        ctrl_nxt.hit <= '1'; -- force cache hit to skip status flag read latency
+        cache_o.سېټ  <= '1'; -- update cache block status
+        ctrl_nxt.موندنه <= '1'; -- force cache hit to skip status flag read latency
         if (ctrl.bus_err = '1') then -- bus error during block download (caused by cache miss)
           host_rsp_o.err <= '1';
           host_rsp_o.ack <= '1'; -- terminate current request and return bus error
@@ -373,16 +373,16 @@ begin
       -- Upload: write block to main memory
       -- ==========================================================================
 
-      when S_WRITE_START => -- start block upload: get data word from cache
+      when S_WRITE_پیل => -- start block upload: get data word from cache
       -- ------------------------------------------------------------
         if not READ_ONLY then
-          cache_o.addr    <= ctrl.tag & ctrl.idx & ctrl.ofs_int & "00";
-          bus_req_o.data  <= cache_i.data;
+          cache_o.addr    <= ctrl.نښان & ctrl.idx & ctrl.ofs_int & "00";
+          bus_req_o.معلومات  <= cache_i.معلومات;
           bus_req_o.rw    <= '1'; -- write access
-          bus_req_o.lock  <= '1'; -- locked transfer
-          bus_req_o.burst <= bool_to_ulogic_f(BURSTS_EN); -- burst transfer
+          bus_req_o.قلف  <= '1'; -- locked transfer
+          bus_req_o.موده <= bool_منزل_ulogic_f(BURSTS_EN); -- burst transfer
           if (or_reduce_f(ctrl.ofs_int) = '0') then -- first write operation?
-            ctrl_nxt.tag <= cache_i.tag(tag_width_c-1 downto 0); -- get tag of evicted block
+            ctrl_nxt.نښان <= cache_i.نښان(نښان_پلنوالی_c-1 downto 0); -- get tag of evicted block
           end if;
           ctrl_nxt.state <= S_WRITE_REQ;
         else
@@ -392,11 +392,11 @@ begin
       when S_WRITE_REQ => -- start block upload / send single request (if no bursts)
       -- ------------------------------------------------------------
         if not READ_ONLY then
-          cache_o.addr    <= ctrl.tag & ctrl.idx & ctrl.ofs_int & "00";
-          bus_req_o.data  <= cache_i.data;
+          cache_o.addr    <= ctrl.نښان & ctrl.idx & ctrl.ofs_int & "00";
+          bus_req_o.معلومات  <= cache_i.معلومات;
           bus_req_o.rw    <= '1'; -- write access
-          bus_req_o.lock  <= '1'; -- locked transfer
-          bus_req_o.burst <= bool_to_ulogic_f(BURSTS_EN); -- burst transfer
+          bus_req_o.قلف  <= '1'; -- locked transfer
+          bus_req_o.موده <= bool_منزل_ulogic_f(BURSTS_EN); -- burst transfer
           bus_req_o.stb   <= '1'; -- send request
           ctrl_nxt.state  <= S_WRITE_RSP;
         else
@@ -406,22 +406,22 @@ begin
       when S_WRITE_RSP => -- wait for exclusive bus access / single response (if no bursts)
       -- ------------------------------------------------------------
         if not READ_ONLY then
-          cache_o.addr    <= ctrl.tag & ctrl.idx & ctrl.ofs_int & "00";
-          bus_req_o.data  <= cache_i.data;
+          cache_o.addr    <= ctrl.نښان & ctrl.idx & ctrl.ofs_int & "00";
+          bus_req_o.معلومات  <= cache_i.معلومات;
           bus_req_o.rw    <= '1'; -- write access
-          bus_req_o.lock  <= '1'; -- locked transfer
-          bus_req_o.burst <= bool_to_ulogic_f(BURSTS_EN); -- burst transfer
+          bus_req_o.قلف  <= '1'; -- locked transfer
+          bus_req_o.موده <= bool_منزل_ulogic_f(BURSTS_EN); -- burst transfer
           -- wait for ACK --
           if (bus_rsp_i.ack = '1') then
             ctrl_nxt.bus_err <= ctrl.bus_err or bus_rsp_i.err; -- accumulate bus errors
-            ctrl_nxt.ofs_int <= std_ulogic_vector(unsigned(ctrl.ofs_int) + 1);
-            ctrl_nxt.ofs_ext <= std_ulogic_vector(unsigned(ctrl.ofs_ext) + 1);
+            ctrl_nxt.ofs_int <= std_ulogic_ویکټور(unsigned(ctrl.ofs_int) + 1);
+            ctrl_nxt.ofs_ext <= std_ulogic_ویکټور(unsigned(ctrl.ofs_ext) + 1);
             if BURSTS_EN then
               ctrl_nxt.state <= S_WRITE_WAIT;
             elsif (and_reduce_f(ctrl.ofs_int) = '1') then -- block completed
-              ctrl_nxt.state <= S_WRITE_DONE;
+              ctrl_nxt.state <= S_WRITE_بشپړ;
             else
-              ctrl_nxt.state <= S_WRITE_START;
+              ctrl_nxt.state <= S_WRITE_پیل;
             end if;
           end if;
         else
@@ -431,61 +431,61 @@ begin
       when S_WRITE_WAIT => -- cache read latency
       -- ------------------------------------------------------------
         if BURSTS_EN and (not READ_ONLY) then
-          cache_o.addr     <= ctrl.tag & ctrl.idx & ctrl.ofs_ext(offset_width_c-1 downto 0) & "00";
-          bus_req_o.addr   <= ctrl.tag & ctrl.idx & ctrl.ofs_buf(offset_width_c-1 downto 0) & "00";
-          bus_req_o.data   <= cache_i.data;
+          cache_o.addr     <= ctrl.نښان & ctrl.idx & ctrl.ofs_ext(دننه_واټن_پلنوالی_c-1 downto 0) & "00";
+          bus_req_o.addr   <= ctrl.نښان & ctrl.idx & ctrl.ofs_buf(دننه_واټن_پلنوالی_c-1 downto 0) & "00";
+          bus_req_o.معلومات   <= cache_i.معلومات;
           bus_req_o.rw     <= '1'; -- write access
-          bus_req_o.lock   <= '1'; -- locked transfer
-          bus_req_o.burst  <= '1'; -- burst transfer
-          ctrl_nxt.ofs_ext <= std_ulogic_vector(unsigned(ctrl.ofs_ext) + 1);
-          ctrl_nxt.state   <= S_WRITE_BURST;
+          bus_req_o.قلف   <= '1'; -- locked transfer
+          bus_req_o.موده  <= '1'; -- burst transfer
+          ctrl_nxt.ofs_ext <= std_ulogic_ویکټور(unsigned(ctrl.ofs_ext) + 1);
+          ctrl_nxt.state   <= S_WRITE_موده;
         else
           ctrl_nxt.state <= S_IDLE;
         end if;
 
-      when S_WRITE_BURST => -- issue write burst
+      when S_WRITE_موده => -- issue write burst
       -- ------------------------------------------------------------
         if BURSTS_EN and (not READ_ONLY) then
-          cache_o.addr   <= ctrl.tag & ctrl.idx & ctrl.ofs_ext(offset_width_c-1 downto 0) & "00";
-          bus_req_o.addr <= ctrl.tag & ctrl.idx & ctrl.ofs_buf(offset_width_c-1 downto 0) & "00";
-          bus_req_o.data <= cache_i.data;
+          cache_o.addr   <= ctrl.نښان & ctrl.idx & ctrl.ofs_ext(دننه_واټن_پلنوالی_c-1 downto 0) & "00";
+          bus_req_o.addr <= ctrl.نښان & ctrl.idx & ctrl.ofs_buf(دننه_واټن_پلنوالی_c-1 downto 0) & "00";
+          bus_req_o.معلومات <= cache_i.معلومات;
           bus_req_o.rw   <= '1'; -- write access
-          bus_req_o.lock <= '1'; -- locked transfer
+          bus_req_o.قلف <= '1'; -- locked transfer
           -- send requests --
-          if (ctrl.ofs_buf(offset_width_c) = '0') then -- request next transfer
+          if (ctrl.ofs_buf(دننه_واټن_پلنوالی_c) = '0') then -- request next transfer
             bus_req_o.stb    <= '1';
-            ctrl_nxt.ofs_ext <= std_ulogic_vector(unsigned(ctrl.ofs_ext) + 1);
-            if (and_reduce_f(ctrl.ofs_buf(offset_width_c-1 downto 0)) = '0') then
-              bus_req_o.burst <= '1'; -- set burst indicator; except for the very last transfer
+            ctrl_nxt.ofs_ext <= std_ulogic_ویکټور(unsigned(ctrl.ofs_ext) + 1);
+            if (and_reduce_f(ctrl.ofs_buf(دننه_واټن_پلنوالی_c-1 downto 0)) = '0') then
+              bus_req_o.موده <= '1'; -- set burst indicator; except for the very last transfer
             end if;
           end if;
           -- receive responses --
           if (bus_rsp_i.ack = '1') then -- received cache word
             ctrl_nxt.bus_err <= ctrl.bus_err or bus_rsp_i.err; -- accumulate bus errors
-            ctrl_nxt.ofs_int <= std_ulogic_vector(unsigned(ctrl.ofs_int) + 1);
+            ctrl_nxt.ofs_int <= std_ulogic_ویکټور(unsigned(ctrl.ofs_int) + 1);
             if (and_reduce_f(ctrl.ofs_int) = '1') then -- block completed
-              ctrl_nxt.state <= S_WRITE_DONE;
+              ctrl_nxt.state <= S_WRITE_بشپړ;
             end if;
           end if;
         else
           ctrl_nxt.state <= S_IDLE;
         end if;
 
-      when S_WRITE_DONE => -- update status of uploaded block
+      when S_WRITE_بشپړ => -- update status of uploaded block
       -- ------------------------------------------------------------
         if not READ_ONLY then
-          cache_o.addr <= ctrl.tag & ctrl.idx & ctrl.ofs_int & "00";
+          cache_o.addr <= ctrl.نښان & ctrl.idx & ctrl.ofs_int & "00";
           ctrl_nxt.cln <= '1'; -- force cache clean to skip status flag read latency (for S_CHECK only)
           if (ctrl.sync = '1') then -- block upload caused by cache synchronization
-            ctrl_nxt.state <= S_SYNC_NEXT;
+            ctrl_nxt.state <= S_SYNC_بل;
           elsif (ctrl.bus_err = '1') then -- block upload caused by cache miss or AMO pre-flush: BUS ERROR during upload
-            cache_o.set    <= '1'; -- update cache block status
+            cache_o.سېټ    <= '1'; -- update cache block status
             cache_o.vld    <= '0'; -- invalidate cache block
             host_rsp_o.err <= '1';
             host_rsp_o.ack <= '1'; -- terminate current request and return bus error
             ctrl_nxt.state <= S_IDLE;
           else -- block upload caused by cache miss or AMO pre-flush: upload successful
-            cache_o.set    <= '1'; -- update cache block status
+            cache_o.سېټ    <= '1'; -- update cache block status
             cache_o.drt    <= '0'; -- cache block is clean now
             cache_o.vld    <= '1'; -- cache block is still valid
             ctrl_nxt.state <= S_CHECK;
@@ -504,46 +504,46 @@ begin
 
   -- Status Memory: Block Valid -------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  status_valid: process(rstn_i, clk_i)
+  حالت_valid: process(rstn_i, clk_i)
   begin
     if (rstn_i = '0') then
       valid <= (others => '0');
-    elsif rising_edge(clk_i) then
-      if READ_ONLY and (ctrl.state = S_SYNC_START) then -- full parallel clear for i-cache
+    elsif rising_څنډه(clk_i) then
+      if READ_ONLY and (ctrl.state = S_SYNC_پیل) then -- full parallel clear for i-cache
         valid <= (others => '0');
-      elsif (cache_o.set = '1') then
-        valid(to_integer(unsigned(cache_o.addr(31-tag_width_c downto 2+offset_width_c)))) <= cache_o.vld;
+      elsif (cache_o.سېټ = '1') then
+        valid(منزل_integer(unsigned(cache_o.addr(31-نښان_پلنوالی_c downto 2+دننه_واټن_پلنوالی_c)))) <= cache_o.vld;
       end if;
     end if;
   end process;
 
   -- synchronous read --
-  status_valid_read: process(clk_i)
+  حالت_valid_read: process(clk_i)
   begin
-    if rising_edge(clk_i) then
-      valid_rd <= valid(to_integer(unsigned(cache_o.addr(31-tag_width_c downto 2+offset_width_c))));
+    if rising_څنډه(clk_i) then
+      valid_rd <= valid(منزل_integer(unsigned(cache_o.addr(31-نښان_پلنوالی_c downto 2+دننه_واټن_پلنوالی_c))));
     end if;
   end process;
 
 
   -- Status Memory: Block Dirty -------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  status_dirty_enabled:
+  حالت_dirty_enabled:
   if not READ_ONLY generate
-    status_dirty: process(clk_i)
+    حالت_dirty: process(clk_i)
     begin
-      if rising_edge(clk_i) then -- no reset required; readout guarded by valid flag
-        if (cache_o.set = '1') or (cache_o.drt = '1') then
-          dirty(to_integer(unsigned(cache_o.addr(31-tag_width_c downto 2+offset_width_c)))) <= cache_o.drt;
+      if rising_څنډه(clk_i) then -- no reset required; readout guarded by valid flag
+        if (cache_o.سېټ = '1') or (cache_o.drt = '1') then
+          dirty(منزل_integer(unsigned(cache_o.addr(31-نښان_پلنوالی_c downto 2+دننه_واټن_پلنوالی_c)))) <= cache_o.drt;
         end if;
-        dirty_rd <= dirty(to_integer(unsigned(cache_o.addr(31-tag_width_c downto 2+offset_width_c))));
+        dirty_rd <= dirty(منزل_integer(unsigned(cache_o.addr(31-نښان_پلنوالی_c downto 2+دننه_واټن_پلنوالی_c))));
       end if;
     end process;
     cache_i.drt <= '0' when (ctrl.cln = '1') else (dirty_rd and valid_rd); -- block dirty?
   end generate;
 
   -- blocks cannot be modified --
-  status_dirty_disabled:
+  حالت_dirty_disabled:
   if READ_ONLY generate
     dirty       <= (others => '0');
     dirty_rd    <= '0';
@@ -556,22 +556,22 @@ begin
   -- [NOTE] Use component instantiation here to allow easy replacement by external (Verilog) IP.
   neorv32_cache_ram_inst: neorv32_cache_ram -- component declaration in package file
   generic map (
-    TAG_WIDTH => tag_width_c,
-    IDX_WIDTH => index_width_c,
-    OFS_WIDTH => offset_width_c
+    نښان_پلنوالی => نښان_پلنوالی_c,
+    IDX_پلنوالی => شاخص_پلنوالی_c,
+    OFS_پلنوالی => دننه_واټن_پلنوالی_c
   )
   port map (
     clk_i     => clk_i,
     addr_i    => cache_o.addr,
-    tag_we_i  => cache_o.set,
-    tag_o     => cache_i.tag,
-    data_we_i => cache_o.we,
-    data_i    => cache_o.data,
-    data_o    => cache_i.data
+    نښان_we_i  => cache_o.سېټ,
+    نښان_o     => cache_i.نښان,
+    معلومات_we_i => cache_o.we,
+    معلومات_i    => cache_o.معلومات,
+    معلومات_o    => cache_i.معلومات
   );
 
   -- cache hit --
-  cache_i.hit <= '1' when ((cache_i.tag(tag_width_c-1 downto 0) = host_req_i.addr(31 downto 31-(tag_width_c-1))) and
-                           (valid_rd = '1')) or (ctrl.hit = '1') else '0';
+  cache_i.موندنه <= '1' when ((cache_i.نښان(نښان_پلنوالی_c-1 downto 0) = host_req_i.addr(31 downto 31-(نښان_پلنوالی_c-1))) and
+                           (valid_rd = '1')) or (ctrl.موندنه = '1') else '0';
 
 end architecture;
