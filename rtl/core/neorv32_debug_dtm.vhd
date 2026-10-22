@@ -44,10 +44,10 @@ architecture neorv32_debug_dtm_rtl of neorv32_debug_dtm is
   constant addr_dtmcs_c  : std_ulogic_vector(4 downto 0) := "10000";
   constant addr_dmi_c    : std_ulogic_vector(4 downto 0) := "10001";
   constant addr_bypass_c : std_ulogic_vector(4 downto 0) := "11111";
-  constant size_idcode_c : natural := 32;
-  constant size_dtmcs_c  : natural := 32;
-  constant size_dmi_c    : natural := 7+32+2; -- 7-bit address + 32-bit data + 2-bit operation/status
-  constant size_bypass_c : natural := 1;
+  constant आकार_idcode_c : natural := 32;
+  constant आकार_dtmcs_c  : natural := 32;
+  constant आकार_dmi_c    : natural := 7+32+2; -- 7-bit address + 32-bit data + 2-bit operation/status
+  constant आकार_bypass_c : natural := 1;
 
   -- JTAG synchronizer --
   signal tck_ff : std_ulogic_vector(2 downto 0);
@@ -59,7 +59,7 @@ architecture neorv32_debug_dtm_rtl of neorv32_debug_dtm is
                       RUN_IDLE, IR_SCAN, IR_CAPTURE, IR_SHIFT, IR_EXIT1, IR_PAUSE, IR_EXIT2, IR_UPDATE);
   signal state : state_t;
   signal ireg : std_ulogic_vector(4 downto 0);
-  signal dreg : std_ulogic_vector(size_dmi_c-1 downto 0); -- max size (= dmi size)
+  signal dreg : std_ulogic_vector(आकार_dmi_c-1 downto 0); -- max size (= dmi size)
 
   -- misc --
   signal dmi : dmi_req_t;
@@ -135,18 +135,18 @@ begin
       if (state = LOGIC_RESET) or (state = IR_CAPTURE) then -- capture phase
         ireg <= addr_idcode_c;
       elsif (state = IR_SHIFT) and (tck_rise = '1') then -- access phase; [JTAG-SYNC] evaluate TDI on rising edge of TCK
-        ireg <= tdi & ireg(ireg'left downto 1);
+        ireg <= tdi & ireg(ireg'बायाँ downto 1);
       end if;
       -- data register input --
       if (state = DR_CAPTURE) then -- capture phase
         case ireg is -- [NOTE] make data MSB-aligned and fill with zeros
           when addr_idcode_c => dreg <= IDCODE_VERSION & IDCODE_PARTID & IDCODE_MANID & '1' & "000000000";
           when addr_dtmcs_c  => dreg <= x"00000071" & "000000000";
-          when addr_dmi_c    => dreg <= dmi.addr & dmi.data & err & err;
+          when addr_dmi_c    => dreg <= dmi.addr & dmi.तथ्य & err & err;
           when others        => dreg <= (others => '0');
         end case;
       elsif (state = DR_SHIFT) and (tck_rise = '1') then -- access phase; [JTAG-SYNC] evaluate TDI on rising edge of TCK
-        dreg <= tdi & dreg(dreg'left downto 1);
+        dreg <= tdi & dreg(dreg'बायाँ downto 1);
       end if;
       -- output --
       if (tck_fall = '1') then -- [JTAG-SYNC] update TDO on falling edge of TCK
@@ -154,10 +154,10 @@ begin
           jtag_tdo_o <= ireg(0);
         elsif (state = DR_SHIFT) then
           case ireg is -- data is MSB-aligned so select the logical LSB as output
-            when addr_idcode_c => jtag_tdo_o <= dreg(dreg'left-(size_idcode_c-1));
-            when addr_dtmcs_c  => jtag_tdo_o <= dreg(dreg'left-(size_dtmcs_c-1));
-            when addr_dmi_c    => jtag_tdo_o <= dreg(dreg'left-(size_dmi_c-1));
-            when others        => jtag_tdo_o <= dreg(dreg'left-(size_bypass_c-1));
+            when addr_idcode_c => jtag_tdo_o <= dreg(dreg'बायाँ-(आकार_idcode_c-1));
+            when addr_dtmcs_c  => jtag_tdo_o <= dreg(dreg'बायाँ-(आकार_dtmcs_c-1));
+            when addr_dmi_c    => jtag_tdo_o <= dreg(dreg'बायाँ-(आकार_dmi_c-1));
+            when others        => jtag_tdo_o <= dreg(dreg'बायाँ-(आकार_bypass_c-1));
           end case;
         end if;
       end if;
@@ -188,12 +188,12 @@ begin
       if (busy = '0') then -- idle: waiting for new request
         if (update = '1') and (ireg = addr_dmi_c) then
           dmi.addr <= dreg(40 downto 34);
-          dmi.data <= dreg(33 downto 2);
+          dmi.तथ्य <= dreg(33 downto 2);
           dmi.op   <= dreg(1 downto 0);
           busy     <= or_reduce_f(dreg(1 downto 0));
         end if;
       elsif (dmi_rsp_i.ack = '1') or (dmihardreset = '1') then -- busy: wait for access termination
-        dmi.data <= dmi_rsp_i.data;
+        dmi.तथ्य <= dmi_rsp_i.तथ्य;
         busy     <= '0';
       end if;
     end if;

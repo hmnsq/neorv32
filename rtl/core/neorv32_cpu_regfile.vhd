@@ -37,13 +37,13 @@ entity neorv32_cpu_regfile is
     -- write port (rd) --
     rd_we_i    : in  std_ulogic;                     -- write-enable
     rd_addr_i  : in  std_ulogic_vector(4 downto 0);  -- address
-    rd_data_i  : in  std_ulogic_vector(31 downto 0); -- write data
+    rd_तथ्य_i  : in  std_ulogic_vector(31 downto 0); -- write data
     -- read port 1 (rs1) --
     rs1_addr_i : in  std_ulogic_vector(4 downto 0);  -- address
-    rs1_data_o : out std_ulogic_vector(31 downto 0); -- read data
+    rs1_तथ्य_o : out std_ulogic_vector(31 downto 0); -- read data
     -- read port 1 (rs2) --
     rs2_addr_i : in  std_ulogic_vector(4 downto 0);  -- address
-    rs2_data_o : out std_ulogic_vector(31 downto 0)  -- read data
+    rs2_तथ्य_o : out std_ulogic_vector(31 downto 0)  -- read data
   );
 end entity;
 
@@ -77,10 +77,10 @@ begin
     begin
       if rising_edge(clk_i) then
         if (rf_we = '1') then
-          regfile(to_integer(unsigned(addr(AWIDTH-1 downto 0)))) <= rd_data_i;
+          regfile(to_integer(unsigned(addr(AWIDTH-1 downto 0)))) <= rd_तथ्य_i;
         end if;
-        rs1_data_o <= regfile(to_integer(unsigned(addr(AWIDTH-1 downto 0))));
-        rs2_data_o <= regfile(to_integer(unsigned(rs2_addr_i(AWIDTH-1 downto 0))));
+        rs1_तथ्य_o <= regfile(to_integer(unsigned(addr(AWIDTH-1 downto 0))));
+        rs2_तथ्य_o <= regfile(to_integer(unsigned(rs2_addr_i(AWIDTH-1 downto 0))));
       end if;
     end process;
 
@@ -104,7 +104,7 @@ begin
     begin
       if rising_edge(clk_i) then
         if (rd_we_i = '1') then
-          regfile(to_integer(unsigned(addr(AWIDTH-1 downto 0)))) <= rd_data_i;
+          regfile(to_integer(unsigned(addr(AWIDTH-1 downto 0)))) <= rd_तथ्य_i;
         end if;
       end if;
     end process;
@@ -114,14 +114,14 @@ begin
     begin
       if rising_edge(clk_i) then
         if (rs1_addr_i = "00000") then -- reading x0
-          rs1_data_o <= (others => '0');
+          rs1_तथ्य_o <= (others => '0');
         else
-          rs1_data_o <= regfile(to_integer(unsigned(addr(AWIDTH-1 downto 0))));
+          rs1_तथ्य_o <= regfile(to_integer(unsigned(addr(AWIDTH-1 downto 0))));
         end if;
         if (rs2_addr_i = "00000") then -- reading x0
-          rs2_data_o <= (others => '0');
+          rs2_तथ्य_o <= (others => '0');
         else
-          rs2_data_o <= regfile(to_integer(unsigned(rs2_addr_i(AWIDTH-1 downto 0))));
+          rs2_तथ्य_o <= regfile(to_integer(unsigned(rs2_addr_i(AWIDTH-1 downto 0))));
         end if;
       end if;
     end process;
@@ -154,7 +154,7 @@ begin
           regfile(i) <= (others => '0');
         elsif rising_edge(clk_i) then
           if (onehot(i) = '1') then
-            regfile(i) <= rd_data_i;
+            regfile(i) <= rd_तथ्य_i;
           end if;
         end if;
       end process;
@@ -165,8 +165,8 @@ begin
     rf_read: process(clk_i)
     begin
       if rising_edge(clk_i) then
-        rs1_data_o <= regfile(to_integer(unsigned(rs1_addr_i(AWIDTH-1 downto 0))));
-        rs2_data_o <= regfile(to_integer(unsigned(rs2_addr_i(AWIDTH-1 downto 0))));
+        rs1_तथ्य_o <= regfile(to_integer(unsigned(rs1_addr_i(AWIDTH-1 downto 0))));
+        rs2_तथ्य_o <= regfile(to_integer(unsigned(rs2_addr_i(AWIDTH-1 downto 0))));
       end if;
     end process;
 
@@ -189,7 +189,7 @@ begin
       if rising_edge(clk_i) then
         -- data input register --
         if (rd_we_i = '1') then
-          wdata <= rd_data_i;
+          wdata <= rd_तथ्य_i;
         end if;
         -- write-address buffer --
         if (rd_we_i = '1') then
@@ -222,8 +222,8 @@ begin
     rf_read: process(clk_i)
     begin
       if rising_edge(clk_i) then
-        rs1_data_o <= regfile(to_integer(unsigned(rs1_addr_i(AWIDTH-1 downto 0))));
-        rs2_data_o <= regfile(to_integer(unsigned(rs2_addr_i(AWIDTH-1 downto 0))));
+        rs1_तथ्य_o <= regfile(to_integer(unsigned(rs1_addr_i(AWIDTH-1 downto 0))));
+        rs2_तथ्य_o <= regfile(to_integer(unsigned(rs2_addr_i(AWIDTH-1 downto 0))));
       end if;
     end process;
 

@@ -19,7 +19,7 @@ use neorv32.neorv32_package.all;
 
 entity neorv32_gptmr is
   generic (
-    NUM_SLICES : natural range 0 to 16 -- number of timer slices
+    अंक_SLICES : natural range 0 to 16 -- number of timer slices
   );
   port (
     clk_i     : in  std_ulogic;                    -- global clock line
@@ -53,14 +53,14 @@ architecture neorv32_gptmr_rtl of neorv32_gptmr is
   -- slice configuration --
   signal acc_addr : std_ulogic_vector(1 downto 0);
   signal clkprsc : std_ulogic_vector(2 downto 0);
-  signal enable, mode, irq : std_ulogic_vector(NUM_SLICES-1 downto 0);
+  signal enable, mode, irq : std_ulogic_vector(अंक_SLICES-1 downto 0);
   signal clken : std_ulogic;
 
   -- slice wiring --
-  type rdata_t is array (NUM_SLICES-1 downto 0) of std_ulogic_vector(31 downto 0);
+  type rdata_t is array (अंक_SLICES-1 downto 0) of std_ulogic_vector(31 downto 0);
   signal rdata : rdata_t;
-  signal rdata_sum : std_ulogic_vector(31 downto 0);
-  signal cs, trig : std_ulogic_vector(NUM_SLICES-1 downto 0);
+  signal rdata_योग : std_ulogic_vector(31 downto 0);
+  signal cs, trig : std_ulogic_vector(अंक_SLICES-1 downto 0);
 
 begin
 
@@ -93,16 +93,16 @@ begin
         -- CSR0: control and status register 0 --
         if (acc_addr = "00") then
           if (bus_req_i.ben(1 downto 0) = "11") then -- low half: per-slice enable
-            enable <= bus_req_i.data((NUM_SLICES-1)+0 downto 0);
+            enable <= bus_req_i.तथ्य((अंक_SLICES-1)+0 downto 0);
           end if;
           if (bus_req_i.ben(3 downto 2) = "11") then -- high half: per-slice mode
-            mode <= bus_req_i.data((NUM_SLICES-1)+16 downto 16);
+            mode <= bus_req_i.तथ्य((अंक_SLICES-1)+16 downto 16);
           end if;
         end if;
         -- CSR1: control and status register 1 --
         if (acc_addr = "01") then
           if (bus_req_i.ben(3 downto 2) = "11") then -- high half: clock prescaler
-            clkprsc <= bus_req_i.data(18 downto 16);
+            clkprsc <= bus_req_i.तथ्य(18 downto 16);
           end if;
         end if;
       end if;
@@ -123,17 +123,17 @@ begin
   bus_read: process(clk_i)
   begin
     if rising_edge(clk_i) then
-      bus_rsp_o.data <= (others => '0');
+      bus_rsp_o.तथ्य <= (others => '0');
       if (bus_req_i.stb = '1') and (bus_req_i.rw = '0') then -- read access
         case acc_addr is
           when "00" => -- CSR0
-            bus_rsp_o.data((NUM_SLICES-1)+0 downto 0)   <= enable;
-            bus_rsp_o.data((NUM_SLICES-1)+16 downto 16) <= mode;
+            bus_rsp_o.तथ्य((अंक_SLICES-1)+0 downto 0)   <= enable;
+            bus_rsp_o.तथ्य((अंक_SLICES-1)+16 downto 16) <= mode;
           when "01" => -- CSR1
-            bus_rsp_o.data((NUM_SLICES-1)+0 downto  0) <= irq;
-            bus_rsp_o.data(18 downto 16)               <= clkprsc;
+            bus_rsp_o.तथ्य((अंक_SLICES-1)+0 downto  0) <= irq;
+            bus_rsp_o.तथ्य(18 downto 16)               <= clkprsc;
           when others => -- slice registers
-            bus_rsp_o.data <= rdata_sum;
+            bus_rsp_o.तथ्य <= rdata_योग;
         end case;
       end if;
     end if;
@@ -143,7 +143,7 @@ begin
   -- Timer Slices ---------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   timer_slice_gen:
-  for i in 0 to NUM_SLICES-1 generate
+  for i in 0 to अंक_SLICES-1 generate
     neorv32_gptmr_slice_inst: neorv32_gptmr_slice
     port map (
       -- global control --
@@ -156,7 +156,7 @@ begin
       cs_i    => cs(i),
       we_i    => bus_req_i.rw,
       addr_i  => bus_req_i.addr(2),
-      wdata_i => bus_req_i.data,
+      wdata_i => bus_req_i.तथ्य,
       rdata_o => rdata(i),
       -- IRQ output --
       irq_o   => trig(i)
@@ -170,10 +170,10 @@ begin
     variable tmp_v : std_ulogic_vector(31 downto 0);
   begin
     tmp_v := (others => '0');
-    for i in 0 to NUM_SLICES-1 loop
+    for i in 0 to अंक_SLICES-1 loop
       tmp_v := tmp_v or rdata(i);
     end loop;
-    rdata_sum <= tmp_v;
+    rdata_योग <= tmp_v;
   end process;
 
 
@@ -182,13 +182,13 @@ begin
   irq_generator: process(clk_i)
   begin
     if rising_edge(clk_i) then
-      for i in 0 to NUM_SLICES-1 loop
+      for i in 0 to अंक_SLICES-1 loop
         if (enable(i) = '0') then
           irq(i) <= '0';
         elsif (trig(i) = '1') then
           irq(i) <= '1';
         elsif (bus_req_i.stb = '1') and (bus_req_i.rw = '1') and (acc_addr = "01") and
-              (bus_req_i.ben(i/8) = '1') and (bus_req_i.data(i) = '0') then -- write 0 to clear/ACK
+              (bus_req_i.ben(i/8) = '1') and (bus_req_i.तथ्य(i) = '0') then -- write 0 to clear/ACK
           irq(i) <= '0';
         end if;
       end loop;

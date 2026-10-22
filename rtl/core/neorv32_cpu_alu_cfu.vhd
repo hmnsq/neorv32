@@ -29,7 +29,7 @@ entity neorv32_cpu_alu_cfu is
     rs1_i    : in  std_ulogic_vector(31 downto 0); -- register source operand 1
     rs2_i    : in  std_ulogic_vector(31 downto 0); -- register source operand 2
     -- response --
-    result_o : out std_ulogic_vector(31 downto 0); -- operation result
+    परिणाम_o : out std_ulogic_vector(31 downto 0); -- operation result
     valid_o  : out std_ulogic                      -- operation done; result valid
   );
 end entity;
@@ -74,15 +74,15 @@ architecture neorv32_cpu_alu_cfu_rtl of neorv32_cpu_alu_cfu is
   constant xtea_delta_c : std_ulogic_vector(31 downto 0) := x"9e3779b9";
 
   -- key storage (accessed via special r4-type instructions) --
-  type key_mem_t is array (0 to 3) of std_ulogic_vector(31 downto 0);
-  signal key_mem : key_mem_t;
+  type कुंजी_mem_t is array (0 to 3) of std_ulogic_vector(31 downto 0);
+  signal कुंजी_mem : कुंजी_mem_t;
 
   -- processing state --
   type xtea_t is record
     done : std_ulogic_vector(1 downto 0);  -- multi-cycle done shift register; 2 stages = 2 cycles latency
     opa  : std_ulogic_vector(31 downto 0); -- input operand a
     opb  : std_ulogic_vector(31 downto 0); -- input operand b
-    sum  : std_ulogic_vector(31 downto 0); -- round key buffer
+    योग  : std_ulogic_vector(31 downto 0); -- round key buffer
     res  : std_ulogic_vector(31 downto 0); -- operation results
   end record;
   signal xtea : xtea_t;
@@ -108,9 +108,9 @@ begin
       xtea.done <= (others => '0');
       xtea.opa  <= (others => '0');
       xtea.opb  <= (others => '0');
-      xtea.sum  <= (others => '0');
+      xtea.योग  <= (others => '0');
       xtea.res  <= (others => '0');
-      key_mem   <= (others => (others => '0'));
+      कुंजी_mem   <= (others => (others => '0'));
     elsif rising_edge(clk_i) then
       -- "operation-done" shift register: module has 2 cycles latency --
       xtea.done(0) <= '0'; -- default: no operation trigger
@@ -124,7 +124,7 @@ begin
           xtea.done(0) <= '1'; -- start data processing
         else -- I-type is used for key access instructions
           if (funct3(0) = '1') then -- key write-enable
-            key_mem(to_integer(unsigned(imm12(1 downto 0)))) <= rs1_i; -- write key data at imm12(1:0)
+            कुंजी_mem(to_integer(unsigned(imm12(1 downto 0)))) <= rs1_i; -- write key data at imm12(1:0)
           end if;
         end if;
       end if;
@@ -133,11 +133,11 @@ begin
       if (xtea.done(0) = '1') then -- second-stage execution trigger
         -- update "sum" round key --
         if (funct3(2) = '1') then -- initialize
-          xtea.sum <= xtea.opa; -- set initial round key
+          xtea.योग <= xtea.opa; -- set initial round key
         elsif (funct3(1 downto 0) = xtea_enc_v0_c(1 downto 0)) then -- encrypt v0
-          xtea.sum <= std_ulogic_vector(unsigned(xtea.sum) + unsigned(xtea_delta_c));
+          xtea.योग <= std_ulogic_vector(unsigned(xtea.योग) + unsigned(xtea_delta_c));
         elsif (funct3(1 downto 0) = xtea_dec_v1_c(1 downto 0)) then -- decrypt v1
-          xtea.sum <= std_ulogic_vector(unsigned(xtea.sum) - unsigned(xtea_delta_c));
+          xtea.योग <= std_ulogic_vector(unsigned(xtea.योग) - unsigned(xtea_delta_c));
         end if;
         -- process "v" operands --
         if (funct3(1) = '0') then -- encrypt
@@ -155,31 +155,31 @@ begin
   tmp_b <= xtea.opa when (funct3(0) = '0') else xtea.opb; -- v0 / v1 select
   tmp_x <= xtea.opb(27 downto 0) & "0000"  when (funct3(0) = '0') else xtea.opa(27 downto 0) & "0000";  -- v << 4
   tmp_y <= "00000" & xtea.opb(31 downto 5) when (funct3(0) = '0') else "00000" & xtea.opa(31 downto 5); -- v >> 5
-  tmp_z <= key_mem(to_integer(unsigned(xtea.sum(1 downto 0)))) when (funct3(0) = '0') else -- key[sum & 3]
-           key_mem(to_integer(unsigned(xtea.sum(12 downto 11)))); -- key[(sum >> 11) & 3]
-  tmp_r <= std_ulogic_vector(unsigned(tmp_x xor tmp_y) + unsigned(tmp_a)) xor std_ulogic_vector(unsigned(xtea.sum) + unsigned(tmp_z));
+  tmp_z <= कुंजी_mem(to_integer(unsigned(xtea.योग(1 downto 0)))) when (funct3(0) = '0') else -- key[sum & 3]
+           कुंजी_mem(to_integer(unsigned(xtea.योग(12 downto 11)))); -- key[(sum >> 11) & 3]
+  tmp_r <= std_ulogic_vector(unsigned(tmp_x xor tmp_y) + unsigned(tmp_a)) xor std_ulogic_vector(unsigned(xtea.योग) + unsigned(tmp_z));
 
 
   -- Function Result Select -----------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  result_select: process(itype, funct3, imm12, xtea, key_mem)
+  परिणाम_select: process(itype, funct3, imm12, xtea, कुंजी_mem)
   begin -- no need for a register stage here; the CFU output is registered inside the ALU module anyway
     if (itype = '0') then -- R-type instructions; function select via "funct3"
     -- ----------------------------------------------------------------------
       case funct3 is -- just check "funct3" here
         when xtea_enc_v0_c | xtea_enc_v1_c | xtea_dec_v0_c | xtea_dec_v1_c => -- encryption/decryption
-          result_o <= xtea.res; -- processing result
+          परिणाम_o <= xtea.res; -- processing result
           valid_o  <= xtea.done(1); -- multi-cycle processing done when set
         when xtea_init_c => -- xtea initialization
-          result_o <= (others => '0'); -- just output zero
+          परिणाम_o <= (others => '0'); -- just output zero
           valid_o  <= '1'; -- pure-combinatorial, so we are done "immediately"
         when others => -- all unspecified operations
-          result_o <= (others => '0'); -- no logic implemented
+          परिणाम_o <= (others => '0'); -- no logic implemented
           valid_o  <= '0'; -- this will cause an illegal instruction exception
       end case;
     else -- I-type instructions; used for key access
     -- ----------------------------------------------------------------------
-      result_o <= key_mem(to_integer(unsigned(imm12(1 downto 0))));
+      परिणाम_o <= कुंजी_mem(to_integer(unsigned(imm12(1 downto 0))));
       valid_o  <= '1'; -- pure-combinatorial, so we are done "immediately"
     end if;
   end process;

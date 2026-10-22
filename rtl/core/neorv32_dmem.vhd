@@ -26,12 +26,12 @@ entity neorv32_dmem is
     clk_i      : in  std_ulogic;                     -- clock, trigger on rising edge
     -- bus request --
     req_addr_i : in  std_ulogic_vector(31 downto 0); -- access address (byte-addressing)
-    req_data_i : in  std_ulogic_vector(31 downto 0); -- write data
+    req_तथ्य_i : in  std_ulogic_vector(31 downto 0); -- write data
     req_ben_i  : in  std_ulogic_vector(3 downto 0);  -- byte enable
     req_stb_i  : in  std_ulogic;                     -- request strobe
     req_rw_i   : in  std_ulogic;                     -- 0 = read, 1 = write
     -- bus response --
-    rsp_data_o : out std_ulogic_vector(31 downto 0); -- read data
+    rsp_तथ्य_o : out std_ulogic_vector(31 downto 0); -- read data
     rsp_ack_o  : out std_ulogic;                     -- access acknowledge
     rsp_err_o  : out std_ulogic                      -- access error
   );
@@ -62,8 +62,8 @@ begin
       en_i   => en(i),
       rw_i   => req_rw_i,
       addr_i => req_addr_i(AWIDTH-1 downto 2),
-      data_i => req_data_i(i*8+7 downto i*8),
-      data_o => rdata(i*8+7 downto i*8)
+      तथ्य_i => req_तथ्य_i(i*8+7 downto i*8),
+      तथ्य_o => rdata(i*8+7 downto i*8)
     );
     en(i) <= req_ben_i(i) and req_stb_i; -- byte-wise enable
   end generate;
@@ -78,7 +78,7 @@ begin
   end process;
 
   -- output gate --
-  rsp_data_o <= rdata when (rdack(outreg_c) = '1') else (others => '0');
+  rsp_तथ्य_o <= rdata when (rdack(outreg_c) = '1') else (others => '0');
   rsp_ack_o  <= wrack or rdack(outreg_c);
   rsp_err_o  <= '0'; -- no access errors supported (could be used for ECC / parity checks)
 

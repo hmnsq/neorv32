@@ -65,16 +65,16 @@ architecture neorv32_uart_rtl of neorv32_uart is
   constant ctrl_tx_busy_c       : natural := 31; -- r/-: UART transmitter is busy and TX FIFO not empty
 
   -- data register bits --
-  constant data_rtx_lsb_c     : natural :=  0; -- r/w: RX/TX data LSB
-  constant data_rtx_msb_c     : natural :=  7; -- r/w: RX/TX data MSB
-  constant data_rx_fifo_lsb_c : natural :=  8; -- r/-: log2(RX FIFO size) LSB
-  constant data_rx_fifo_msb_c : natural := 11; -- r/-: log2(RX FIFO size) MSB
-  constant data_tx_fifo_lsb_c : natural := 12; -- r/-: log2(TX FIFO size) LSB
-  constant data_tx_fifo_msb_c : natural := 15; -- r/-: log2(TX FIFO size) MSB
+  constant तथ्य_rtx_lsb_c     : natural :=  0; -- r/w: RX/TX data LSB
+  constant तथ्य_rtx_msb_c     : natural :=  7; -- r/w: RX/TX data MSB
+  constant तथ्य_rx_fifo_lsb_c : natural :=  8; -- r/-: log2(RX FIFO size) LSB
+  constant तथ्य_rx_fifo_msb_c : natural := 11; -- r/-: log2(RX FIFO size) MSB
+  constant तथ्य_tx_fifo_lsb_c : natural := 12; -- r/-: log2(TX FIFO size) LSB
+  constant तथ्य_tx_fifo_msb_c : natural := 15; -- r/-: log2(TX FIFO size) MSB
 
   -- helpers --
-  constant log2_rx_fifo_c : natural := index_size_f(UART_RX_FIFO);
-  constant log2_tx_fifo_c : natural := index_size_f(UART_TX_FIFO);
+  constant log2_rx_fifo_c : natural := सूचकांक_आकार_f(UART_RX_FIFO);
+  constant log2_tx_fifo_c : natural := सूचकांक_आकार_f(UART_TX_FIFO);
 
   -- bus interface --
   signal bus_ack, bus_rden : std_ulogic;
@@ -145,15 +145,15 @@ begin
     elsif rising_edge(clk_i) then
       if (bus_req_i.stb = '1') and (bus_req_i.rw = '1') then
         if (bus_req_i.addr(2) = '0') then -- control register
-          ctrl.enable        <= bus_req_i.data(ctrl_en_c);
-          ctrl.sim_mode      <= bus_req_i.data(ctrl_sim_en_c) and bool_to_ulogic_f(is_simulation_c);
-          ctrl.hwfc_en       <= bus_req_i.data(ctrl_hwfc_en_c);
-          ctrl.prsc          <= bus_req_i.data(ctrl_prsc2_c downto ctrl_prsc0_c);
-          ctrl.baud          <= bus_req_i.data(ctrl_baud9_c downto ctrl_baud0_c);
-          ctrl.irq_rx_nempty <= bus_req_i.data(ctrl_irq_rx_nempty_c);
-          ctrl.irq_rx_full   <= bus_req_i.data(ctrl_irq_rx_full_c);
-          ctrl.irq_tx_empty  <= bus_req_i.data(ctrl_irq_tx_empty_c);
-          ctrl.irq_tx_nfull  <= bus_req_i.data(ctrl_irq_tx_nfull_c);
+          ctrl.enable        <= bus_req_i.तथ्य(ctrl_en_c);
+          ctrl.sim_mode      <= bus_req_i.तथ्य(ctrl_sim_en_c) and bool_to_ulogic_f(is_simulation_c);
+          ctrl.hwfc_en       <= bus_req_i.तथ्य(ctrl_hwfc_en_c);
+          ctrl.prsc          <= bus_req_i.तथ्य(ctrl_prsc2_c downto ctrl_prsc0_c);
+          ctrl.baud          <= bus_req_i.तथ्य(ctrl_baud9_c downto ctrl_baud0_c);
+          ctrl.irq_rx_nempty <= bus_req_i.तथ्य(ctrl_irq_rx_nempty_c);
+          ctrl.irq_rx_full   <= bus_req_i.तथ्य(ctrl_irq_rx_full_c);
+          ctrl.irq_tx_empty  <= bus_req_i.तथ्य(ctrl_irq_tx_empty_c);
+          ctrl.irq_tx_nfull  <= bus_req_i.तथ्य(ctrl_irq_tx_nfull_c);
         end if;
       end if;
     end if;
@@ -181,9 +181,9 @@ begin
         bus_rdata(ctrl_rx_over_c)                   <= rx_overrun;
         bus_rdata(ctrl_tx_busy_c)                   <= tx.state(0) or tx_fifo.avail;
       else -- data register
-        bus_rdata(data_rtx_msb_c     downto data_rtx_lsb_c)     <= rx_fifo.rdata;
-        bus_rdata(data_rx_fifo_msb_c downto data_rx_fifo_lsb_c) <= std_ulogic_vector(to_unsigned(log2_rx_fifo_c, 4));
-        bus_rdata(data_tx_fifo_msb_c downto data_tx_fifo_lsb_c) <= std_ulogic_vector(to_unsigned(log2_tx_fifo_c, 4));
+        bus_rdata(तथ्य_rtx_msb_c     downto तथ्य_rtx_lsb_c)     <= rx_fifo.rdata;
+        bus_rdata(तथ्य_rx_fifo_msb_c downto तथ्य_rx_fifo_lsb_c) <= std_ulogic_vector(to_unsigned(log2_rx_fifo_c, 4));
+        bus_rdata(तथ्य_tx_fifo_msb_c downto तथ्य_tx_fifo_lsb_c) <= std_ulogic_vector(to_unsigned(log2_tx_fifo_c, 4));
       end if;
     end if;
   end process;
@@ -191,7 +191,7 @@ begin
   -- bus response --
   bus_rsp_o.ack  <= bus_ack;
   bus_rsp_o.err  <= '0'; -- no access errors supported
-  bus_rsp_o.data <= bus_rdata;
+  bus_rsp_o.तथ्य <= bus_rdata;
 
   -- UART clock tick --
   uart_clk <= clkgen_i(to_integer(unsigned(ctrl.prsc)));
@@ -222,7 +222,7 @@ begin
   );
 
   tx_fifo.clr   <= '1' when (ctrl.enable = '0') or (ctrl.sim_mode = '1') else '0';
-  tx_fifo.wdata <= bus_req_i.data(data_rtx_msb_c downto data_rtx_lsb_c);
+  tx_fifo.wdata <= bus_req_i.तथ्य(तथ्य_rtx_msb_c downto तथ्य_rtx_lsb_c);
   tx_fifo.we    <= '1' when (bus_req_i.stb = '1') and (bus_req_i.rw = '1') and (bus_req_i.addr(2) = '1') else '0';
   tx_fifo.re    <= tx.done;
 
@@ -311,7 +311,7 @@ begin
             if (or_reduce_f(tx.baudcnt) = '0') then -- bit done
               tx.baudcnt <= ctrl.baud;
               tx.bitcnt  <= std_ulogic_vector(unsigned(tx.bitcnt) - 1);
-              tx.sreg    <= '1' & tx.sreg(tx.sreg'left downto 1);
+              tx.sreg    <= '1' & tx.sreg(tx.sreg'बायाँ downto 1);
             else
               tx.baudcnt <= std_ulogic_vector(unsigned(tx.baudcnt) - 1);
             end if;
@@ -365,7 +365,7 @@ begin
             if (or_reduce_f(rx.baudcnt) = '0') then -- bit done
               rx.baudcnt <= ctrl.baud;
               rx.bitcnt  <= std_ulogic_vector(unsigned(rx.bitcnt) - 1);
-              rx.sreg    <= (rx.sync(2) and rx.sync(1)) & rx.sreg(rx.sreg'left downto 1);
+              rx.sreg    <= (rx.sync(2) and rx.sync(1)) & rx.sreg(rx.sreg'बायाँ downto 1);
             else
               rx.baudcnt <= std_ulogic_vector(unsigned(rx.baudcnt) - 1);
             end if;
@@ -411,20 +411,20 @@ begin
   if is_simulation_c generate
     sim_log: process(clk_i)
       variable char_v : integer;
-      variable line_v : line;
+      variable पंक्ति_v : पंक्ति;
     begin
       if rising_edge(clk_i) then -- no reset required
         if ((ctrl.enable and ctrl.sim_mode and tx_fifo.we) = '1') then
           -- convert to printable ASCII char --
-          char_v := to_integer(unsigned(bus_req_i.data(data_rtx_msb_c downto data_rtx_lsb_c)));
+          char_v := to_integer(unsigned(bus_req_i.तथ्य(तथ्य_rtx_msb_c downto तथ्य_rtx_lsb_c)));
           if (char_v >= 128) then
             char_v := 0;
           end if;
           -- screen output --
           if (char_v /= 10) and (char_v /= 13) then -- skip line breaks
-            write(line_v, character'val(char_v));
+            write(पंक्ति_v, character'val(char_v));
           elsif (char_v = 10) then -- flush line to screen
-            writeline(output, line_v);
+            writeline(output, पंक्ति_v);
           end if;
         end if;
       end if;

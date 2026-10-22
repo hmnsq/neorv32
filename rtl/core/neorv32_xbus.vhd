@@ -99,7 +99,7 @@ begin
   -- XBUS Interface -------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   xbus_adr_o <= bus_req.addr;
-  xbus_dat_o <= bus_req.data;
+  xbus_dat_o <= bus_req.तथ्य;
   xbus_we_o  <= bus_req.rw;
   xbus_sel_o <= bus_req.ben;
   xbus_stb_o <= bus_req.stb;
@@ -116,7 +116,7 @@ begin
   xbus_tag_o(0) <= bus_req.meta(1); -- 0 = unprivileged access, 1 = privileged access
 
   -- response gating --
-  bus_rsp.data <= xbus_dat_i when (pending = '1') else (others => '0'); -- output gating
+  bus_rsp.तथ्य <= xbus_dat_i when (pending = '1') else (others => '0'); -- output gating
   bus_rsp.ack  <= pending and (xbus_err_i or xbus_ack_i);
   bus_rsp.err  <= pending and xbus_err_i;
 

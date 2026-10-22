@@ -28,13 +28,13 @@ entity neorv32_slink is
     bus_rsp_o        : out bus_rsp_t;                      -- bus response
     irq_o            : out std_ulogic;                     -- interrupt
     -- RX stream interface --
-    slink_rx_data_i  : in  std_ulogic_vector(31 downto 0); -- input data
+    slink_rx_तथ्य_i  : in  std_ulogic_vector(31 downto 0); -- input data
     slink_rx_src_i   : in  std_ulogic_vector(3 downto 0);  -- routing information
     slink_rx_valid_i : in  std_ulogic;                     -- valid input
     slink_rx_last_i  : in  std_ulogic;                     -- end of stream
     slink_rx_ready_o : out std_ulogic;                     -- ready to receive
     -- TX stream interface --
-    slink_tx_data_o  : out std_ulogic_vector(31 downto 0); -- output data
+    slink_tx_तथ्य_o  : out std_ulogic_vector(31 downto 0); -- output data
     slink_tx_dst_o   : out std_ulogic_vector(3 downto 0);  -- routing destination
     slink_tx_valid_o : out std_ulogic;                     -- valid output
     slink_tx_last_o  : out std_ulogic;                     -- end of stream
@@ -64,8 +64,8 @@ architecture neorv32_slink_rtl of neorv32_slink is
   constant ctrl_tx_fifo3_c      : natural := 31; -- r/-: log2(TX FIFO size), bit 3 (MSB)
 
   -- helpers --
-  constant log2_rx_fifo_c : natural := index_size_f(SLINK_RX_FIFO);
-  constant log2_tx_fifo_c : natural := index_size_f(SLINK_TX_FIFO);
+  constant log2_rx_fifo_c : natural := सूचकांक_आकार_f(SLINK_RX_FIFO);
+  constant log2_tx_fifo_c : natural := सूचकांक_आकार_f(SLINK_TX_FIFO);
 
   -- bus interface --
   signal bus_ack, bus_rden : std_ulogic;
@@ -117,15 +117,15 @@ begin
       if (bus_req_i.stb = '1') and (bus_req_i.rw = '1') then
         -- control register --
         if (bus_req_i.addr(3 downto 2) = "00") then
-          ctrl.enable        <= bus_req_i.data(ctrl_en_c);
-          ctrl.irq_rx_nempty <= bus_req_i.data(ctrl_irq_rx_nempty_c);
-          ctrl.irq_rx_full   <= bus_req_i.data(ctrl_irq_rx_full_c);
-          ctrl.irq_tx_empty  <= bus_req_i.data(ctrl_irq_tx_empty_c);
-          ctrl.irq_tx_nfull  <= bus_req_i.data(ctrl_irq_tx_nfull_c);
+          ctrl.enable        <= bus_req_i.तथ्य(ctrl_en_c);
+          ctrl.irq_rx_nempty <= bus_req_i.तथ्य(ctrl_irq_rx_nempty_c);
+          ctrl.irq_rx_full   <= bus_req_i.तथ्य(ctrl_irq_rx_full_c);
+          ctrl.irq_tx_empty  <= bus_req_i.तथ्य(ctrl_irq_tx_empty_c);
+          ctrl.irq_tx_nfull  <= bus_req_i.तथ्य(ctrl_irq_tx_nfull_c);
         end if;
         -- routing information --
         if (bus_req_i.addr(3 downto 2) = "01") then
-          tx_route <= bus_req_i.data(3 downto 0);
+          tx_route <= bus_req_i.तथ्य(3 downto 0);
         end if;
       end if;
     end if;
@@ -161,7 +161,7 @@ begin
   -- bus response --
   bus_rsp_o.ack  <= bus_ack;
   bus_rsp_o.err  <= '0'; -- no access errors supported
-  bus_rsp_o.data <= bus_rdata;
+  bus_rsp_o.तथ्य <= bus_rdata;
 
 
   -- RX Data FIFO ---------------------------------------------------------------------------
@@ -192,7 +192,7 @@ begin
   rx_fifo.clr      <= not ctrl.enable;
   rx_fifo.re       <= bus_rden and bus_req_i.addr(3);
   rx_fifo.we       <= slink_rx_valid_i;
-  rx_fifo.wdata    <= slink_rx_last_i & slink_rx_src_i & slink_rx_data_i;
+  rx_fifo.wdata    <= slink_rx_last_i & slink_rx_src_i & slink_rx_तथ्य_i;
   slink_rx_ready_o <= rx_fifo.free and ctrl.enable;
 
   -- backup RX attributes for current access --
@@ -237,9 +237,9 @@ begin
 
   tx_fifo.clr      <= not ctrl.enable;
   tx_fifo.we       <= bus_req_i.stb and bus_req_i.rw and bus_req_i.addr(3);
-  tx_fifo.wdata    <= bus_req_i.addr(2) & tx_route & bus_req_i.data; -- last-flag is set implicitly via access address
+  tx_fifo.wdata    <= bus_req_i.addr(2) & tx_route & bus_req_i.तथ्य; -- last-flag is set implicitly via access address
   tx_fifo.re       <= slink_tx_ready_i;
-  slink_tx_data_o  <= tx_fifo.rdata(31 downto 0);
+  slink_tx_तथ्य_o  <= tx_fifo.rdata(31 downto 0);
   slink_tx_dst_o   <= tx_fifo.rdata(35 downto 32);
   slink_tx_last_o  <= tx_fifo.rdata(36);
   slink_tx_valid_o <= tx_fifo.avail;

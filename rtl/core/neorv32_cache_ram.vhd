@@ -31,9 +31,9 @@ entity neorv32_cache_ram is
     tag_we_i  : in  std_ulogic;                     -- tag write-enable
     tag_o     : out std_ulogic_vector(31 downto 0); -- zero-extended tag output
     -- data memory --
-    data_we_i : in  std_ulogic_vector(3 downto 0);  -- byte-wise data write-enable
-    data_i    : in  std_ulogic_vector(31 downto 0); -- write data
-    data_o    : out std_ulogic_vector(31 downto 0)  -- read data
+    तथ्य_we_i : in  std_ulogic_vector(3 downto 0);  -- byte-wise data write-enable
+    तथ्य_i    : in  std_ulogic_vector(31 downto 0); -- write data
+    तथ्य_o    : out std_ulogic_vector(31 downto 0)  -- read data
   );
 end entity;
 
@@ -56,8 +56,8 @@ begin
     en_i   => '1',
     rw_i   => tag_we_i,
     addr_i => addr_i(31-TAG_WIDTH downto 2+OFS_WIDTH), -- index
-    data_i => addr_i(31 downto 31-(TAG_WIDTH-1)), -- tag
-    data_o => tag_rd
+    तथ्य_i => addr_i(31 downto 31-(TAG_WIDTH-1)), -- tag
+    तथ्य_o => tag_rd
   );
 
   tag_o(TAG_WIDTH-1 downto 0) <= tag_rd(TAG_WIDTH-1 downto 0); -- actual tag
@@ -65,9 +65,9 @@ begin
 
   -- Data RAM -------------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  data_ram_gen:
+  तथ्य_ram_gen:
   for i in 0 to 3 generate -- four individual byte RAMs per word
-    data_ram_inst: entity neorv32.neorv32_prim_spram
+    तथ्य_ram_inst: entity neorv32.neorv32_prim_spram
     generic map (
       AWIDTH => IDX_WIDTH + OFS_WIDTH,
       DWIDTH => 8,
@@ -76,10 +76,10 @@ begin
     port map (
       clk_i  => clk_i,
       en_i   => '1',
-      rw_i   => data_we_i(i),
+      rw_i   => तथ्य_we_i(i),
       addr_i => addr_i(IDX_WIDTH+OFS_WIDTH+1 downto 2), -- index & word-offset
-      data_i => data_i(i*8+7 downto i*8),
-      data_o => data_o(i*8+7 downto i*8)
+      तथ्य_i => तथ्य_i(i*8+7 downto i*8),
+      तथ्य_o => तथ्य_o(i*8+7 downto i*8)
     );
   end generate;
 

@@ -24,12 +24,12 @@ entity neorv32_cfs is
     rstn_i     : in  std_ulogic;                      -- global reset, low-active, async
     -- CPU request --
     req_addr_i : in  std_ulogic_vector(15 downto 0);  -- byte address (64kB address space)
-    req_data_i : in  std_ulogic_vector(31 downto 0);  -- write data
+    req_तथ्य_i : in  std_ulogic_vector(31 downto 0);  -- write data
     req_ben_i  : in  std_ulogic_vector(3 downto 0);   -- byte enable
     req_stb_i  : in  std_ulogic;                      -- access request strobe
     req_rw_i   : in  std_ulogic;                      -- 0=read, 1=write
     -- CPU response --
-    rsp_data_o : out std_ulogic_vector(31 downto 0);  -- read data
+    rsp_तथ्य_o : out std_ulogic_vector(31 downto 0);  -- read data
     rsp_ack_o  : out std_ulogic;                      -- access acknowledge
     -- CPU interrupt --
     irq_o      : out std_ulogic;                      -- interrupt request, high-active
@@ -80,39 +80,39 @@ begin
   begin
     if (rstn_i = '0') then
       cfs_reg_wr <= (others => (others => '0'));
-      rsp_data_o <= (others => '0');
+      rsp_तथ्य_o <= (others => '0');
       rsp_ack_o  <= '0';
     elsif rising_edge(clk_i) then -- synchronous interface for read and write accesses
       -- transfer/access acknowledge --
       rsp_ack_o <= req_stb_i; -- send ACK right after the access request
 
       -- bus access --
-      rsp_data_o <= (others => '0'); -- the output HAS TO BE ZERO if there is no actual (read) access
+      rsp_तथ्य_o <= (others => '0'); -- the output HAS TO BE ZERO if there is no actual (read) access
       if (req_stb_i = '1') then -- valid access cycle, STB is high for exactly one cycle
 
         -- write access (word-wise) --
         if (req_rw_i = '1') then
           if (req_addr_i(15 downto 2) = "00000000000000") then -- 16-bit byte address = 14-bit word address
-            cfs_reg_wr(0) <= req_data_i;
+            cfs_reg_wr(0) <= req_तथ्य_i;
           end if;
           if (req_addr_i(15 downto 2) = "00000000000001") then
-            cfs_reg_wr(1) <= req_data_i;
+            cfs_reg_wr(1) <= req_तथ्य_i;
           end if;
           if (req_addr_i(15 downto 2) = "00000000000010") then
-            cfs_reg_wr(2) <= req_data_i;
+            cfs_reg_wr(2) <= req_तथ्य_i;
           end if;
           if (req_addr_i(15 downto 2) = "00000000000011") then
-            cfs_reg_wr(3) <= req_data_i;
+            cfs_reg_wr(3) <= req_तथ्य_i;
           end if;
 
         -- read access (word-wise) --
         else
           case req_addr_i(15 downto 2) is -- 16-bit byte-address = 14-bit word-address
-            when "00000000000000" => rsp_data_o <= cfs_reg_rd(0);
-            when "00000000000001" => rsp_data_o <= cfs_reg_rd(1);
-            when "00000000000010" => rsp_data_o <= cfs_reg_rd(2);
-            when "00000000000011" => rsp_data_o <= cfs_reg_rd(3);
-            when others           => rsp_data_o <= (others => '0');
+            when "00000000000000" => rsp_तथ्य_o <= cfs_reg_rd(0);
+            when "00000000000001" => rsp_तथ्य_o <= cfs_reg_rd(1);
+            when "00000000000010" => rsp_तथ्य_o <= cfs_reg_rd(2);
+            when "00000000000011" => rsp_तथ्य_o <= cfs_reg_rd(3);
+            when others           => rsp_तथ्य_o <= (others => '0');
           end case;
         end if;
 

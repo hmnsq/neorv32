@@ -20,7 +20,7 @@ use neorv32.neorv32_package.all;
 
 entity neorv32_debug_dm is
   generic (
-    NUM_HARTS     : natural range 1 to 4; -- number of physical CPU cores
+    अंक_HARTS     : natural range 1 to 4; -- number of physical CPU cores
     AUTHENTICATOR : boolean -- implement authentication module when true
   );
   port (
@@ -35,7 +35,7 @@ entity neorv32_debug_dm is
     bus_rsp_o  : out bus_rsp_t; -- bus response
     -- CPU control --
     ndmrstn_o  : out std_ulogic; -- soc reset
-    halt_req_o : out std_ulogic_vector(NUM_HARTS-1 downto 0) -- request hart to halt (enter debug mode)
+    halt_req_o : out std_ulogic_vector(अंक_HARTS-1 downto 0) -- request hart to halt (enter debug mode)
   );
 end entity;
 
@@ -44,7 +44,7 @@ architecture neorv32_debug_dm_rtl of neorv32_debug_dm is
   -- memory map, 128 bytes per device; replicated throughout the entire device address space --
   constant dm_code_base_c : std_ulogic_vector(31 downto 0) := x"ffffff00"; -- code ROM (park loop)
   constant dm_pbuf_base_c : std_ulogic_vector(31 downto 0) := x"ffffff40"; -- program buffer (PBUF)
-  constant dm_data_base_c : std_ulogic_vector(31 downto 0) := x"ffffff80"; -- abstract data buffer (DATA)
+  constant dm_तथ्य_base_c : std_ulogic_vector(31 downto 0) := x"ffffff80"; -- abstract data buffer (DATA)
   constant dm_sreg_base_c : std_ulogic_vector(31 downto 0) := x"ffffffc0"; -- status register (SREG)
 
   -- ----------------------------------------------------------
@@ -91,7 +91,7 @@ architecture neorv32_debug_dm_rtl of neorv32_debug_dm is
   signal dm_reg : dm_reg_t; -- register set
 
   -- currently selected hart --
-  signal hartselect : std_ulogic_vector(NUM_HARTS-1 downto 0);
+  signal hartselect : std_ulogic_vector(अंक_HARTS-1 downto 0);
   signal hart_exist : std_ulogic; -- selected hart exists
   signal hart_avail : std_ulogic; -- selected hart is available
 
@@ -100,7 +100,7 @@ architecture neorv32_debug_dm_rtl of neorv32_debug_dm is
   signal cpu_progbuf : cpu_progbuf_t;
 
   -- signed base address of data registers in memory/CSR space --
-  constant dataaddr_c : std_ulogic_vector(11 downto 0) := dm_data_base_c(11 downto 0);
+  constant dataaddr_c : std_ulogic_vector(11 downto 0) := dm_तथ्य_base_c(11 downto 0);
 
   -- command execution arbiter --
   type cmd_state_t is (CMD_IDLE, CMD_CHECK, CMD_START, CMD_PENDING);
@@ -113,7 +113,7 @@ architecture neorv32_debug_dm_rtl of neorv32_debug_dm is
 
   -- hart status controller --
   type hart_t is record
-    halted, resume_req, resume_ack, reset : std_ulogic_vector(NUM_HARTS-1 downto 0);
+    halted, resume_req, resume_ack, reset : std_ulogic_vector(अंक_HARTS-1 downto 0);
   end record;
   signal hart : hart_t; -- register set
 
@@ -151,16 +151,16 @@ architecture neorv32_debug_dm_rtl of neorv32_debug_dm is
 
   -- CPU access helpers --
   signal accen : std_ulogic;
-  signal cpu_id_dec : std_ulogic_vector(NUM_HARTS-1 downto 0);
+  signal cpu_id_dec : std_ulogic_vector(अंक_HARTS-1 downto 0);
 
   -- Debug Core Interface --
   type dci_t is record
-    ack_hlt : std_ulogic_vector(NUM_HARTS-1 downto 0); -- CPU (re-)entered HALT state (single-shot)
-    req_res : std_ulogic_vector(NUM_HARTS-1 downto 0); -- DM wants the CPU to resume when set
-    ack_res : std_ulogic_vector(NUM_HARTS-1 downto 0); -- CPU starts resuming when set (single-shot)
-    req_exe : std_ulogic_vector(NUM_HARTS-1 downto 0); -- DM wants CPU to execute program buffer when set
-    ack_exe : std_ulogic_vector(NUM_HARTS-1 downto 0); -- CPU starts executing program buffer when set (single-shot)
-    ack_exc : std_ulogic_vector(NUM_HARTS-1 downto 0); -- CPU has detected an exception (single-shot)
+    ack_hlt : std_ulogic_vector(अंक_HARTS-1 downto 0); -- CPU (re-)entered HALT state (single-shot)
+    req_res : std_ulogic_vector(अंक_HARTS-1 downto 0); -- DM wants the CPU to resume when set
+    ack_res : std_ulogic_vector(अंक_HARTS-1 downto 0); -- CPU starts resuming when set (single-shot)
+    req_exe : std_ulogic_vector(अंक_HARTS-1 downto 0); -- DM wants CPU to execute program buffer when set
+    ack_exe : std_ulogic_vector(अंक_HARTS-1 downto 0); -- CPU starts executing program buffer when set (single-shot)
+    ack_exc : std_ulogic_vector(अंक_HARTS-1 downto 0); -- CPU has detected an exception (single-shot)
     data0   : std_ulogic_vector(31 downto 0); -- memory-mapped data exchange register
   end record;
   signal dci : dci_t;
@@ -211,43 +211,43 @@ begin
 
           -- debug module control --
           when addr_dmcontrol_c =>
-            dm_reg.halt_req  <= dmi_req_i.data(31);                              -- haltreq
-            dm_reg.req_res   <= dmi_req_i.data(30) and (not dmi_req_i.data(31)); -- resumereq, ignore if halt request
-            dm_reg.reset_ack <= dmi_req_i.data(28);                              -- ackhavereset
+            dm_reg.halt_req  <= dmi_req_i.तथ्य(31);                              -- haltreq
+            dm_reg.req_res   <= dmi_req_i.तथ्य(30) and (not dmi_req_i.तथ्य(31)); -- resumereq, ignore if halt request
+            dm_reg.reset_ack <= dmi_req_i.तथ्य(28);                              -- ackhavereset
             if (cmd_busy = '0') then
-              dm_reg.hartsel <= dmi_req_i.data(18 downto 16);                    -- hartsello, no update while CMD is executing
+              dm_reg.hartsel <= dmi_req_i.तथ्य(18 downto 16);                    -- hartsello, no update while CMD is executing
             end if;
-            dm_reg.ndmreset  <= dmi_req_i.data(1);                               -- ndmreset
+            dm_reg.ndmreset  <= dmi_req_i.तथ्य(1);                               -- ndmreset
 
           -- write abstract command (only when idle and no error yet) --
           when addr_command_c =>
             if (cmd_busy = '0') and (cmd_err = "000") then
-              dm_reg.command <= dmi_req_i.data;
+              dm_reg.command <= dmi_req_i.तथ्य;
             end if;
 
           -- write abstract command autoexec (only when idle) --
           when addr_abstractauto_c =>
             if (cmd_busy = '0') then
-              dm_reg.autoexecprogbuf <= dmi_req_i.data(17 downto 16);
-              dm_reg.autoexecdata    <= dmi_req_i.data(0);
+              dm_reg.autoexecprogbuf <= dmi_req_i.तथ्य(17 downto 16);
+              dm_reg.autoexecdata    <= dmi_req_i.तथ्य(0);
             end if;
 
           -- acknowledge command error --
           when addr_abstractcs_c =>
-            if (dmi_req_i.data(10 downto 8) = "111") then
+            if (dmi_req_i.तथ्य(10 downto 8) = "111") then
               dm_reg.clr_acc_err <= '1';
             end if;
 
           -- write program buffer 0 (only when idle) --
           when addr_progbuf0_c =>
             if (cmd_busy = '0') then
-              dm_reg.progbuf(0) <= dmi_req_i.data;
+              dm_reg.progbuf(0) <= dmi_req_i.तथ्य;
             end if;
 
           -- write program buffer 1 (only when idle) --
           when addr_progbuf1_c =>
             if (cmd_busy = '0') then
-              dm_reg.progbuf(1) <= dmi_req_i.data;
+              dm_reg.progbuf(1) <= dmi_req_i.तथ्य;
             end if;
 
           -- undefined --
@@ -259,7 +259,7 @@ begin
 
       -- dmactive can always be written --
       if (dmi_req_i.op = dmi_req_wr_c) and (dmi_req_i.addr = addr_dmcontrol_c) then
-        dm_reg.dmactive <= dmi_req_i.data(0);
+        dm_reg.dmactive <= dmi_req_i.तथ्य(0);
       end if;
 
       -- ------------------------------------------------------
@@ -295,15 +295,15 @@ begin
 
   -- hart select --
   hartsel_decode:
-  for i in 0 to NUM_HARTS-1 generate
+  for i in 0 to अंक_HARTS-1 generate
     hartselect(i) <= '1' when (dm_reg.hartsel(2) = '0') and (dm_reg.hartsel(1 downto 0) = std_ulogic_vector(to_unsigned(i, 2))) else '0';
   end generate;
-  hart_exist <= '1' when (unsigned(dm_reg.hartsel) < to_unsigned(NUM_HARTS, 3)) else '0'; -- selected hart exists
+  hart_exist <= '1' when (unsigned(dm_reg.hartsel) < to_unsigned(अंक_HARTS, 3)) else '0'; -- selected hart exists
   hart_avail <= hart_exist and (not dm_reg.ndmreset); -- selected hart is available
 
   -- CPU halt request --
   request_gen:
-  for i in 0 to NUM_HARTS-1 generate
+  for i in 0 to अंक_HARTS-1 generate
     halt_req_o(i) <= dm_reg.halt_req and hartselect(i) and dm_reg.dmactive;
   end generate;
 
@@ -314,89 +314,89 @@ begin
   begin
     if rising_edge(clk_i) then
       dmi_rsp_o.ack  <= or_reduce_f(dmi_req_i.op); -- always ACK any request
-      dmi_rsp_o.data <= (others => '0');
+      dmi_rsp_o.तथ्य <= (others => '0');
       case dmi_req_i.addr is
 
         -- debug module status register --
         when addr_dmstatus_c =>
           if (dmi_rden = '1') then
-            dmi_rsp_o.data(24)           <= dm_reg.ndmreset;                                                            -- ndmresetpending
-            dmi_rsp_o.data(23)           <= '0';                                                                        -- stickyunavail
-            dmi_rsp_o.data(22)           <= '1';                                                                        -- impebreak
-            dmi_rsp_o.data(19 downto 18) <= (others => (hart_exist and or_reduce_f(hart.reset      and hartselect)));   -- all/any_havereset
-            dmi_rsp_o.data(17 downto 16) <= (others => (hart_avail and or_reduce_f(hart.resume_ack and hartselect)));   -- all/any_resumeack
-            dmi_rsp_o.data(15 downto 14) <= (others => (not hart_exist));                                               -- all/any_nonexistent
-            dmi_rsp_o.data(13 downto 12) <= (others => (hart_exist and dm_reg.ndmreset));                               -- all/any_unavail
-            dmi_rsp_o.data(11 downto 10) <= (others => (hart_avail and (not or_reduce_f(hart.halted and hartselect)))); -- all/any_running
-            dmi_rsp_o.data(9 downto 8)   <= (others => (hart_avail and      or_reduce_f(hart.halted and hartselect)));  -- all/any_halted
-            dmi_rsp_o.data(5)            <= '0';                                                                        -- hasresethaltreq
-            dmi_rsp_o.data(4)            <= '0';                                                                        -- confstrptrvalid
+            dmi_rsp_o.तथ्य(24)           <= dm_reg.ndmreset;                                                            -- ndmresetpending
+            dmi_rsp_o.तथ्य(23)           <= '0';                                                                        -- stickyunavail
+            dmi_rsp_o.तथ्य(22)           <= '1';                                                                        -- impebreak
+            dmi_rsp_o.तथ्य(19 downto 18) <= (others => (hart_exist and or_reduce_f(hart.reset      and hartselect)));   -- all/any_havereset
+            dmi_rsp_o.तथ्य(17 downto 16) <= (others => (hart_avail and or_reduce_f(hart.resume_ack and hartselect)));   -- all/any_resumeack
+            dmi_rsp_o.तथ्य(15 downto 14) <= (others => (not hart_exist));                                               -- all/any_nonexistent
+            dmi_rsp_o.तथ्य(13 downto 12) <= (others => (hart_exist and dm_reg.ndmreset));                               -- all/any_unavail
+            dmi_rsp_o.तथ्य(11 downto 10) <= (others => (hart_avail and (not or_reduce_f(hart.halted and hartselect)))); -- all/any_running
+            dmi_rsp_o.तथ्य(9 downto 8)   <= (others => (hart_avail and      or_reduce_f(hart.halted and hartselect)));  -- all/any_halted
+            dmi_rsp_o.तथ्य(5)            <= '0';                                                                        -- hasresethaltreq
+            dmi_rsp_o.तथ्य(4)            <= '0';                                                                        -- confstrptrvalid
           end if;
-          dmi_rsp_o.data(7)          <= auth_valid; -- authenticated
-          dmi_rsp_o.data(6)          <= auth_busy;  -- authbusy
-          dmi_rsp_o.data(3 downto 0) <= "0011";     -- version
+          dmi_rsp_o.तथ्य(7)          <= auth_valid; -- authenticated
+          dmi_rsp_o.तथ्य(6)          <= auth_busy;  -- authbusy
+          dmi_rsp_o.तथ्य(3 downto 0) <= "0011";     -- version
 
         -- debug module control --
         when addr_dmcontrol_c =>
           if (dmi_rden = '1') then
-            dmi_rsp_o.data(31)           <= '0';                        -- haltreq
-            dmi_rsp_o.data(30)           <= '0';                        -- resumereq
-            dmi_rsp_o.data(29)           <= '0';                        -- hartreset
-            dmi_rsp_o.data(28)           <= '0';                        -- ackhavereset
-            dmi_rsp_o.data(26)           <= '0';                        -- hasel
-            dmi_rsp_o.data(25 downto 16) <= "0000000" & dm_reg.hartsel; -- hartsello
-            dmi_rsp_o.data(15 downto 6)  <= "0000000000";               -- hartselhi
-            dmi_rsp_o.data(3)            <= '0';                        -- setresethaltreq
-            dmi_rsp_o.data(2)            <= '0';                        -- clrresethaltreq
-            dmi_rsp_o.data(1)            <= dm_reg.ndmreset;            -- ndmreset
+            dmi_rsp_o.तथ्य(31)           <= '0';                        -- haltreq
+            dmi_rsp_o.तथ्य(30)           <= '0';                        -- resumereq
+            dmi_rsp_o.तथ्य(29)           <= '0';                        -- hartreset
+            dmi_rsp_o.तथ्य(28)           <= '0';                        -- ackhavereset
+            dmi_rsp_o.तथ्य(26)           <= '0';                        -- hasel
+            dmi_rsp_o.तथ्य(25 downto 16) <= "0000000" & dm_reg.hartsel; -- hartsello
+            dmi_rsp_o.तथ्य(15 downto 6)  <= "0000000000";               -- hartselhi
+            dmi_rsp_o.तथ्य(3)            <= '0';                        -- setresethaltreq
+            dmi_rsp_o.तथ्य(2)            <= '0';                        -- clrresethaltreq
+            dmi_rsp_o.तथ्य(1)            <= dm_reg.ndmreset;            -- ndmreset
           end if;
-          dmi_rsp_o.data(0) <= dm_reg.dmactive; -- dmactive
+          dmi_rsp_o.तथ्य(0) <= dm_reg.dmactive; -- dmactive
 
         -- hart info --
         when addr_hartinfo_c =>
           if (dmi_rden = '1') then
-            dmi_rsp_o.data(23 downto 20) <= "0001";                  -- nscratch
-            dmi_rsp_o.data(16)           <= '1';                     -- dataaccess
-            dmi_rsp_o.data(15 downto 12) <= "0001";                  -- datasize
-            dmi_rsp_o.data(11 downto 0)  <= dataaddr_c(11 downto 0); -- dataaddr
+            dmi_rsp_o.तथ्य(23 downto 20) <= "0001";                  -- nscratch
+            dmi_rsp_o.तथ्य(16)           <= '1';                     -- dataaccess
+            dmi_rsp_o.तथ्य(15 downto 12) <= "0001";                  -- datasize
+            dmi_rsp_o.तथ्य(11 downto 0)  <= dataaddr_c(11 downto 0); -- dataaddr
           end if;
 
         -- abstract control and status --
         when addr_abstractcs_c =>
           if (dmi_rden = '1') then
-            dmi_rsp_o.data(28 downto 24) <= "00010";  -- progbufsize
-            dmi_rsp_o.data(12)           <= cmd_busy; -- busy
-            dmi_rsp_o.data(11)           <= '1';      -- relaxedpriv
-            dmi_rsp_o.data(10 downto 8)  <= cmd_err;  -- cmderr
-            dmi_rsp_o.data(3 downto 0)   <= "0001";   -- datacount
+            dmi_rsp_o.तथ्य(28 downto 24) <= "00010";  -- progbufsize
+            dmi_rsp_o.तथ्य(12)           <= cmd_busy; -- busy
+            dmi_rsp_o.तथ्य(11)           <= '1';      -- relaxedpriv
+            dmi_rsp_o.तथ्य(10 downto 8)  <= cmd_err;  -- cmderr
+            dmi_rsp_o.तथ्य(3 downto 0)   <= "0001";   -- datacount
           end if;
 
         -- abstract command autoexec --
         when addr_abstractauto_c =>
           if (dmi_rden = '1') then
-            dmi_rsp_o.data(17 downto 16) <= dm_reg.autoexecprogbuf;
-            dmi_rsp_o.data(0)            <= dm_reg.autoexecdata;
+            dmi_rsp_o.तथ्य(17 downto 16) <= dm_reg.autoexecprogbuf;
+            dmi_rsp_o.तथ्य(0)            <= dm_reg.autoexecdata;
           end if;
 
         -- abstract data 0 --
         when addr_data0_c =>
           if (dmi_rden = '1') then
-            dmi_rsp_o.data <= dci.data0;
+            dmi_rsp_o.तथ्य <= dci.data0;
           end if;
 
         -- authentication data (can always be read) --
         when addr_authdata_c =>
-          dmi_rsp_o.data <= auth_rdata;
+          dmi_rsp_o.तथ्य <= auth_rdata;
 
         -- halt summary 0 --
         when addr_haltsum0_c =>
           if (dmi_rden = '1') then
-            dmi_rsp_o.data(NUM_HARTS-1 downto 0) <= hart.halted(NUM_HARTS-1 downto 0);
+            dmi_rsp_o.तथ्य(अंक_HARTS-1 downto 0) <= hart.halted(अंक_HARTS-1 downto 0);
           end if;
 
         -- not implemented or read-only-zero --
         when others =>
-          dmi_rsp_o.data <= (others => '0');
+          dmi_rsp_o.तथ्य <= (others => '0');
 
       end case;
     end if;
@@ -408,7 +408,7 @@ begin
   hart_status: process(clk_i)
   begin
     if rising_edge(clk_i) then
-      for i in 0 to NUM_HARTS-1 loop
+      for i in 0 to अंक_HARTS-1 loop
         -- halted ACK --
         if (dm_reg.ndmreset = '1') or (dm_reg.dmactive = '0') or (dci.ack_res(i) = '1') then
           hart.halted(i) <= '0';
@@ -539,11 +539,11 @@ begin
       dci.data0 <= (others => '0');
     elsif rising_edge(clk_i) then
       if (dmi_wren = '1') and (dmi_req_i.addr = addr_data0_c) and (cmd_busy = '0') then -- DM write access
-        dci.data0 <= dmi_req_i.data;
-      elsif (accen = '1') and (bus_req_i.rw = '1') and (bus_req_i.addr(7 downto 6) = dm_data_base_c(7 downto 6)) then -- CPU write access
+        dci.data0 <= dmi_req_i.तथ्य;
+      elsif (accen = '1') and (bus_req_i.rw = '1') and (bus_req_i.addr(7 downto 6) = dm_तथ्य_base_c(7 downto 6)) then -- CPU write access
         for i in 0 to 3 loop
           if (bus_req_i.ben(i) = '1') then
-            dci.data0(8*i+7 downto 8*i) <= bus_req_i.data(8*i+7 downto 8*i);
+            dci.data0(8*i+7 downto 8*i) <= bus_req_i.तथ्य(8*i+7 downto 8*i);
           end if;
         end loop;
       end if;
@@ -559,7 +559,7 @@ begin
       dci.ack_exe <= (others => '0');
       dci.ack_exc <= (others => '0');
       if (accen = '1') and (bus_req_i.rw = '1') and (bus_req_i.addr(7 downto 6) = dm_sreg_base_c(7 downto 6)) then
-        for i in 0 to NUM_HARTS-1 loop
+        for i in 0 to अंक_HARTS-1 loop
           if (bus_req_i.ben(0) = '1') then dci.ack_hlt(i) <= cpu_id_dec(i); end if; -- CPU has HALTED
           if (bus_req_i.ben(1) = '1') then dci.ack_res(i) <= cpu_id_dec(i); end if; -- CPU starts RESUMING
           if (bus_req_i.ben(2) = '1') then dci.ack_exe(i) <= cpu_id_dec(i); end if; -- CPU starts to EXECUTE program buffer
@@ -574,18 +574,18 @@ begin
   begin
     if rising_edge(clk_i) then
       bus_rsp_o.ack  <= accen; -- timeout if non-debug-mode access -> bus error
-      bus_rsp_o.data <= (others => '0'); -- default
+      bus_rsp_o.तथ्य <= (others => '0'); -- default
       if (accen = '1') and (bus_req_i.rw = '0') then
         case bus_req_i.addr(7 downto 6) is
           when "00" => -- dm_code_base_c: code ROM
-            bus_rsp_o.data <= code_rom_c(to_integer(unsigned(bus_req_i.addr(5 downto 2))));
+            bus_rsp_o.तथ्य <= code_rom_c(to_integer(unsigned(bus_req_i.addr(5 downto 2))));
           when "01" => -- dm_pbuf_base_c: program buffer
-            bus_rsp_o.data <= cpu_progbuf(to_integer(unsigned(bus_req_i.addr(3 downto 2))));
+            bus_rsp_o.तथ्य <= cpu_progbuf(to_integer(unsigned(bus_req_i.addr(3 downto 2))));
           when "10" => -- dm_data_base_c: data buffer
-            bus_rsp_o.data <= dci.data0;
+            bus_rsp_o.तथ्य <= dci.data0;
           when others => -- dm_sreg_base_c: status register
-            bus_rsp_o.data(1*8) <= or_reduce_f(dci.req_res and cpu_id_dec); -- DM requests CPU to resume
-            bus_rsp_o.data(2*8) <= or_reduce_f(dci.req_exe and cpu_id_dec); -- DM requests CPU to execute program buffer
+            bus_rsp_o.तथ्य(1*8) <= or_reduce_f(dci.req_res and cpu_id_dec); -- DM requests CPU to resume
+            bus_rsp_o.तथ्य(2*8) <= or_reduce_f(dci.req_exe and cpu_id_dec); -- DM requests CPU to execute program buffer
         end case;
       end if;
     end if;
@@ -599,8 +599,8 @@ begin
 
   -- CPU ID decoder --
   hart_id_decode_gen:
-  for i in 0 to NUM_HARTS-1 generate
-    cpu_id_dec(i) <= '1' when (bus_req_i.meta(4 downto 3) = std_ulogic_vector(to_unsigned(i, 2))) or (NUM_HARTS = 1) else '0';
+  for i in 0 to अंक_HARTS-1 generate
+    cpu_id_dec(i) <= '1' when (bus_req_i.meta(4 downto 3) = std_ulogic_vector(to_unsigned(i, 2))) or (अंक_HARTS = 1) else '0';
   end generate;
 
 
@@ -616,7 +616,7 @@ begin
       -- register interface --
       we_i     => auth_we,
       re_i     => auth_re,
-      wdata_i  => dmi_req_i.data,
+      wdata_i  => dmi_req_i.तथ्य,
       rdata_o  => auth_rdata,
       -- status --
       enable_i => dm_reg.dmactive,

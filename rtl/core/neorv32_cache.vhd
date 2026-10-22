@@ -27,8 +27,8 @@ use neorv32.neorv32_package.all;
 
 entity neorv32_cache is
   generic (
-    NUM_BLOCKS : natural range 1 to 4096;       -- number of cache blocks, has to be a power of 2
-    BLOCK_SIZE : natural range 4 to 1024;       -- cache block size in bytes, has to be a power of 2
+    अंक_BLOCKS : natural range 1 to 4096;       -- number of cache blocks, has to be a power of 2
+    BLOCK_आकार : natural range 4 to 1024;       -- cache block size in bytes, has to be a power of 2
     UC_BEGIN   : std_ulogic_vector(3 downto 0); -- begin of uncached address space (4 MSBs of address)
     READ_ONLY  : boolean;                       -- cache is read-only accesses for host
     BURSTS_EN  : boolean                        -- enable issuing of burst transfers
@@ -47,11 +47,11 @@ end entity;
 architecture neorv32_cache_rtl of neorv32_cache is
 
   -- cache layout --
-  constant block_num_c    : natural := 2**index_size_f(NUM_BLOCKS);  -- extend if not a power of two
-  constant block_size_c   : natural := 2**index_size_f(BLOCK_SIZE);  -- extend if not a power of two
-  constant offset_width_c : natural := index_size_f(block_size_c/4); -- word offset
-  constant index_width_c  : natural := index_size_f(block_num_c);
-  constant tag_width_c    : natural := 32 - (offset_width_c + index_width_c + 2);
+  constant block_अंक_c    : natural := 2**सूचकांक_आकार_f(अंक_BLOCKS);  -- extend if not a power of two
+  constant block_आकार_c   : natural := 2**सूचकांक_आकार_f(BLOCK_आकार);  -- extend if not a power of two
+  constant offset_width_c : natural := सूचकांक_आकार_f(block_आकार_c/4); -- word offset
+  constant सूचकांक_width_c  : natural := सूचकांक_आकार_f(block_अंक_c);
+  constant tag_width_c    : natural := 32 - (offset_width_c + सूचकांक_width_c + 2);
 
   -- control -> cache interface --
   type cache_o_t is record
@@ -59,7 +59,7 @@ architecture neorv32_cache_rtl of neorv32_cache is
     vld  : std_ulogic;
     drt  : std_ulogic;
     addr : std_ulogic_vector(31 downto 0);
-    data : std_ulogic_vector(31 downto 0);
+    तथ्य : std_ulogic_vector(31 downto 0);
     we   : std_ulogic_vector(3 downto 0);
   end record;
   signal cache_o : cache_o_t;
@@ -69,14 +69,14 @@ architecture neorv32_cache_rtl of neorv32_cache is
     drt  : std_ulogic;
     hit  : std_ulogic;
     tag  : std_ulogic_vector(31 downto 0);
-    data : std_ulogic_vector(31 downto 0);
+    तथ्य : std_ulogic_vector(31 downto 0);
   end record;
   signal cache_i : cache_i_t;
 
   -- control arbiter --
   type state_t is (
     S_IDLE, S_CHECK, S_BYPASS,
-    S_SYNC_START, S_SYNC_DELAY, S_SYNC_CHECK, S_SYNC_NEXT,
+    S_SYNC_START, S_SYNC_DELAY, S_SYNC_CHECK, S_SYNC_अग्र,
     S_READ_START, S_READ_WAIT, S_READ_BURST, S_READ_DONE,
     S_WRITE_START, S_WRITE_REQ, S_WRITE_RSP, S_WRITE_WAIT, S_WRITE_BURST, S_WRITE_DONE
   );
@@ -91,7 +91,7 @@ architecture neorv32_cache_rtl of neorv32_cache is
     hit     : std_ulogic; -- forced cache hit (to skip status update latency)
     cln     : std_ulogic; -- forced clean status (to skip status update latency)
     tag     : std_ulogic_vector(tag_width_c-1 downto 0);    -- tag
-    idx     : std_ulogic_vector(index_width_c-1 downto 0);  -- index
+    idx     : std_ulogic_vector(सूचकांक_width_c-1 downto 0);  -- index
     ofs_int : std_ulogic_vector(offset_width_c-1 downto 0); -- cache address offset
     ofs_ext : std_ulogic_vector(offset_width_c downto 0);   -- bus address offset + overflow bit
     ofs_buf : std_ulogic_vector(offset_width_c downto 0);   -- delayed bus address offset + overflow bit
@@ -99,14 +99,14 @@ architecture neorv32_cache_rtl of neorv32_cache is
   signal ctrl, ctrl_nxt : ctrl_t; -- FSM
 
   -- status memory --
-  signal valid,    dirty    : std_ulogic_vector(block_num_c-1 downto 0);
+  signal valid,    dirty    : std_ulogic_vector(block_अंक_c-1 downto 0);
   signal valid_rd, dirty_rd : std_ulogic;
 
 begin
 
   -- Configuration Checks -------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  assert not (BURSTS_EN and (BLOCK_SIZE < 8)) report
+  assert not (BURSTS_EN and (BLOCK_आकार < 8)) report
     "[NEORV32] Cache cannot emit burst if BLOCK_SIZE < 8." severity error;
 
 
@@ -161,11 +161,11 @@ begin
     cache_o.drt  <= '0';
     cache_o.addr <= host_req_i.addr;
     cache_o.we   <= (others => '0');
-    cache_o.data <= host_req_i.data;
+    cache_o.तथ्य <= host_req_i.तथ्य;
 
     -- host response defaults --
     host_rsp_o      <= rsp_terminate_c; -- default: all off
-    host_rsp_o.data <= cache_i.data; -- cache read data (for cache hit)
+    host_rsp_o.तथ्य <= cache_i.तथ्य; -- cache read data (for cache hit)
 
     -- bus interface defaults --
     bus_req_o      <= req_terminate_c; -- default: all off
@@ -197,7 +197,7 @@ begin
       when S_CHECK => -- check access request
       -- ------------------------------------------------------------
         ctrl_nxt.tag     <= host_req_i.addr(31 downto 31-(tag_width_c-1));
-        ctrl_nxt.idx     <= host_req_i.addr(31-tag_width_c downto 32-(tag_width_c + index_width_c));
+        ctrl_nxt.idx     <= host_req_i.addr(31-tag_width_c downto 32-(tag_width_c + सूचकांक_width_c));
         ctrl_nxt.ofs_ext <= (others => '0');
         ctrl_nxt.ofs_int <= (others => '0');
         ctrl_nxt.pnd_req <= '0'; -- access request accepted
@@ -271,13 +271,13 @@ begin
           if (cache_i.drt = '1') and (READ_ONLY = false) then -- block is dirty: upload to memory
             ctrl_nxt.state <= S_WRITE_START;
           else -- block is clean: go to next block
-            ctrl_nxt.state <= S_SYNC_NEXT;
+            ctrl_nxt.state <= S_SYNC_अग्र;
           end if;
         else
           ctrl_nxt.state <= S_IDLE;
         end if;
 
-      when S_SYNC_NEXT => -- update block status and prepare next block
+      when S_SYNC_अग्र => -- update block status and prepare next block
       -- ------------------------------------------------------------
         if not READ_ONLY then
           cache_o.addr <= ctrl.tag & ctrl.idx & ctrl.ofs_int & "00";
@@ -309,7 +309,7 @@ begin
       when S_READ_WAIT => -- wait for exclusive bus access / single response (if no bursts)
       -- ------------------------------------------------------------
         cache_o.addr    <= ctrl.tag & ctrl.idx & ctrl.ofs_int & "00";
-        cache_o.data    <= bus_rsp_i.data;
+        cache_o.तथ्य    <= bus_rsp_i.तथ्य;
         cache_o.we      <= (others => '1'); -- write full words
         bus_req_o.rw    <= '0'; -- read access
         bus_req_o.lock  <= '1'; -- locked transfer
@@ -332,7 +332,7 @@ begin
       -- ------------------------------------------------------------
         if BURSTS_EN then
           cache_o.addr   <= ctrl.tag & ctrl.idx & ctrl.ofs_int & "00";
-          cache_o.data   <= bus_rsp_i.data;
+          cache_o.तथ्य   <= bus_rsp_i.तथ्य;
           cache_o.we     <= (others => '1'); -- write full words
           bus_req_o.rw   <= '0'; -- read access
           bus_req_o.lock <= '1'; -- locked transfer
@@ -377,7 +377,7 @@ begin
       -- ------------------------------------------------------------
         if not READ_ONLY then
           cache_o.addr    <= ctrl.tag & ctrl.idx & ctrl.ofs_int & "00";
-          bus_req_o.data  <= cache_i.data;
+          bus_req_o.तथ्य  <= cache_i.तथ्य;
           bus_req_o.rw    <= '1'; -- write access
           bus_req_o.lock  <= '1'; -- locked transfer
           bus_req_o.burst <= bool_to_ulogic_f(BURSTS_EN); -- burst transfer
@@ -393,7 +393,7 @@ begin
       -- ------------------------------------------------------------
         if not READ_ONLY then
           cache_o.addr    <= ctrl.tag & ctrl.idx & ctrl.ofs_int & "00";
-          bus_req_o.data  <= cache_i.data;
+          bus_req_o.तथ्य  <= cache_i.तथ्य;
           bus_req_o.rw    <= '1'; -- write access
           bus_req_o.lock  <= '1'; -- locked transfer
           bus_req_o.burst <= bool_to_ulogic_f(BURSTS_EN); -- burst transfer
@@ -407,7 +407,7 @@ begin
       -- ------------------------------------------------------------
         if not READ_ONLY then
           cache_o.addr    <= ctrl.tag & ctrl.idx & ctrl.ofs_int & "00";
-          bus_req_o.data  <= cache_i.data;
+          bus_req_o.तथ्य  <= cache_i.तथ्य;
           bus_req_o.rw    <= '1'; -- write access
           bus_req_o.lock  <= '1'; -- locked transfer
           bus_req_o.burst <= bool_to_ulogic_f(BURSTS_EN); -- burst transfer
@@ -433,7 +433,7 @@ begin
         if BURSTS_EN and (not READ_ONLY) then
           cache_o.addr     <= ctrl.tag & ctrl.idx & ctrl.ofs_ext(offset_width_c-1 downto 0) & "00";
           bus_req_o.addr   <= ctrl.tag & ctrl.idx & ctrl.ofs_buf(offset_width_c-1 downto 0) & "00";
-          bus_req_o.data   <= cache_i.data;
+          bus_req_o.तथ्य   <= cache_i.तथ्य;
           bus_req_o.rw     <= '1'; -- write access
           bus_req_o.lock   <= '1'; -- locked transfer
           bus_req_o.burst  <= '1'; -- burst transfer
@@ -448,7 +448,7 @@ begin
         if BURSTS_EN and (not READ_ONLY) then
           cache_o.addr   <= ctrl.tag & ctrl.idx & ctrl.ofs_ext(offset_width_c-1 downto 0) & "00";
           bus_req_o.addr <= ctrl.tag & ctrl.idx & ctrl.ofs_buf(offset_width_c-1 downto 0) & "00";
-          bus_req_o.data <= cache_i.data;
+          bus_req_o.तथ्य <= cache_i.तथ्य;
           bus_req_o.rw   <= '1'; -- write access
           bus_req_o.lock <= '1'; -- locked transfer
           -- send requests --
@@ -477,7 +477,7 @@ begin
           cache_o.addr <= ctrl.tag & ctrl.idx & ctrl.ofs_int & "00";
           ctrl_nxt.cln <= '1'; -- force cache clean to skip status flag read latency (for S_CHECK only)
           if (ctrl.sync = '1') then -- block upload caused by cache synchronization
-            ctrl_nxt.state <= S_SYNC_NEXT;
+            ctrl_nxt.state <= S_SYNC_अग्र;
           elsif (ctrl.bus_err = '1') then -- block upload caused by cache miss or AMO pre-flush: BUS ERROR during upload
             cache_o.set    <= '1'; -- update cache block status
             cache_o.vld    <= '0'; -- invalidate cache block
@@ -557,7 +557,7 @@ begin
   neorv32_cache_ram_inst: neorv32_cache_ram -- component declaration in package file
   generic map (
     TAG_WIDTH => tag_width_c,
-    IDX_WIDTH => index_width_c,
+    IDX_WIDTH => सूचकांक_width_c,
     OFS_WIDTH => offset_width_c
   )
   port map (
@@ -565,9 +565,9 @@ begin
     addr_i    => cache_o.addr,
     tag_we_i  => cache_o.set,
     tag_o     => cache_i.tag,
-    data_we_i => cache_o.we,
-    data_i    => cache_o.data,
-    data_o    => cache_i.data
+    तथ्य_we_i => cache_o.we,
+    तथ्य_i    => cache_o.तथ्य,
+    तथ्य_o    => cache_i.तथ्य
   );
 
   -- cache hit --

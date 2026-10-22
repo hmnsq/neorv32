@@ -129,9 +129,9 @@ begin
   -- -------------------------------------------------------------------------------------------
   x_req_o.meta  <= a_req_i.meta  when (sel = '0') else b_req_i.meta;
   x_req_o.addr  <= a_req_i.addr  when (sel = '0') else b_req_i.addr;
-  x_req_o.data  <= b_req_i.data  when A_READ_ONLY else
-                   a_req_i.data  when B_READ_ONLY else
-                   a_req_i.data  when (sel = '0') else b_req_i.data;
+  x_req_o.तथ्य  <= b_req_i.तथ्य  when A_READ_ONLY else
+                   a_req_i.तथ्य  when B_READ_ONLY else
+                   a_req_i.तथ्य  when (sel = '0') else b_req_i.तथ्य;
   x_req_o.ben   <= a_req_i.ben   when (sel = '0') else b_req_i.ben;
   x_req_o.rw    <= a_req_i.rw    when (sel = '0') else b_req_i.rw;
   x_req_o.amo   <= a_req_i.amo   when (sel = '0') else b_req_i.amo;
@@ -144,11 +144,11 @@ begin
   -- -------------------------------------------------------------------------------------------
   a_rsp_o.ack  <= x_rsp_i.ack when (sel_q = '0') else '0';
   a_rsp_o.err  <= x_rsp_i.err when (sel_q = '0') else '0';
-  a_rsp_o.data <= x_rsp_i.data;
+  a_rsp_o.तथ्य <= x_rsp_i.तथ्य;
 
   b_rsp_o.ack  <= x_rsp_i.ack when (sel_q = '1') else '0';
   b_rsp_o.err  <= x_rsp_i.err when (sel_q = '1') else '0';
-  b_rsp_o.data <= x_rsp_i.data;
+  b_rsp_o.तथ्य <= x_rsp_i.तथ्य;
 
 end architecture;
 
@@ -210,7 +210,7 @@ begin
     if rising_edge(clk_i) then -- no reset required
       host_rsp_o.ack  <= device_rsp_i.ack;
       host_rsp_o.err  <= device_rsp_i.err;
-      host_rsp_o.data <= device_rsp_i.data;
+      host_rsp_o.तथ्य <= device_rsp_i.तथ्य;
     end if;
   end process;
 
@@ -246,22 +246,22 @@ entity neorv32_bus_gateway is
     -- device port A --
     A_EN    : boolean;                        -- port enable
     A_BASE  : std_ulogic_vector(31 downto 0); -- port address space base address (aligned to size)
-    A_SIZE  : natural;                        -- port address space size in bytes (power of two)
+    A_आकार  : natural;                        -- port address space size in bytes (power of two)
     A_TMO   : natural;                        -- port access timeout (power of two, 0 = disabled)
     -- device port B --
     B_EN    : boolean;
     B_BASE  : std_ulogic_vector(31 downto 0);
-    B_SIZE  : natural;
+    B_आकार  : natural;
     B_TMO   : natural;
     -- device port C --
     C_EN    : boolean;
     C_BASE  : std_ulogic_vector(31 downto 0);
-    C_SIZE  : natural;
+    C_आकार  : natural;
     C_TMO   : natural;
     -- device port D --
     D_EN    : boolean;
     D_BASE  : std_ulogic_vector(31 downto 0);
-    D_SIZE  : natural;
+    D_आकार  : natural;
     D_TMO   : natural;
     -- device port X (the void) --
     X_EN    : boolean;
@@ -292,10 +292,10 @@ end entity;
 architecture neorv32_bus_gateway_rtl of neorv32_bus_gateway is
 
   -- port select --
-  constant a_lo_c : natural := index_size_f(A_SIZE);
-  constant b_lo_c : natural := index_size_f(B_SIZE);
-  constant c_lo_c : natural := index_size_f(C_SIZE);
-  constant d_lo_c : natural := index_size_f(D_SIZE);
+  constant a_lo_c : natural := सूचकांक_आकार_f(A_आकार);
+  constant b_lo_c : natural := सूचकांक_आकार_f(B_आकार);
+  constant c_lo_c : natural := सूचकांक_आकार_f(C_आकार);
+  constant d_lo_c : natural := सूचकांक_आकार_f(D_आकार);
   signal port_sel : std_ulogic_vector(4 downto 0);
 
   -- port enable list --
@@ -321,11 +321,11 @@ architecture neorv32_bus_gateway_rtl of neorv32_bus_gateway is
   -- port timeout counter bit list --
   type port_tmo_bit_list_t is array (4 downto 0) of natural;
   constant port_tmo_bit_list_c : port_tmo_bit_list_t := (
-    0 => index_size_f(A_TMO),
-    1 => index_size_f(B_TMO),
-    2 => index_size_f(C_TMO),
-    3 => index_size_f(D_TMO),
-    4 => index_size_f(X_TMO)
+    0 => सूचकांक_आकार_f(A_TMO),
+    1 => सूचकांक_आकार_f(B_TMO),
+    2 => सूचकांक_आकार_f(C_TMO),
+    3 => सूचकांक_आकार_f(D_TMO),
+    4 => सूचकांक_आकार_f(X_TMO)
   );
   signal tmo_bits : std_ulogic_vector(4 downto 0);
   signal tmo_fire : std_ulogic;
@@ -342,7 +342,7 @@ architecture neorv32_bus_gateway_rtl of neorv32_bus_gateway is
     end loop;
     return res_v;
   end function;
-  constant tmo_cnt_size_c : natural := max_tmo_bit_f(port_tmo_bit_list_c);
+  constant tmo_cnt_आकार_c : natural := max_tmo_bit_f(port_tmo_bit_list_c);
 
   -- gateway ports combined as arrays --
   type port_req_t is array (4 downto 0) of bus_req_t;
@@ -359,7 +359,7 @@ architecture neorv32_bus_gateway_rtl of neorv32_bus_gateway is
     state : state_t;
     lock  : std_ulogic;
     sel   : std_ulogic_vector(4 downto 0);
-    cnt   : std_ulogic_vector(tmo_cnt_size_c downto 0);
+    cnt   : std_ulogic_vector(tmo_cnt_आकार_c downto 0);
   end record;
   signal keeper  : keeper_t;
   signal bus_err : std_ulogic;
@@ -401,7 +401,7 @@ begin
     tmp_v := rsp_terminate_c; -- start with all-zero
     for i in 0 to 4 loop -- OR all response signals
       if port_en_list_c(i) then -- port enabled
-        tmp_v.data := tmp_v.data or port_rsp(i).data;
+        tmp_v.तथ्य := tmp_v.तथ्य or port_rsp(i).तथ्य;
         tmp_v.ack  := tmp_v.ack  or port_rsp(i).ack;
         tmp_v.err  := tmp_v.err  or port_rsp(i).err;
       end if;
@@ -410,7 +410,7 @@ begin
   end process;
 
   -- host response --
-  rsp_o.data <= int_rsp.data;
+  rsp_o.तथ्य <= int_rsp.तथ्य;
   rsp_o.ack  <= '0' when (keeper.state = S_IDLE) else (int_rsp.ack or bus_err); -- filter spurious response
   rsp_o.err  <= '0' when (keeper.state = S_IDLE) else (int_rsp.err or bus_err); -- filter spurious response
 
@@ -504,7 +504,7 @@ use neorv32.neorv32_package.all;
 
 entity neorv32_bus_io_switch is
   generic (
-    DEV_SIZE  : natural; -- size of each IO device, has to be a power of two
+    DEV_आकार  : natural; -- size of each IO device, has to be a power of two
     -- device port enable and base address; enabled ports do not have to be contiguous --
     DEV_00_EN : boolean := false; DEV_00_BASE : std_ulogic_vector(31 downto 0) := (others => '0');
     DEV_01_EN : boolean := false; DEV_01_BASE : std_ulogic_vector(31 downto 0) := (others => '0');
@@ -585,14 +585,14 @@ end entity;
 architecture neorv32_bus_io_switch_rtl of neorv32_bus_io_switch is
 
   -- module configuration --
-  constant num_devs_c : natural := 32; -- number of device ports
+  constant अंक_devs_c : natural := 32; -- number of device ports
 
   -- address bit boundaries for access decoding --
-  constant addr_lo_c : natural := index_size_f(DEV_SIZE); -- low address boundary bit
-  constant addr_hi_c : natural := (index_size_f(DEV_SIZE) + index_size_f(num_devs_c)) - 1; -- high address boundary bit
+  constant addr_lo_c : natural := सूचकांक_आकार_f(DEV_आकार); -- low address boundary bit
+  constant addr_hi_c : natural := (सूचकांक_आकार_f(DEV_आकार) + सूचकांक_आकार_f(अंक_devs_c)) - 1; -- high address boundary bit
 
   -- list of enabled device ports --
-  type dev_en_list_t is array (num_devs_c-1 downto 0) of boolean;
+  type dev_en_list_t is array (अंक_devs_c-1 downto 0) of boolean;
   constant dev_en_list_c : dev_en_list_t := (
     0  => DEV_00_EN, 1  => DEV_01_EN, 2  => DEV_02_EN, 3  => DEV_03_EN,
     4  => DEV_04_EN, 5  => DEV_05_EN, 6  => DEV_06_EN, 7  => DEV_07_EN,
@@ -605,7 +605,7 @@ architecture neorv32_bus_io_switch_rtl of neorv32_bus_io_switch is
   );
 
   -- list of device base addresses --
-  type dev_base_list_t is array (num_devs_c-1 downto 0) of std_ulogic_vector(31 downto 0);
+  type dev_base_list_t is array (अंक_devs_c-1 downto 0) of std_ulogic_vector(31 downto 0);
   constant dev_base_list_c : dev_base_list_t := (
     0  => DEV_00_BASE, 1  => DEV_01_BASE, 2  => DEV_02_BASE, 3  => DEV_03_BASE,
     4  => DEV_04_BASE, 5  => DEV_05_BASE, 6  => DEV_06_BASE, 7  => DEV_07_BASE,
@@ -618,8 +618,8 @@ architecture neorv32_bus_io_switch_rtl of neorv32_bus_io_switch is
   );
 
   -- device ports combined as arrays --
-  type dev_req_t is array (num_devs_c-1 downto 0) of bus_req_t;
-  type dev_rsp_t is array (num_devs_c-1 downto 0) of bus_rsp_t;
+  type dev_req_t is array (अंक_devs_c-1 downto 0) of bus_req_t;
+  type dev_rsp_t is array (अंक_devs_c-1 downto 0) of bus_rsp_t;
   signal dev_req : dev_req_t;
   signal dev_rsp : dev_rsp_t;
 
@@ -681,7 +681,7 @@ begin
   -- Request --------------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   bus_request_gen:
-  for i in 0 to (num_devs_c-1) generate
+  for i in 0 to (अंक_devs_c-1) generate
 
     bus_request_port_enabled:
     if dev_en_list_c(i) generate
@@ -709,9 +709,9 @@ begin
     variable tmp_v : bus_rsp_t;
   begin
     tmp_v := rsp_terminate_c; -- start with all-zero
-    for i in 0 to (num_devs_c-1) loop -- OR all enabled response buses
+    for i in 0 to (अंक_devs_c-1) loop -- OR all enabled response buses
       if dev_en_list_c(i) then
-        tmp_v.data := tmp_v.data or dev_rsp(i).data;
+        tmp_v.तथ्य := tmp_v.तथ्य or dev_rsp(i).तथ्य;
         tmp_v.ack  := tmp_v.ack  or dev_rsp(i).ack;
         tmp_v.err  := tmp_v.err  or dev_rsp(i).err;
       end if;
@@ -799,13 +799,13 @@ begin
       -- ------------------------------------------------------------
         if (core_req_i.stb = '1') and (core_req_i.amo = '1') and (core_req_i.amoop(3 downto 2) /= "10") then
           arbiter_nxt.cmd   <= core_req_i.amoop;
-          arbiter_nxt.wdata <= core_req_i.data;
+          arbiter_nxt.wdata <= core_req_i.तथ्य;
           arbiter_nxt.state <= S_READ_WAIT;
         end if;
 
       when S_READ_WAIT => -- wait for read-access to complete
       -- ------------------------------------------------------------
-        arbiter_nxt.rdata <= sys_rsp_i.data;
+        arbiter_nxt.rdata <= sys_rsp_i.तथ्य;
         if (sys_rsp_i.ack = '1') then
           if (sys_rsp_i.err = '1') then
             arbiter_nxt.state <= S_READ_ERROR;
@@ -838,7 +838,7 @@ begin
   -- request switch --
   sys_req_o.meta  <= core_req_i.meta;
   sys_req_o.addr  <= core_req_i.addr;
-  sys_req_o.data  <= alu_res when (arbiter.state = S_WRITE) or (arbiter.state = S_WRITE_WAIT) else core_req_i.data;
+  sys_req_o.तथ्य  <= alu_res when (arbiter.state = S_WRITE) or (arbiter.state = S_WRITE_WAIT) else core_req_i.तथ्य;
   sys_req_o.ben   <= core_req_i.ben;
   sys_req_o.stb   <= '1' when (arbiter.state = S_WRITE) else core_req_i.stb;
   sys_req_o.rw    <= '1' when (arbiter.state = S_WRITE) or (arbiter.state = S_WRITE_WAIT) else core_req_i.rw;
@@ -861,7 +861,7 @@ begin
       core_rsp_o.ack <= '0';
     end if;
   end process;
-  core_rsp_o.data <= sys_rsp_i.data when (arbiter.state = S_IDLE) else arbiter.rdata;
+  core_rsp_o.तथ्य <= sys_rsp_i.तथ्य when (arbiter.state = S_IDLE) else arbiter.rdata;
 
   -- Data ALU -------------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
@@ -880,8 +880,8 @@ begin
   end process;
 
   -- comparator logic (min/max for signed/unsigned) --
-  cmp_opa  <= (arbiter.rdata(arbiter.rdata'left) and arbiter.cmd(3)) & arbiter.rdata; -- sign-extend if signed operation
-  cmp_opb  <= (arbiter.wdata(arbiter.wdata'left) and arbiter.cmd(3)) & arbiter.wdata; -- sign-extend if signed operation
+  cmp_opa  <= (arbiter.rdata(arbiter.rdata'बायाँ) and arbiter.cmd(3)) & arbiter.rdata; -- sign-extend if signed operation
+  cmp_opb  <= (arbiter.wdata(arbiter.wdata'बायाँ) and arbiter.cmd(3)) & arbiter.wdata; -- sign-extend if signed operation
   cmp_less <= '1' when (signed(cmp_opa) < signed(cmp_opb)) else '0';
   cmp_res  <= cmp_opa(31 downto 0) when ((cmp_less xor arbiter.cmd(0)) = '1') else cmp_opb(31 downto 0);
 
@@ -996,7 +996,7 @@ begin
   end process;
 
   -- track pending SC operation --
-  sc_result: process(rstn_i, clk_i)
+  sc_परिणाम: process(rstn_i, clk_i)
   begin
     if (rstn_i = '0') then
       sc_pend_pass <= '0';
@@ -1021,8 +1021,8 @@ begin
   -- SC any + bus err    -> propagate access fault         -> trap
   core_rsp_o.err  <= sys_rsp_i.err;
   core_rsp_o.ack  <= sys_rsp_i.ack;
-  core_rsp_o.data <= x"00000001" when (sc_pend_fail = '1') else -- SC failed: return 1
+  core_rsp_o.तथ्य <= x"00000001" when (sc_pend_fail = '1') else -- SC failed: return 1
                      x"00000000" when (sc_pend_pass = '1') else -- SC passed: return 0
-                     sys_rsp_i.data;                            -- normal access / pass-through
+                     sys_rsp_i.तथ्य;                            -- normal access / pass-through
 
 end architecture;

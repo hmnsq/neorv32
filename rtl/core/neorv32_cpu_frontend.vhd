@@ -61,8 +61,8 @@ architecture neorv32_cpu_frontend_rtl of neorv32_cpu_frontend is
   signal restart : std_ulogic;
 
   -- instruction prefetch buffer (FIFO) interface --
-  type ipb_data_t is array (1 downto 0) of std_ulogic_vector(16 downto 0); -- bus_error & 16-bit instruction
-  signal ipb_wdata, ipb_rdata : ipb_data_t;
+  type ipb_तथ्य_t is array (1 downto 0) of std_ulogic_vector(16 downto 0); -- bus_error & 16-bit instruction
+  signal ipb_wdata, ipb_rdata : ipb_तथ्य_t;
   signal ipb_we,    ipb_re    : std_ulogic_vector(1 downto 0);
   signal ipb_free,  ipb_avail : std_ulogic_vector(1 downto 0);
 
@@ -131,7 +131,7 @@ begin
   ibus_req_o.meta  <= hid_c & ctrl_i.cpu_debug & ctrl_i.cpu_priv & '1';
   ibus_req_o.addr  <= fetch.addr(31 downto 2) & "00"; -- word aligned
   ibus_req_o.stb   <= '1' when (fetch.state = S_REQUEST) and (ipb_free = "11") else '0';
-  ibus_req_o.data  <= (others => '0'); -- read-only
+  ibus_req_o.तथ्य  <= (others => '0'); -- read-only
   ibus_req_o.ben   <= (others => '1'); -- always full-word access
   ibus_req_o.rw    <= '0'; -- read-only
   ibus_req_o.amo   <= '0'; -- cannot be an atomic memory operation
@@ -140,8 +140,8 @@ begin
   ibus_req_o.lock  <= '0'; -- always unlocked access
 
   -- IPB instruction data and status --
-  ipb_wdata(0) <= (ibus_rsp_i.err or pmp_err_i) & ibus_rsp_i.data(15 downto 0);
-  ipb_wdata(1) <= (ibus_rsp_i.err or pmp_err_i) & ibus_rsp_i.data(31 downto 16);
+  ipb_wdata(0) <= (ibus_rsp_i.err or pmp_err_i) & ibus_rsp_i.तथ्य(15 downto 0);
+  ipb_wdata(1) <= (ibus_rsp_i.err or pmp_err_i) & ibus_rsp_i.तथ्य(31 downto 16);
 
   -- IPB write enable --
   ipb_we(0) <= '1' when (fetch.state = S_PENDING) and (ibus_rsp_i.ack = '1') and ((fetch.addr(1) = '0') or (not RISCV_C)) else '0';
@@ -149,7 +149,7 @@ begin
 
   -- Instruction Prefetch Buffer ------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  prefetch_buffer:
+  prefetch_बफर:
   for i in 0 to 1 generate
     ipb_inst: entity neorv32.neorv32_prim_fifo
     generic map (

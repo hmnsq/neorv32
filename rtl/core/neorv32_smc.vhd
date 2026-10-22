@@ -21,7 +21,7 @@ use neorv32.neorv32_package.all;
 entity neorv32_smc is
   generic (
     BURST_EN   : boolean;                       -- enable burst support
-    BURST_SIZE : natural range 4 to 1024;       -- burst size in bytes, has to be a power of 2
+    BURST_आकार : natural range 4 to 1024;       -- burst size in bytes, has to be a power of 2
     MEM_BASE   : std_ulogic_vector(31 downto 0) -- serial memory base address (256MB-aligned)
   );
   port (
@@ -32,8 +32,8 @@ entity neorv32_smc is
     ctrl_req_i : in  bus_req_t;                     -- bus request
     ctrl_rsp_o : out bus_rsp_t;                     -- bus response
     -- data interface --
-    data_req_i : in  bus_req_t;                     -- bus request
-    data_rsp_o : out bus_rsp_t;                     -- bus response
+    तथ्य_req_i : in  bus_req_t;                     -- bus request
+    तथ्य_rsp_o : out bus_rsp_t;                     -- bus response
     -- serial memory interface --
     smc_ioen_o : out std_ulogic;                    -- SMC pin enable, can be used for IO multiplexing
     smc_sck_o  : out std_ulogic;                    -- clock
@@ -54,7 +54,7 @@ architecture neorv32_smc_rtl of neorv32_smc is
   end function;
 
   -- configuration helpers --
-  constant log2_fifo_size_c : natural := sel_natural_f(BURST_EN, index_size_f(BURST_SIZE/4), 0);
+  constant log2_fifo_आकार_c : natural := sel_natural_f(BURST_EN, सूचकांक_आकार_f(BURST_आकार/4), 0);
 
   -- CSR0 register layout --
   constant csr0_enable_c    : natural :=  0; -- r/w: SMC enable
@@ -127,18 +127,18 @@ architecture neorv32_smc_rtl of neorv32_smc is
     cmd_bank_i  : in  std_ulogic;
     cmd_start_i : in  std_ulogic;
     cmd_rw_i    : in  std_ulogic;
-    cmd_size_i  : in  std_ulogic_vector(1 downto 0);
+    cmd_आकार_i  : in  std_ulogic_vector(1 downto 0);
     cmd_addr_i  : in  std_ulogic_vector(23 downto 0);
-    cmd_data_i  : in  std_ulogic_vector(31 downto 0);
-    cmd_data_o  : out std_ulogic_vector(31 downto 0);
+    cmd_तथ्य_i  : in  std_ulogic_vector(31 downto 0);
+    cmd_तथ्य_o  : out std_ulogic_vector(31 downto 0);
     cmd_busy_o  : out std_ulogic;
     -- memory select --
     mem_csn_o   : out std_ulogic_vector(1 downto 0);
     -- PHY interface --
     phy_start_o : out std_ulogic;
     phy_nbits_o : out std_ulogic_vector(5 downto 0);
-    phy_data_o  : out std_ulogic_vector(31 downto 0);
-    phy_data_i  : in  std_ulogic_vector(31 downto 0);
+    phy_तथ्य_o  : out std_ulogic_vector(31 downto 0);
+    phy_तथ्य_i  : in  std_ulogic_vector(31 downto 0);
     phy_busy_i  : in  std_ulogic
   );
   end component;
@@ -202,16 +202,16 @@ begin
     elsif rising_edge(clk_i) then
       if (ctrl_req_i.stb = '1') and (ctrl_req_i.rw = '1') then
         if (ctrl_req_i.addr(2) = '0') then -- CSR0
-          csr.enable <= ctrl_req_i.data(csr0_enable_c);
-          csr.ioen   <= ctrl_req_i.data(csr0_ioen_c);
-          csr.dual   <= ctrl_req_i.data(csr0_dual_c);
-          csr.msize  <= ctrl_req_i.data(csr0_msize_msb_c downto csr0_msize_lsb_c);
-          csr.cdiv   <= ctrl_req_i.data(csr0_cdiv_msb_c  downto csr0_cdiv_lsb_c);
-          csr.rwait  <= ctrl_req_i.data(csr0_rwait_msb_c downto csr0_rwait_lsb_c);
-          csr.cmd_rd <= ctrl_req_i.data(csr0_rcmd_msb_c  downto csr0_rcmd_lsb_c);
-          csr.cmd_wr <= ctrl_req_i.data(csr0_wcmd_msb_c  downto csr0_wcmd_lsb_c);
+          csr.enable <= ctrl_req_i.तथ्य(csr0_enable_c);
+          csr.ioen   <= ctrl_req_i.तथ्य(csr0_ioen_c);
+          csr.dual   <= ctrl_req_i.तथ्य(csr0_dual_c);
+          csr.msize  <= ctrl_req_i.तथ्य(csr0_msize_msb_c downto csr0_msize_lsb_c);
+          csr.cdiv   <= ctrl_req_i.तथ्य(csr0_cdiv_msb_c  downto csr0_cdiv_lsb_c);
+          csr.rwait  <= ctrl_req_i.तथ्य(csr0_rwait_msb_c downto csr0_rwait_lsb_c);
+          csr.cmd_rd <= ctrl_req_i.तथ्य(csr0_rcmd_msb_c  downto csr0_rcmd_lsb_c);
+          csr.cmd_wr <= ctrl_req_i.तथ्य(csr0_wcmd_msb_c  downto csr0_wcmd_lsb_c);
         else -- CSR1
-          csr.icmd <= ctrl_req_i.data(23 downto 0);
+          csr.icmd <= ctrl_req_i.तथ्य(23 downto 0);
         end if;
       end if;
     end if;
@@ -242,38 +242,38 @@ begin
   -- bus response --
   ctrl_rsp_o.ack  <= ctrl_ack;
   ctrl_rsp_o.err  <= '0'; -- no access errors supported
-  ctrl_rsp_o.data <= ctrl_rdata;
+  ctrl_rsp_o.तथ्य <= ctrl_rdata;
 
   -- SMC is in charge of interface IOs --
   smc_ioen_o <= csr.ioen;
 
   -- Memory Address Range Check -------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  mask_gen: process(csr, data_req_i.addr)
+  mask_gen: process(csr, तथ्य_req_i.addr)
     variable tmp_v : std_ulogic_vector(2 downto 0);
   begin
     tmp_v := csr.dual & csr.msize;
     case tmp_v is
-      when "000"  => acc_bank <= '0';                 acc_fail <= data_req_i.addr and (not x"f01fffff"); --  1x2 MB
-      when "001"  => acc_bank <= '0';                 acc_fail <= data_req_i.addr and (not x"f03fffff"); --  1x4 MB
-      when "010"  => acc_bank <= '0';                 acc_fail <= data_req_i.addr and (not x"f07fffff"); --  1x8 MB
-      when "011"  => acc_bank <= '0';                 acc_fail <= data_req_i.addr and (not x"f0ffffff"); -- 1x16 MB
-      when "100"  => acc_bank <= data_req_i.addr(21); acc_fail <= data_req_i.addr and (not x"f03fffff"); --  2x2 MB
-      when "101"  => acc_bank <= data_req_i.addr(22); acc_fail <= data_req_i.addr and (not x"f07fffff"); --  2x4 MB
-      when "110"  => acc_bank <= data_req_i.addr(23); acc_fail <= data_req_i.addr and (not x"f0ffffff"); --  2x8 MB
-      when "111"  => acc_bank <= data_req_i.addr(24); acc_fail <= data_req_i.addr and (not x"f1ffffff"); -- 2x16 MB
+      when "000"  => acc_bank <= '0';                 acc_fail <= तथ्य_req_i.addr and (not x"f01fffff"); --  1x2 MB
+      when "001"  => acc_bank <= '0';                 acc_fail <= तथ्य_req_i.addr and (not x"f03fffff"); --  1x4 MB
+      when "010"  => acc_bank <= '0';                 acc_fail <= तथ्य_req_i.addr and (not x"f07fffff"); --  1x8 MB
+      when "011"  => acc_bank <= '0';                 acc_fail <= तथ्य_req_i.addr and (not x"f0ffffff"); -- 1x16 MB
+      when "100"  => acc_bank <= तथ्य_req_i.addr(21); acc_fail <= तथ्य_req_i.addr and (not x"f03fffff"); --  2x2 MB
+      when "101"  => acc_bank <= तथ्य_req_i.addr(22); acc_fail <= तथ्य_req_i.addr and (not x"f07fffff"); --  2x4 MB
+      when "110"  => acc_bank <= तथ्य_req_i.addr(23); acc_fail <= तथ्य_req_i.addr and (not x"f0ffffff"); --  2x8 MB
+      when "111"  => acc_bank <= तथ्य_req_i.addr(24); acc_fail <= तथ्य_req_i.addr and (not x"f1ffffff"); -- 2x16 MB
       when others => acc_bank <= '-';                 acc_fail <= (others => '-');
     end case;
   end process;
 
   -- valid memory request if: SMC enabled, pin access granted and inside memory range --
-  acc_req <= '1' when (data_req_i.stb = '1') and (csr.enable = '1') and (csr.ioen = '1') and (acc_fail = x"00000000") else '0';
+  acc_req <= '1' when (तथ्य_req_i.stb = '1') and (csr.enable = '1') and (csr.ioen = '1') and (acc_fail = x"00000000") else '0';
 
   -- Write Buffer ---------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  write_buffer_inst: entity neorv32.neorv32_prim_fifo
+  write_बफर_inst: entity neorv32.neorv32_prim_fifo
   generic map (
-    AWIDTH  => log2_fifo_size_c,
+    AWIDTH  => log2_fifo_आकार_c,
     DWIDTH  => 32,
     OUTGATE => true, -- output zero if no write data available (i.e. for read accesses)
     ASYNCRD => false
@@ -285,7 +285,7 @@ begin
     clear_i => wbuf_clr,
     level_o => open,
     -- write port --
-    wdata_i => data_req_i.data,
+    wdata_i => तथ्य_req_i.तथ्य,
     we_i    => wbuf_we,
     free_o  => open, -- no need to check free status: host won't issue more than BURST_SIZE/4 words
     -- read port --
@@ -295,7 +295,7 @@ begin
   );
 
   wbuf_clr <= not csr.enable;
-  wbuf_we  <= acc_req and data_req_i.rw;
+  wbuf_we  <= acc_req and तथ्य_req_i.rw;
 
   -- Access Arbiter Sync --------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
@@ -317,14 +317,14 @@ begin
 
   -- Access Arbiter Comb --------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  arbiter_comb: process(arb, acc_req, data_req_i, wbuf_avail, wbuf_rdata, mac_busy, mac_rdata)
+  arbiter_comb: process(arb, acc_req, तथ्य_req_i, wbuf_avail, wbuf_rdata, mac_busy, mac_rdata)
   begin
     -- defaults --
     arb_nxt    <= arb;
     wbuf_re    <= '0';
     mac_start  <= '0';
     mac_wdata  <= (others => '0');
-    data_rsp_o <= rsp_terminate_c;
+    तथ्य_rsp_o <= rsp_terminate_c;
 
     -- fsm --
     case arb.state is
@@ -332,12 +332,12 @@ begin
       when S_IDLE => -- wait for access request
       -- ------------------------------------------------------------
         if (acc_req = '1') then
-          arb_nxt.addr <= data_req_i.addr(23 downto 2) & "00"; -- default = word aligned
-          arb_nxt.rw   <= data_req_i.rw;
-          if (data_req_i.rw = '0') then -- read
+          arb_nxt.addr <= तथ्य_req_i.addr(23 downto 2) & "00"; -- default = word aligned
+          arb_nxt.rw   <= तथ्य_req_i.rw;
+          if (तथ्य_req_i.rw = '0') then -- read
             arb_nxt.tsize <= "11"; -- full word
           else -- write
-            case data_req_i.ben is -- data size and address offset
+            case तथ्य_req_i.ben is -- data size and address offset
               when "0001" => arb_nxt.tsize <= "00"; arb_nxt.addr(1 downto 0) <= "00"; -- byte 0
               when "0010" => arb_nxt.tsize <= "00"; arb_nxt.addr(1 downto 0) <= "01"; -- byte 1
               when "0100" => arb_nxt.tsize <= "00"; arb_nxt.addr(1 downto 0) <= "10"; -- byte 2
@@ -347,8 +347,8 @@ begin
               when others => arb_nxt.tsize <= "11"; arb_nxt.addr(1 downto 0) <= "00"; -- full word
             end case;
           end if;
-          if BURST_EN and (data_req_i.burst = '1') then -- burst transfer
-            arb_nxt.bcnt <= std_ulogic_vector(to_unsigned(BURST_SIZE/4, 9));
+          if BURST_EN and (तथ्य_req_i.burst = '1') then -- burst transfer
+            arb_nxt.bcnt <= std_ulogic_vector(to_unsigned(BURST_आकार/4, 9));
           else -- single access
             arb_nxt.bcnt <= std_ulogic_vector(to_unsigned(1, 9));
           end if;
@@ -366,9 +366,9 @@ begin
       when S_BUSY => -- access in progress
       -- ------------------------------------------------------------
         mac_wdata       <= bswap32_f(wbuf_rdata); -- little endian: move lowest byte to top (@ADDR+0)
-        data_rsp_o.data <= bswap32_f(mac_rdata);
+        तथ्य_rsp_o.तथ्य <= bswap32_f(mac_rdata);
         if (mac_busy = '0') then
-          data_rsp_o.ack <= '1'; -- ACK burst element
+          तथ्य_rsp_o.ack <= '1'; -- ACK burst element
           arb_nxt.addr   <= std_ulogic_vector(unsigned(arb.addr) + 4); -- next word (relevant only for bursts)
           wbuf_re        <= '1'; -- get next write data (relevant only for write access)
           if (arb.bcnt = "000000000") or (BURST_EN = false) then -- all burst elements done?
@@ -400,18 +400,18 @@ begin
     cmd_bank_i  => acc_bank,
     cmd_start_i => mac_start,
     cmd_rw_i    => arb.rw,
-    cmd_size_i  => arb.tsize,
+    cmd_आकार_i  => arb.tsize,
     cmd_addr_i  => arb.addr,
-    cmd_data_i  => mac_wdata,
-    cmd_data_o  => mac_rdata,
+    cmd_तथ्य_i  => mac_wdata,
+    cmd_तथ्य_o  => mac_rdata,
     cmd_busy_o  => mac_busy,
     -- memory select --
     mem_csn_o   => smc_csn_o,
     -- PHY interface --
     phy_start_o => phy_start,
     phy_nbits_o => phy_nbits,
-    phy_data_o  => phy_wdata,
-    phy_data_i  => phy_rdata,
+    phy_तथ्य_o  => phy_wdata,
+    phy_तथ्य_i  => phy_rdata,
     phy_busy_i  => phy_busy
   );
 
@@ -470,18 +470,18 @@ entity neorv32_smc_mac is
     cmd_bank_i  : in  std_ulogic;                     -- bank select
     cmd_start_i : in  std_ulogic;                     -- start access
     cmd_rw_i    : in  std_ulogic;                     -- 0=read, 1=write
-    cmd_size_i  : in  std_ulogic_vector(1 downto 0);  -- data size select (00=8,01=16,10=24,11=32)
+    cmd_आकार_i  : in  std_ulogic_vector(1 downto 0);  -- data size select (00=8,01=16,10=24,11=32)
     cmd_addr_i  : in  std_ulogic_vector(23 downto 0); -- access address
-    cmd_data_i  : in  std_ulogic_vector(31 downto 0); -- transmit data (MSB-aligned)
-    cmd_data_o  : out std_ulogic_vector(31 downto 0); -- receive data (LSB-aligned)
+    cmd_तथ्य_i  : in  std_ulogic_vector(31 downto 0); -- transmit data (MSB-aligned)
+    cmd_तथ्य_o  : out std_ulogic_vector(31 downto 0); -- receive data (LSB-aligned)
     cmd_busy_o  : out std_ulogic;                     -- operation in progress
     -- memory select --
     mem_csn_o   : out std_ulogic_vector(1 downto 0);  -- bank/chip select, low-active
     -- PHY interface --
     phy_start_o : out std_ulogic;                     -- start transfer
     phy_nbits_o : out std_ulogic_vector(5 downto 0);  -- number of bits to transfer
-    phy_data_o  : out std_ulogic_vector(31 downto 0); -- TX data (MSB-aligned)
-    phy_data_i  : in  std_ulogic_vector(31 downto 0); -- RX data (LSB-aligned)
+    phy_तथ्य_o  : out std_ulogic_vector(31 downto 0); -- TX data (MSB-aligned)
+    phy_तथ्य_i  : in  std_ulogic_vector(31 downto 0); -- RX data (LSB-aligned)
     phy_busy_i  : in  std_ulogic                      -- operation in progress
   );
 end entity;
@@ -489,7 +489,7 @@ end entity;
 architecture neorv32_smc_mac_rtl of neorv32_smc_mac is
 
   -- access arbiter --
-  type state_t is (S_INIT_0, S_INIT_1, S_INIT_2, S_IDLE, S_CMD, S_DUMMY, S_DATA, S_WAIT, S_PAUSE);
+  type state_t is (S_INIT_0, S_INIT_1, S_INIT_2, S_IDLE, S_CMD, S_DUMMY, S_तथ्य, S_WAIT, S_PAUSE);
   type mac_t is record
     state : state_t;                        -- FSM state
     isel  : std_ulogic_vector(1 downto 0);  -- initialization command select
@@ -515,7 +515,7 @@ begin
 
   bcsn <= "10" when (cmd_bank_i = '0') else "01"; -- bank/chip select, low-active
 
-  with cmd_size_i select numb <= -- number of bytes to transfer
+  with cmd_आकार_i select numb <= -- number of bytes to transfer
     "001"           when "00", -- 1 byte
     "010"           when "01", -- 2 bytes
     "011"           when "10", -- 3 bytes
@@ -539,13 +539,13 @@ begin
   -- Access Arbiter Comb --------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   arbiter_comb: process(mac, icmd, bcsn, numb, cfg_rcmd_i, cfg_wcmd_i, cfg_rwait_i, cmd_start_i,
-                        cmd_rw_i, cmd_addr_i, cmd_data_i, phy_busy_i, phy_data_i)
+                        cmd_rw_i, cmd_addr_i, cmd_तथ्य_i, phy_busy_i, phy_तथ्य_i)
   begin
     -- defaults --
     mac_nxt     <= mac;
     phy_start_o <= '0';
     phy_nbits_o <= (others => '0');
-    phy_data_o  <= (others => '0');
+    phy_तथ्य_o  <= (others => '0');
 
     -- fsm --
     case mac.state is
@@ -564,7 +564,7 @@ begin
         else
           mac_nxt.csn <= (others => '0'); -- enable all memories
         end if;
-        phy_data_o(31 downto 24) <= icmd(to_integer(unsigned(mac.isel)));
+        phy_तथ्य_o(31 downto 24) <= icmd(to_integer(unsigned(mac.isel)));
         phy_nbits_o              <= "001000"; -- 8 bits
         phy_start_o              <= '1'; -- trigger transmission
         mac_nxt.state            <= S_INIT_2;
@@ -596,15 +596,15 @@ begin
         phy_nbits_o <= "100000"; -- 8+24=32 bits
         phy_start_o <= '1'; -- trigger transmission
         if (cmd_rw_i = '0') then -- read
-          phy_data_o <= cfg_rcmd_i & cmd_addr_i;
+          phy_तथ्य_o <= cfg_rcmd_i & cmd_addr_i;
           if (cfg_rwait_i = "0000") then -- no wait cycles
-            mac_nxt.state <= S_DATA;
+            mac_nxt.state <= S_तथ्य;
           else -- insert dummy cycles
             mac_nxt.state <= S_DUMMY;
           end if;
         else -- write
-          phy_data_o    <= cfg_wcmd_i & cmd_addr_i;
-          mac_nxt.state <= S_DATA;
+          phy_तथ्य_o    <= cfg_wcmd_i & cmd_addr_i;
+          mac_nxt.state <= S_तथ्य;
         end if;
 
       when S_DUMMY => -- send dummy bits
@@ -613,13 +613,13 @@ begin
         phy_nbits_o <= "00" & cfg_rwait_i; -- 0..15 cycles
         if (phy_busy_i = '0') then
           phy_start_o   <= '1'; -- trigger transmission
-          mac_nxt.state <= S_DATA;
+          mac_nxt.state <= S_तथ्य;
         end if;
 
-      when S_DATA => -- send data
+      when S_तथ्य => -- send data
       -- ------------------------------------------------------------
         mac_nxt.csn <= bcsn; -- memory enabled
-        phy_data_o  <= cmd_data_i;
+        phy_तथ्य_o  <= cmd_तथ्य_i;
         phy_nbits_o <= numb & "000"; -- N*8 bits
         if (phy_busy_i = '0') then
           phy_start_o   <= '1'; -- trigger transmission
@@ -632,7 +632,7 @@ begin
         phy_nbits_o <= "000001"; -- 1 clock tick as inter-access delay
         if (phy_busy_i = '0') then
           if (cmd_rw_i = '0') then
-            mac_nxt.rdata <= phy_data_i; -- sample RX data
+            mac_nxt.rdata <= phy_तथ्य_i; -- sample RX data
           end if;
           phy_start_o   <= '1'; -- trigger pause transmission
           mac_nxt.state <= S_PAUSE;
@@ -655,7 +655,7 @@ begin
   mem_csn_o <= mac.csn;
 
   -- RX data --
-  cmd_data_o <= mac.rdata;
+  cmd_तथ्य_o <= mac.rdata;
 
 end architecture;
 

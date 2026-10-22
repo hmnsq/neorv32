@@ -20,7 +20,7 @@ use neorv32.neorv32_package.all;
 
 entity neorv32_pwm is
   generic (
-    NUM_CHANNELS : natural range 0 to 32 -- number of PWM channels (0..32)
+    अंक_CHANNELS : natural range 0 to 32 -- number of PWM channels (0..32)
   );
   port (
     clk_i     : in  std_ulogic;                    -- global clock line
@@ -53,14 +53,14 @@ architecture neorv32_pwm_rtl of neorv32_pwm is
   end component;
 
   -- global control --
-  signal enable, polarity, mode : std_ulogic_vector(NUM_CHANNELS-1 downto 0);
+  signal enable, polarity, mode : std_ulogic_vector(अंक_CHANNELS-1 downto 0);
   signal clkprsc, addr : std_ulogic_vector(2 downto 0);
 
   -- wiring --
-  type rdata_t is array (NUM_CHANNELS-1 downto 0) of std_ulogic_vector(31 downto 0);
+  type rdata_t is array (अंक_CHANNELS-1 downto 0) of std_ulogic_vector(31 downto 0);
   signal rdata : rdata_t;
-  signal rdata_sum : std_ulogic_vector(31 downto 0);
-  signal cs, pwm : std_ulogic_vector(NUM_CHANNELS-1 downto 0);
+  signal rdata_योग : std_ulogic_vector(31 downto 0);
+  signal cs, pwm : std_ulogic_vector(अंक_CHANNELS-1 downto 0);
   signal clken : std_ulogic;
 
 begin
@@ -80,16 +80,16 @@ begin
     elsif rising_edge(clk_i) then
       if (bus_req_i.stb = '1') and (bus_req_i.rw = '1') then
         if (addr = "000") then
-          enable <= bus_req_i.data(NUM_CHANNELS-1 downto 0);
+          enable <= bus_req_i.तथ्य(अंक_CHANNELS-1 downto 0);
         end if;
         if (addr = "001") then
-          polarity <= bus_req_i.data(NUM_CHANNELS-1 downto 0);
+          polarity <= bus_req_i.तथ्य(अंक_CHANNELS-1 downto 0);
         end if;
         if (addr = "010") then
-          clkprsc <= bus_req_i.data(2 downto 0);
+          clkprsc <= bus_req_i.तथ्य(2 downto 0);
         end if;
         if (addr = "011") then
-          mode <= bus_req_i.data(NUM_CHANNELS-1 downto 0);
+          mode <= bus_req_i.तथ्य(अंक_CHANNELS-1 downto 0);
         end if;
       end if;
     end if;
@@ -100,14 +100,14 @@ begin
   begin
     if rising_edge(clk_i) then
       bus_rsp_o.ack  <= bus_req_i.stb;
-      bus_rsp_o.data <= (others => '0'); -- default
+      bus_rsp_o.तथ्य <= (others => '0'); -- default
       if (bus_req_i.stb = '1') and (bus_req_i.rw = '0') then
         case addr is
-          when "000"  => bus_rsp_o.data(NUM_CHANNELS-1 downto 0) <= enable;
-          when "001"  => bus_rsp_o.data(NUM_CHANNELS-1 downto 0) <= polarity;
-          when "010"  => bus_rsp_o.data(2 downto 0)              <= clkprsc;
-          when "011"  => bus_rsp_o.data(NUM_CHANNELS-1 downto 0) <= mode;
-          when others => bus_rsp_o.data                          <= rdata_sum;
+          when "000"  => bus_rsp_o.तथ्य(अंक_CHANNELS-1 downto 0) <= enable;
+          when "001"  => bus_rsp_o.तथ्य(अंक_CHANNELS-1 downto 0) <= polarity;
+          when "010"  => bus_rsp_o.तथ्य(2 downto 0)              <= clkprsc;
+          when "011"  => bus_rsp_o.तथ्य(अंक_CHANNELS-1 downto 0) <= mode;
+          when others => bus_rsp_o.तथ्य                          <= rdata_योग;
         end case;
       end if;
     end if;
@@ -117,7 +117,7 @@ begin
   -- Channel Controllers --------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   pwm_channel_gen:
-  for i in 0 to NUM_CHANNELS-1 generate
+  for i in 0 to अंक_CHANNELS-1 generate
     neorv32_pwm_channel_inst: neorv32_pwm_channel
     port map (
       -- global control --
@@ -131,7 +131,7 @@ begin
       cs_i    => cs(i),
       we_i    => bus_req_i.rw,
       ben_i   => bus_req_i.ben,
-      wdata_i => bus_req_i.data,
+      wdata_i => bus_req_i.तथ्य,
       rdata_o => rdata(i),
       -- PWM output --
       pwm_o   => pwm(i)
@@ -153,17 +153,17 @@ begin
     variable tmp_v : std_ulogic_vector(31 downto 0);
   begin
     tmp_v := (others => '0');
-    for i in 0 to NUM_CHANNELS-1 loop
+    for i in 0 to अंक_CHANNELS-1 loop
       tmp_v := tmp_v or rdata(i);
     end loop;
-    rdata_sum <= tmp_v;
+    rdata_योग <= tmp_v;
   end process;
 
   -- PWM output --
   channel_output: process(pwm)
   begin
     pwm_o <= (others => '0');
-    pwm_o(NUM_CHANNELS-1 downto 0) <= pwm;
+    pwm_o(अंक_CHANNELS-1 downto 0) <= pwm;
   end process channel_output;
 
 end architecture;
@@ -205,8 +205,8 @@ end entity;
 
 architecture neorv32_pwm_channel_rtl of neorv32_pwm_channel is
 
-  signal cnt, cmp, top : std_ulogic_vector(15 downto 0);
-  signal dir, cmp_zero, cmp_top : std_ulogic;
+  signal cnt, cmp, शीर्ष : std_ulogic_vector(15 downto 0);
+  signal dir, cmp_zero, cmp_शीर्ष : std_ulogic;
 
 begin
 
@@ -216,34 +216,34 @@ begin
   begin
     if (rstn_i = '0') then
       cmp <= (others => '0');
-      top <= (others => '0');
+      शीर्ष <= (others => '0');
     elsif rising_edge(clk_i) then
       if (cs_i = '1') and (we_i = '1') then
         if (ben_i(1 downto 0) = "11") then
           cmp <= wdata_i(15 downto 0);
         end if;
         if (ben_i(3 downto 2) = "11") then
-          top <= wdata_i(31 downto 16);
+          शीर्ष <= wdata_i(31 downto 16);
         end if;
       end if;
     end if;
   end process;
 
   -- read-back --
-  rdata_o <= (top & cmp) when (cs_i = '1') else (others => '0');
+  rdata_o <= (शीर्ष & cmp) when (cs_i = '1') else (others => '0');
 
   -- PWM Counter ----------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  pwm_counter: process(clk_i)
+  pwm_गणक: process(clk_i)
   begin
     if rising_edge(clk_i) then
       if (en_i = '0') then
         dir <= '0';
         cnt <= (others => '0');
       else
-        dir <= (dir or cmp_top) and (not cmp_zero) and mode_i; -- boolean magic
+        dir <= (dir or cmp_शीर्ष) and (not cmp_zero) and mode_i; -- boolean magic
         if (clken_i = '1') then
-          if (mode_i = '0') and (cmp_top = '1') then -- fast-PWM wrap
+          if (mode_i = '0') and (cmp_शीर्ष = '1') then -- fast-PWM wrap
             cnt <= (others => '0');
           elsif (dir = '0') then
             cnt <= std_ulogic_vector(unsigned(cnt) + 1);
@@ -257,7 +257,7 @@ begin
 
   -- comparators --
   cmp_zero <= '1' when (cnt = x"0000") else '0';
-  cmp_top  <= '0' when (unsigned(cnt) < unsigned(top)) else '1';
+  cmp_शीर्ष  <= '0' when (unsigned(cnt) < unsigned(शीर्ष)) else '1';
 
   -- Output / Duty Cycle Control ------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------

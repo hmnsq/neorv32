@@ -26,7 +26,7 @@ entity neorv32_cpu_counters is
     ZIHPM_EN     : boolean;               -- hardware performance monitors
     SMCNTRPMF_EN : boolean;               -- counter privilege-mode filtering
     UMODE_EN     : boolean;               -- user-mode
-    HPM_NUM      : natural range 0 to 29; -- number of implemented HPM counters
+    HPM_अंक      : natural range 0 to 29; -- number of implemented HPM counters
     HPM_WIDTH    : natural range 0 to 64  -- total size of HPM counters
   );
   port (
@@ -107,7 +107,7 @@ begin
       end if;
       -- hardware performance monitors --
       for i in 3 to 31 loop
-        if ZIHPM_EN and ((i-3) < HPM_NUM) then
+        if ZIHPM_EN and ((i-3) < HPM_अंक) then
           if (inh_acc = '1') and (ctrl_i.csr_we = '1') then
             inhibit(i) <= ctrl_i.csr_wdata(i); -- [m]hpmcounter3..31[h]
           end if;
@@ -183,7 +183,7 @@ begin
 
   -- Counter Increment ----------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  counter_increment: process(ctrl_i, hpmevent, cnt_we, inhibit, pmf_inh)
+  गणक_increment: process(ctrl_i, hpmevent, cnt_we, inhibit, pmf_inh)
   begin
     if (ctrl_i.cpu_debug = '1') then -- no increment when in debug-mode
       cnt_inc <= (others => '0');
@@ -213,7 +213,7 @@ begin
       rstn_i => rstn_i,
       inc_i  => cnt_inc(0),
       we_i   => cnt_we(0),
-      data_i => ctrl_i.csr_wdata,
+      तथ्य_i => ctrl_i.csr_wdata,
       oe_i   => cnt_re(0),
       cnt_o  => cycle_rd
     );
@@ -231,7 +231,7 @@ begin
       rstn_i => rstn_i,
       inc_i  => cnt_inc(2),
       we_i   => cnt_we(2),
-      data_i => ctrl_i.csr_wdata,
+      तथ्य_i => ctrl_i.csr_wdata,
       oe_i   => cnt_re(2),
       cnt_o  => instret_rd
     );
@@ -250,10 +250,10 @@ begin
   -- Hardware Performance Monitors (Zihpm) --------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   hpm_enabled:
-  if ZIHPM_EN and (HPM_NUM > 0) generate
+  if ZIHPM_EN and (HPM_अंक > 0) generate
 
     hpm_gen:
-    for i in 3 to (HPM_NUM + 3) - 1 generate
+    for i in 3 to (HPM_अंक + 3) - 1 generate
 
       -- [m]hpmcnt[3..31][h] --
       hpmcnt_inst: entity neorv32.neorv32_prim_cnt
@@ -265,7 +265,7 @@ begin
         rstn_i => rstn_i,
         inc_i  => cnt_inc(i),
         we_i   => cnt_we(i),
-        data_i => ctrl_i.csr_wdata,
+        तथ्य_i => ctrl_i.csr_wdata,
         oe_i   => cnt_re(i),
         cnt_o  => hpmcnt_rd(i)
       );
@@ -287,7 +287,7 @@ begin
 
     -- terminate unused HPM slices --
     hpm_terminate_gen:
-    for i in HPM_NUM + 3 to 31 generate
+    for i in HPM_अंक + 3 to 31 generate
       hpmcnt_rd(i)   <= (others => '0');
       hpmevent(i)    <= (others => '0');
       hpmevent_rd(i) <= (others => '0');
@@ -308,7 +308,7 @@ begin
 
   -- HPMs disabled --
   hpm_disabled:
-  if (not ZIHPM_EN) or (HPM_NUM = 0) generate
+  if (not ZIHPM_EN) or (HPM_अंक = 0) generate
     hpmcnt_rd   <= (others => (others => '0'));
     hpmevent    <= (others => (others => '0'));
     hpmevent_rd <= (others => (others => '0'));

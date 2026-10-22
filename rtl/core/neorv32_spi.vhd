@@ -55,7 +55,7 @@ architecture neorv32_spi_rtl of neorv32_spi is
   constant ctrl_busy_c     : natural := 31; -- r/-: SPI PHY busy or TX FIFO not empty yet
 
   -- helpers --
-  constant log2_fifo_size_c : natural := index_size_f(IO_SPI_FIFO);
+  constant log2_fifo_आकार_c : natural := सूचकांक_आकार_f(IO_SPI_FIFO);
 
   -- bus interface --
   signal bus_ack, bus_rden : std_ulogic;
@@ -130,11 +130,11 @@ begin
     elsif rising_edge(clk_i) then
       if (bus_req_i.stb = '1') and (bus_req_i.rw = '1') then
         if (bus_req_i.addr(2) = '0') then -- control register
-          ctrl.enable <= bus_req_i.data(ctrl_en_c);
-          ctrl.cpha   <= bus_req_i.data(ctrl_cpha_c);
-          ctrl.cpol   <= bus_req_i.data(ctrl_cpol_c);
-          ctrl.prsc   <= bus_req_i.data(ctrl_prsc2_c downto ctrl_prsc0_c);
-          ctrl.cdiv   <= bus_req_i.data(ctrl_cdiv3_c downto ctrl_cdiv0_c);
+          ctrl.enable <= bus_req_i.तथ्य(ctrl_en_c);
+          ctrl.cpha   <= bus_req_i.तथ्य(ctrl_cpha_c);
+          ctrl.cpol   <= bus_req_i.तथ्य(ctrl_cpol_c);
+          ctrl.prsc   <= bus_req_i.तथ्य(ctrl_prsc2_c downto ctrl_prsc0_c);
+          ctrl.cdiv   <= bus_req_i.तथ्य(ctrl_cdiv3_c downto ctrl_cdiv0_c);
         end if;
       end if;
     end if;
@@ -154,7 +154,7 @@ begin
         bus_rdata(ctrl_rx_avail_c)                  <= rx_fifo.avail;
         bus_rdata(ctrl_tx_empty_c)                  <= not tx_fifo.avail;
         bus_rdata(ctrl_tx_full_c)                   <= not tx_fifo.free;
-        bus_rdata(ctrl_fifo3_c downto ctrl_fifo0_c) <= std_ulogic_vector(to_unsigned(log2_fifo_size_c, 4));
+        bus_rdata(ctrl_fifo3_c downto ctrl_fifo0_c) <= std_ulogic_vector(to_unsigned(log2_fifo_आकार_c, 4));
         bus_rdata(ctrl_cs_en_c)                     <= rtx_engine.cs_ctrl(3);
         bus_rdata(ctrl_busy_c)                      <= busy or tx_fifo.avail;
       else -- RX data
@@ -166,7 +166,7 @@ begin
   -- bus response --
   bus_rsp_o.ack  <= bus_ack;
   bus_rsp_o.err  <= '0'; -- no access errors supported
-  bus_rsp_o.data <= bus_rdata;
+  bus_rsp_o.तथ्य <= bus_rdata;
 
 
   -- Data FIFO ("Ring Buffer") --------------------------------------------------------------
@@ -175,7 +175,7 @@ begin
   -- TX FIFO --
   tx_fifo_inst: entity neorv32.neorv32_prim_fifo
   generic map (
-    AWIDTH  => log2_fifo_size_c,
+    AWIDTH  => log2_fifo_आकार_c,
     DWIDTH  => 9,
     OUTGATE => false,
     ASYNCRD => false
@@ -197,14 +197,14 @@ begin
 
   tx_fifo.clear <= not ctrl.enable;
   tx_fifo.we    <= bus_req_i.stb and bus_req_i.rw and bus_req_i.addr(2);
-  tx_fifo.wdata <= bus_req_i.data(31) & bus_req_i.data(7 downto 0); -- command/data select & command/data byte
+  tx_fifo.wdata <= bus_req_i.तथ्य(31) & bus_req_i.तथ्य(7 downto 0); -- command/data select & command/data byte
   tx_fifo.re    <= '1' when (rtx_engine.state = "100") else '0';
 
 
   -- RX FIFO --
   rx_fifo_inst: entity neorv32.neorv32_prim_fifo
   generic map (
-    AWIDTH  => log2_fifo_size_c,
+    AWIDTH  => log2_fifo_आकार_c,
     DWIDTH  => 8,
     OUTGATE => false,
     ASYNCRD => false

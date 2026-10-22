@@ -62,7 +62,7 @@ architecture neorv32_twi_rtl of neorv32_twi is
   constant dcmd_cmd_hi_c : natural := 10; -- -/w: operation command; 10=STOP, 11=DATA
 
   -- helpers --
-  constant log2_fifo_size_c : natural := index_size_f(IO_TWI_FIFO);
+  constant log2_fifo_आकार_c : natural := सूचकांक_आकार_f(IO_TWI_FIFO);
 
   -- bus interface --
   signal bus_ack, bus_rden : std_ulogic;
@@ -135,10 +135,10 @@ begin
     elsif rising_edge(clk_i) then
       if (bus_req_i.stb = '1') and (bus_req_i.rw = '1') then
         if (bus_req_i.addr(2) = '0') then -- control register
-          ctrl.enable <= bus_req_i.data(ctrl_en_c);
-          ctrl.prsc   <= bus_req_i.data(ctrl_prsc2_c downto ctrl_prsc0_c);
-          ctrl.cdiv   <= bus_req_i.data(ctrl_cdiv3_c downto ctrl_cdiv0_c);
-          ctrl.clkstr <= bus_req_i.data(ctrl_clkstr_en_c);
+          ctrl.enable <= bus_req_i.तथ्य(ctrl_en_c);
+          ctrl.prsc   <= bus_req_i.तथ्य(ctrl_prsc2_c downto ctrl_prsc0_c);
+          ctrl.cdiv   <= bus_req_i.तथ्य(ctrl_cdiv3_c downto ctrl_cdiv0_c);
+          ctrl.clkstr <= bus_req_i.तथ्य(ctrl_clkstr_en_c);
         end if;
       end if;
     end if;
@@ -154,7 +154,7 @@ begin
         bus_rdata(ctrl_prsc2_c downto ctrl_prsc0_c) <= ctrl.prsc;
         bus_rdata(ctrl_cdiv3_c downto ctrl_cdiv0_c) <= ctrl.cdiv;
         bus_rdata(ctrl_clkstr_en_c)                 <= ctrl.clkstr;
-        bus_rdata(ctrl_fifo3_c downto ctrl_fifo0_c) <= std_ulogic_vector(to_unsigned(log2_fifo_size_c, 4));
+        bus_rdata(ctrl_fifo3_c downto ctrl_fifo0_c) <= std_ulogic_vector(to_unsigned(log2_fifo_आकार_c, 4));
         bus_rdata(ctrl_sense_scl_c)                 <= scl_sync(1);
         bus_rdata(ctrl_sense_sda_c)                 <= sda_sync(1);
         bus_rdata(ctrl_tx_full_c)                   <= not fifo.tx_free;
@@ -169,7 +169,7 @@ begin
   -- bus response --
   bus_rsp_o.ack  <= bus_ack;
   bus_rsp_o.err  <= '0'; -- no access errors supported
-  bus_rsp_o.data <= bus_rdata;
+  bus_rsp_o.तथ्य <= bus_rdata;
 
 
   -- Data FIFOs ("Ring Buffer") -------------------------------------------------------------
@@ -178,7 +178,7 @@ begin
   -- TX FIFO --
   tx_fifo_inst: entity neorv32.neorv32_prim_fifo
   generic map (
-    AWIDTH  => log2_fifo_size_c,
+    AWIDTH  => log2_fifo_आकार_c,
     DWIDTH  => 11, -- command, host-ACK, data
     OUTGATE => false,
     ASYNCRD => false
@@ -199,7 +199,7 @@ begin
   );
 
   fifo.tx_clear <= not ctrl.enable;
-  fifo.tx_wdata <= bus_req_i.data(dcmd_cmd_hi_c downto dcmd_lsb_c);
+  fifo.tx_wdata <= bus_req_i.तथ्य(dcmd_cmd_hi_c downto dcmd_lsb_c);
   fifo.tx_we    <= bus_req_i.stb and bus_req_i.rw and bus_req_i.addr(2);
   fifo.tx_re    <= engine.tx_re;
 
@@ -207,7 +207,7 @@ begin
   -- RX FIFO --
   rx_fifo_inst: entity neorv32.neorv32_prim_fifo
   generic map (
-    AWIDTH  => log2_fifo_size_c,
+    AWIDTH  => log2_fifo_आकार_c,
     DWIDTH  => 9, -- ACK + data
     OUTGATE => false,
     ASYNCRD => false
@@ -387,7 +387,7 @@ begin
 
   -- IO Control -----------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  input_synchronizer: process(clk_i)
+  निवेश_synchronizer: process(clk_i)
   begin
     if rising_edge(clk_i) then
       sda_sync <= sda_sync(0) & to_stdulogic(to_bit(twi_sda_i)); -- "to_bit" to avoid HW-vs-sim mismatch

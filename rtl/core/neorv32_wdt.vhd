@@ -89,14 +89,14 @@ begin
       if (bus_req_i.stb = '1') and (bus_req_i.rw = '1') then
         if (bus_req_i.addr(2) = '0') then -- control register
           if (ctrl.lock = '0') then -- update configuration only if not locked
-            ctrl.enable  <= bus_req_i.data(ctrl_enable_c);
-            ctrl.lock    <= bus_req_i.data(ctrl_lock_c);
-            ctrl.timeout <= bus_req_i.data(ctrl_timeout_msb_c downto ctrl_timeout_lsb_c);
+            ctrl.enable  <= bus_req_i.तथ्य(ctrl_enable_c);
+            ctrl.lock    <= bus_req_i.तथ्य(ctrl_lock_c);
+            ctrl.timeout <= bus_req_i.तथ्य(ctrl_timeout_msb_c downto ctrl_timeout_lsb_c);
           else -- write access attempt to locked CTRL register
             ctrl.rst_trig <= '1';
           end if;
         else -- reset timeout counter - password check
-          if (bus_req_i.data(31 downto 0) = reset_pwd_c) then
+          if (bus_req_i.तथ्य(31 downto 0) = reset_pwd_c) then
             ctrl.rst_time <= '1'; -- correct: reset timer
           else
             ctrl.rst_trig <= '1'; -- incorrect: trigger system reset
@@ -121,11 +121,11 @@ begin
   -- bus response --
   bus_rsp_o.ack  <= bus_ack;
   bus_rsp_o.err  <= '0'; -- no access errors supported
-  bus_rsp_o.data <= bus_rdata;
+  bus_rsp_o.तथ्य <= bus_rdata;
 
   -- Timeout Counter ------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  wdt_counter: process(rstn_sys_i, clk_i)
+  wdt_गणक: process(rstn_sys_i, clk_i)
   begin
     if (rstn_sys_i = '0') then
       cen <= '0';

@@ -89,7 +89,7 @@ architecture neorv32_cpu_alu_fpu_rtl of neorv32_cpu_alu_fpu is
       exponent_i : in  std_ulogic_vector(7 downto 0);
       mantissa_i : in  std_ulogic_vector(22 downto 0);
       class_i    : in  std_ulogic_vector(9 downto 0);
-      result_o   : out std_ulogic_vector(31 downto 0);
+      परिणाम_o   : out std_ulogic_vector(31 downto 0);
       flags_o    : out std_ulogic_vector(4 downto 0);
       done_o     : out std_ulogic
     );
@@ -113,7 +113,7 @@ architecture neorv32_cpu_alu_fpu_rtl of neorv32_cpu_alu_fpu is
       integer_i  : in  std_ulogic_vector(31 downto 0);
       class_i    : in  std_ulogic_vector(9 downto 0);
       flags_i    : in  std_ulogic_vector(4 downto 0);
-      result_o   : out std_ulogic_vector(31 downto 0);
+      परिणाम_o   : out std_ulogic_vector(31 downto 0);
       flags_o    : out std_ulogic_vector(4 downto 0);
       done_o     : out std_ulogic
     );
@@ -145,7 +145,7 @@ architecture neorv32_cpu_alu_fpu_rtl of neorv32_cpu_alu_fpu is
   signal ctrl_engine : ctrl_engine_t;
 
   -- floating-point operands --
-  type op_data_t  is array (1 downto 0) of std_ulogic_vector(31 downto 0);
+  type op_तथ्य_t  is array (1 downto 0) of std_ulogic_vector(31 downto 0);
   type op_class_t is array (1 downto 0) of std_ulogic_vector(9 downto 0);
   type fpu_operands_t is record
     rs1       : std_ulogic_vector(31 downto 0);
@@ -154,7 +154,7 @@ architecture neorv32_cpu_alu_fpu_rtl of neorv32_cpu_alu_fpu is
     rs2_class : std_ulogic_vector(9 downto 0);
     frm       : std_ulogic_vector(2 downto 0);
   end record;
-  signal op_data      : op_data_t;
+  signal op_तथ्य      : op_तथ्य_t;
   signal op_class     : op_class_t;
   signal fpu_operands : fpu_operands_t;
 
@@ -166,7 +166,7 @@ architecture neorv32_cpu_alu_fpu_rtl of neorv32_cpu_alu_fpu is
 
   -- functional units interface --
   type fu_interface_t is record
-    result : std_ulogic_vector(31 downto 0);
+    परिणाम : std_ulogic_vector(31 downto 0);
     flags  : std_ulogic_vector(4 downto 0);
     start  : std_ulogic;
     done   : std_ulogic;
@@ -182,7 +182,7 @@ architecture neorv32_cpu_alu_fpu_rtl of neorv32_cpu_alu_fpu is
 
   -- integer-to-float --
   type fu_i2f_interface_t is record
-    result : std_ulogic_vector(31 downto 0);
+    परिणाम : std_ulogic_vector(31 downto 0);
     sign   : std_ulogic;
     start  : std_ulogic;
     done   : std_ulogic;
@@ -195,7 +195,7 @@ architecture neorv32_cpu_alu_fpu_rtl of neorv32_cpu_alu_fpu is
     opb       : std_ulogic_vector(23 downto 0); -- mantissa B plus hidden one
     sign      : std_ulogic; -- resulting sign
     product   : std_ulogic_vector(47 downto 0); -- product
-    exp_sum   : std_ulogic_vector(8 downto 0);  -- incl 1x overflow/underflow bit
+    exp_योग   : std_ulogic_vector(8 downto 0);  -- incl 1x overflow/underflow bit
     exp_res   : std_ulogic_vector(9 downto 0);  -- resulting exponent incl 2x overflow/underflow bit
     --
     res_class : std_ulogic_vector(9 downto 0);
@@ -228,7 +228,7 @@ architecture neorv32_cpu_alu_fpu_rtl of neorv32_cpu_alu_fpu is
     add_stage : std_ulogic_vector(27 downto 0); -- adder result incl. overflow
     -- result --
     res_sign  : std_ulogic;
-    res_sum   : std_ulogic_vector(27 downto 0); -- mantissa sum (+1 bit) + GRS bits (for rounding)
+    res_योग   : std_ulogic_vector(27 downto 0); -- mantissa sum (+1 bit) + GRS bits (for rounding)
     res_class : std_ulogic_vector(9 downto 0);
     flags     : std_ulogic_vector(4 downto 0);  -- exception flags
     -- arbitration --
@@ -245,7 +245,7 @@ architecture neorv32_cpu_alu_fpu_rtl of neorv32_cpu_alu_fpu is
     sign      : std_ulogic;
     xexp      : std_ulogic_vector(8 downto 0);
     xmantissa : std_ulogic_vector(47 downto 0);
-    result    : std_ulogic_vector(31 downto 0);
+    परिणाम    : std_ulogic_vector(31 downto 0);
     class     : std_ulogic_vector(9 downto 0);
     flags_in  : std_ulogic_vector(4 downto 0);
     flags_out : std_ulogic_vector(4 downto 0);
@@ -334,25 +334,25 @@ begin
 
   -- [WARNING] Subnormal numbers are not supported yet and are "flushed to zero"! -----------
   -- -------------------------------------------------------------------------------------------
-  op_data(0)(31)           <= rs1_i(31);
-  op_data(0)(30 downto 23) <= rs1_i(30 downto 23);
-  op_data(0)(22 downto 0)  <= (others => '0') when (rs1_i(30 downto 23) = "00000000") else rs1_i(22 downto 0); -- flush mantissa to zero if subnormal
-  op_data(1)(31)           <= rs2_i(31);
-  op_data(1)(30 downto 23) <= rs2_i(30 downto 23);
-  op_data(1)(22 downto 0)  <= (others => '0') when (rs2_i(30 downto 23) = "00000000") else rs2_i(22 downto 0); -- flush mantissa to zero if subnormal
+  op_तथ्य(0)(31)           <= rs1_i(31);
+  op_तथ्य(0)(30 downto 23) <= rs1_i(30 downto 23);
+  op_तथ्य(0)(22 downto 0)  <= (others => '0') when (rs1_i(30 downto 23) = "00000000") else rs1_i(22 downto 0); -- flush mantissa to zero if subnormal
+  op_तथ्य(1)(31)           <= rs2_i(31);
+  op_तथ्य(1)(30 downto 23) <= rs2_i(30 downto 23);
+  op_तथ्य(1)(22 downto 0)  <= (others => '0') when (rs2_i(30 downto 23) = "00000000") else rs2_i(22 downto 0); -- flush mantissa to zero if subnormal
 
 
   -- Number Classifier ----------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  number_classifier: process(op_data, rs1_i, rs2_i)
+  संख्या_classifier: process(op_तथ्य, rs1_i, rs2_i)
     variable op_m_all_zero_v, op_e_all_zero_v, op_e_all_one_v       : std_ulogic;
     variable op_is_zero_v, op_is_inf_v, op_is_denorm_v, op_is_nan_v : std_ulogic;
   begin
     for i in 0 to 1 loop -- for rs1 and rs2 inputs
       -- check for all-zero/all-one --
-      op_m_all_zero_v := not or_reduce_f(op_data(i)(22 downto 0));
-      op_e_all_zero_v := not or_reduce_f(op_data(i)(30 downto 23));
-      op_e_all_one_v  :=    and_reduce_f(op_data(i)(30 downto 23));
+      op_m_all_zero_v := not or_reduce_f(op_तथ्य(i)(22 downto 0));
+      op_e_all_zero_v := not or_reduce_f(op_तथ्य(i)(30 downto 23));
+      op_e_all_one_v  :=    and_reduce_f(op_तथ्य(i)(30 downto 23));
 
       -- check special cases --
       op_is_zero_v := op_e_all_zero_v and op_m_all_zero_v;  -- zero
@@ -368,16 +368,16 @@ begin
       op_is_nan_v := op_e_all_one_v and (not op_m_all_zero_v); -- NaN
 
       -- actual attributes --
-      op_class(i)(fp_class_neg_inf_c)    <= op_data(i)(31) and op_is_inf_v; -- negative infinity
-      op_class(i)(fp_class_neg_norm_c)   <= op_data(i)(31) and (not op_is_denorm_v) and (not op_is_nan_v) and (not op_is_inf_v) and (not op_is_zero_v); -- negative normal number
-      op_class(i)(fp_class_neg_denorm_c) <= op_data(i)(31) and op_is_denorm_v; -- negative subnormal number
-      op_class(i)(fp_class_neg_zero_c)   <= op_data(i)(31) and op_is_zero_v and (not op_is_denorm_v); -- negative zero
-      op_class(i)(fp_class_pos_zero_c)   <= (not op_data(i)(31)) and op_is_zero_v and (not op_is_denorm_v); -- positive zero
-      op_class(i)(fp_class_pos_denorm_c) <= (not op_data(i)(31)) and op_is_denorm_v; -- positive subnormal number
-      op_class(i)(fp_class_pos_norm_c)   <= (not op_data(i)(31)) and (not op_is_denorm_v) and (not op_is_nan_v) and (not op_is_inf_v) and (not op_is_zero_v); -- positive normal number
-      op_class(i)(fp_class_pos_inf_c)    <= (not op_data(i)(31)) and op_is_inf_v; -- positive infinity
-      op_class(i)(fp_class_snan_c)       <= op_is_nan_v and (not op_data(i)(22)); -- signaling NaN
-      op_class(i)(fp_class_qnan_c)       <= op_is_nan_v and (    op_data(i)(22)); -- quiet NaN
+      op_class(i)(fp_class_neg_inf_c)    <= op_तथ्य(i)(31) and op_is_inf_v; -- negative infinity
+      op_class(i)(fp_class_neg_norm_c)   <= op_तथ्य(i)(31) and (not op_is_denorm_v) and (not op_is_nan_v) and (not op_is_inf_v) and (not op_is_zero_v); -- negative normal number
+      op_class(i)(fp_class_neg_denorm_c) <= op_तथ्य(i)(31) and op_is_denorm_v; -- negative subnormal number
+      op_class(i)(fp_class_neg_zero_c)   <= op_तथ्य(i)(31) and op_is_zero_v and (not op_is_denorm_v); -- negative zero
+      op_class(i)(fp_class_pos_zero_c)   <= (not op_तथ्य(i)(31)) and op_is_zero_v and (not op_is_denorm_v); -- positive zero
+      op_class(i)(fp_class_pos_denorm_c) <= (not op_तथ्य(i)(31)) and op_is_denorm_v; -- positive subnormal number
+      op_class(i)(fp_class_pos_norm_c)   <= (not op_तथ्य(i)(31)) and (not op_is_denorm_v) and (not op_is_nan_v) and (not op_is_inf_v) and (not op_is_zero_v); -- positive normal number
+      op_class(i)(fp_class_pos_inf_c)    <= (not op_तथ्य(i)(31)) and op_is_inf_v; -- positive infinity
+      op_class(i)(fp_class_snan_c)       <= op_is_nan_v and (not op_तथ्य(i)(22)); -- signaling NaN
+      op_class(i)(fp_class_qnan_c)       <= op_is_nan_v and (    op_तथ्य(i)(22)); -- quiet NaN
     end loop; -- i
   end process;
 
@@ -421,9 +421,9 @@ begin
           --
           if (ctrl_i.alu_cp_fpu = '1') and (cmd.valid = '1') then
             -- operand data --
-            fpu_operands.rs1       <= op_data(0);
+            fpu_operands.rs1       <= op_तथ्य(0);
             fpu_operands.rs1_class <= op_class(0);
-            fpu_operands.rs2       <= op_data(1);
+            fpu_operands.rs2       <= op_तथ्य(1);
             fpu_operands.rs2_class <= op_class(1);
             -- execute! --
             ctrl_engine.start <= '1';
@@ -468,8 +468,8 @@ begin
   -- Number Classifier (FCLASS) -------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   fu_classify.flags <= (others => '0'); -- does not generate flags at all
-  fu_classify.result(31 downto 10) <= (others => '0');
-  fu_classify.result(9 downto 0) <= fpu_operands.rs1_class;
+  fu_classify.परिणाम(31 downto 10) <= (others => '0');
+  fu_classify.परिणाम(9 downto 0) <= fpu_operands.rs1_class;
   fu_classify.done <= fu_classify.start;
 
 
@@ -578,29 +578,29 @@ begin
     -- assume no exceptions by default
     fu_compare.flags <= (others => '0');
     -- condition evaluation --
-    fu_compare.result <= (others => '0');
+    fu_compare.परिणाम <= (others => '0');
     case ctrl_i.ir_funct3(1 downto 0) is
       when "00" => -- FLE: less than or equal
-        fu_compare.result(0) <= (comp_less_ff or comp_equal_ff) and (not (snan_v or qnan_v)); -- result is zero if either input is NaN
+        fu_compare.परिणाम(0) <= (comp_less_ff or comp_equal_ff) and (not (snan_v or qnan_v)); -- result is zero if either input is NaN
         -- if one of the operands is unordered (q/sNAN) the compare operation must signal NV per 754.
         if ((snan_v or qnan_v) = '1') then
           fu_compare.flags(fp_exc_nv_c) <= '1';
         end if;
       when "01" => -- FLT: less than
-        fu_compare.result(0) <= comp_less_ff and (not (snan_v or qnan_v)); -- result is zero if either input is NaN
+        fu_compare.परिणाम(0) <= comp_less_ff and (not (snan_v or qnan_v)); -- result is zero if either input is NaN
         -- if one of the operands is unordered (q/sNAN) the compare operation must signal NV per 754.
         if ((snan_v or qnan_v) = '1') then
           fu_compare.flags(fp_exc_nv_c) <= '1';
         end if;
       when "10" => -- FEQ: equal
-        fu_compare.result(0) <= comp_equal_ff and (not (snan_v or qnan_v)); -- result is zero if either input is NaN
+        fu_compare.परिणाम(0) <= comp_equal_ff and (not (snan_v or qnan_v)); -- result is zero if either input is NaN
         -- if one of the operands in the compare operation is a sNAN we must signal NV per 754.
         -- for equal compares we do not need to consider un-ordred NAN
         if ((snan_v) = '1') then
           fu_compare.flags(fp_exc_nv_c) <= '1';
         end if;
       when others => -- undefined
-        fu_compare.result(0) <= '0';
+        fu_compare.परिणाम(0) <= '0';
     end case;
   end process;
 
@@ -648,11 +648,11 @@ begin
 
     -- data output --
     case cond_v is
-      when "000"         => fu_min_max.result <= fpu_operands.rs1;
-      when "001"         => fu_min_max.result <= fpu_operands.rs2;
-      when "010" | "011" => fu_min_max.result <= fpu_operands.rs1; -- if one input is NaN output the non-NaN one
-      when "100" | "101" => fu_min_max.result <= fpu_operands.rs2; -- if one input is NaN output the non-NaN one
-      when others        => fu_min_max.result <= fp_single_qnan_c; -- output quiet NaN if both inputs are NaN
+      when "000"         => fu_min_max.परिणाम <= fpu_operands.rs1;
+      when "001"         => fu_min_max.परिणाम <= fpu_operands.rs2;
+      when "010" | "011" => fu_min_max.परिणाम <= fpu_operands.rs1; -- if one input is NaN output the non-NaN one
+      when "100" | "101" => fu_min_max.परिणाम <= fpu_operands.rs2; -- if one input is NaN output the non-NaN one
+      when others        => fu_min_max.परिणाम <= fp_single_qnan_c; -- output quiet NaN if both inputs are NaN
     end case;
   end process;
 
@@ -680,7 +680,7 @@ begin
     mantissa_i => fpu_operands.rs1(22 downto 0),  -- mantissa
     class_i    => fpu_operands.rs1_class,         -- operand class
     -- output --
-    result_o   => fu_conv_f2i.result,             -- integer result
+    परिणाम_o   => fu_conv_f2i.परिणाम,             -- integer result
     flags_o    => fu_conv_f2i.flags,              -- exception flags
     done_o     => fu_conv_f2i.done                -- operation done
   );
@@ -691,15 +691,15 @@ begin
   sign_injector: process(ctrl_i, fpu_operands, rs1_i)
   begin
     case ctrl_i.ir_funct3(1 downto 0) is
-      when "00"   => fu_sign_inject.result(31) <= fpu_operands.rs2(31); -- FSGNJ
-      when "01"   => fu_sign_inject.result(31) <= not fpu_operands.rs2(31); -- FSGNJN
-      when "10"   => fu_sign_inject.result(31) <= fpu_operands.rs1(31) xor fpu_operands.rs2(31); -- FSGNJX
-      when others => fu_sign_inject.result(31) <= fpu_operands.rs2(31); -- undefined
+      when "00"   => fu_sign_inject.परिणाम(31) <= fpu_operands.rs2(31); -- FSGNJ
+      when "01"   => fu_sign_inject.परिणाम(31) <= not fpu_operands.rs2(31); -- FSGNJN
+      when "10"   => fu_sign_inject.परिणाम(31) <= fpu_operands.rs1(31) xor fpu_operands.rs2(31); -- FSGNJX
+      when others => fu_sign_inject.परिणाम(31) <= fpu_operands.rs2(31); -- undefined
     end case;
     if (not FPU_SUBNORMAL_SUPPORT) then -- if we do not have subnormal support we need to use the input operand and not then converted operand
-      fu_sign_inject.result(30 downto 0) <= rs1_i(30 downto 0);
+      fu_sign_inject.परिणाम(30 downto 0) <= rs1_i(30 downto 0);
     else
-      fu_sign_inject.result(30 downto 0) <= fpu_operands.rs1(30 downto 0);
+      fu_sign_inject.परिणाम(30 downto 0) <= fpu_operands.rs1(30 downto 0);
     end if;
     fu_sign_inject.flags <= (others => '0'); -- does not generate flags
   end process;
@@ -715,15 +715,15 @@ begin
     -- this process only computes the absolute input value
     -- the actual conversion is done by the normalizer
     if (rstn_i = '0') then
-      fu_conv_i2f.result <= (others => '0');
+      fu_conv_i2f.परिणाम <= (others => '0');
       fu_conv_i2f.sign   <= '0';
       fu_conv_i2f.done   <= '0';
     elsif rising_edge(clk_i) then
       if (ctrl_i.ir_funct12(0) = '0') and (rs1_i(31) = '1') then -- convert signed integer
-        fu_conv_i2f.result <= std_ulogic_vector(0 - unsigned(rs1_i));
+        fu_conv_i2f.परिणाम <= std_ulogic_vector(0 - unsigned(rs1_i));
         fu_conv_i2f.sign   <= rs1_i(31); -- original sign
       else -- convert unsigned integer
-        fu_conv_i2f.result <= rs1_i;
+        fu_conv_i2f.परिणाम <= rs1_i;
         fu_conv_i2f.sign   <= '0';
       end if;
       fu_conv_i2f.done <= fu_conv_i2f.start; -- actual conversion is done by the normalizer unit
@@ -748,7 +748,7 @@ begin
            fpu_operands.rs2_class(fp_class_pos_denorm_c) or fpu_operands.rs2_class(fp_class_neg_denorm_c)) = '1') then
         multiplier.exp_res <= (others => '0'); -- if the input to the multiplier is +/- zero or +/- denorm the result will always be +/- zero
       else
-        multiplier.exp_res <= std_ulogic_vector(unsigned('0' & multiplier.exp_sum) - 127);
+        multiplier.exp_res <= std_ulogic_vector(unsigned('0' & multiplier.exp_योग) - 127);
       end if;
 
       -- exponent computation --
@@ -800,7 +800,7 @@ begin
       multiplier.flags(fp_exc_dz_c) <= '0'; -- division by zero: not possible here
 
       -- latency shift register --
-      multiplier.latency <= multiplier.latency(multiplier.latency'left-1 downto 0) & multiplier.start;
+      multiplier.latency <= multiplier.latency(multiplier.latency'बायाँ-1 downto 0) & multiplier.start;
     end if;
   end process;
 
@@ -824,11 +824,11 @@ begin
   multiplier.opb <= '1' & fpu_operands.rs2(22 downto 0); -- append hidden one to mantissa
 
   -- exponent sum --
-  multiplier.exp_sum <= std_ulogic_vector(unsigned('0' & fpu_operands.rs1(30 downto 23)) + unsigned('0' & fpu_operands.rs2(30 downto 23)));
+  multiplier.exp_योग <= std_ulogic_vector(unsigned('0' & fpu_operands.rs1(30 downto 23)) + unsigned('0' & fpu_operands.rs2(30 downto 23)));
 
   -- latency --
   multiplier.start <= fu_mul.start;
-  multiplier.done  <= multiplier.latency(multiplier.latency'left);
+  multiplier.done  <= multiplier.latency(multiplier.latency'बायाँ);
   fu_mul.done      <= multiplier.done;
 
 
@@ -1003,7 +1003,7 @@ begin
   end process;
 
   -- unused --
-  fu_mul.result <= (others => '0');
+  fu_mul.परिणाम <= (others => '0');
   fu_mul.flags  <= (others => '0');
 
 
@@ -1095,7 +1095,7 @@ begin
           end if;
           addsub.exp_cnt(7 downto 0) <= addsub.large_exp(7 downto 0);
         else
-          addsub.man_sreg  <= '0' & addsub.man_sreg(addsub.man_sreg'left downto 1);
+          addsub.man_sreg  <= '0' & addsub.man_sreg(addsub.man_sreg'बायाँ downto 1);
           addsub.man_g_ext <= addsub.man_sreg(0);
           addsub.man_r_ext <= addsub.man_g_ext;
           addsub.man_s_ext <= addsub.man_s_ext or addsub.man_r_ext; -- sticky bit
@@ -1213,11 +1213,11 @@ begin
 
   -- latency --
   addsub.start   <= fu_addsub.start;
-  addsub.done    <= addsub.latency(addsub.latency'left);
+  addsub.done    <= addsub.latency(addsub.latency'बायाँ);
   fu_addsub.done <= addsub.done;
 
   -- mantissa result --
-  addsub.res_sum <= addsub.add_stage(27 downto 0);
+  addsub.res_योग <= addsub.add_stage(27 downto 0);
 
 
   -- result class --
@@ -1383,7 +1383,7 @@ begin
   end process;
 
   -- unused --
-  fu_addsub.result <= (others => '0');
+  fu_addsub.परिणाम <= (others => '0');
   fu_addsub.flags  <= (others => '0');
 
 
@@ -1393,14 +1393,14 @@ begin
 
   -- Normalizer Input -----------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  normalizer_input_select: process(funct_ff, addsub, multiplier, fu_conv_i2f)
+  normalizer_निवेश_select: process(funct_ff, addsub, multiplier, fu_conv_i2f)
   begin
     case funct_ff is
       when op_addsub_c => -- addition/subtraction
         normalizer.mode      <= '0'; -- normalization
         normalizer.sign      <= addsub.res_sign;
         normalizer.xexp      <= addsub.exp_cnt;
-        normalizer.xmantissa <= addsub.res_sum(27 downto 1) & x"00000" & addsub.res_sum(0);
+        normalizer.xmantissa <= addsub.res_योग(27 downto 1) & x"00000" & addsub.res_योग(0);
         normalizer.class     <= addsub.res_class;
         normalizer.flags_in  <= addsub.flags;
         normalizer.start     <= addsub.done;
@@ -1442,11 +1442,11 @@ begin
     sign_i     => normalizer.sign,      -- sign
     exponent_i => normalizer.xexp,      -- extended exponent
     mantissa_i => normalizer.xmantissa, -- extended mantissa
-    integer_i  => fu_conv_i2f.result,   -- integer input
+    integer_i  => fu_conv_i2f.परिणाम,   -- integer input
     class_i    => normalizer.class,     -- input number class
     flags_i    => normalizer.flags_in,  -- exception flags input
     -- output --
-    result_o   => normalizer.result,    -- result (float or int)
+    परिणाम_o   => normalizer.परिणाम,    -- result (float or int)
     flags_o    => normalizer.flags_out, -- exception flags
     done_o     => normalizer.done       -- operation done
   );
@@ -1469,22 +1469,22 @@ begin
       if (ctrl_engine.valid = '1') then
         case funct_ff is
           when op_class_c =>
-            res_o  <= fu_classify.result;
+            res_o  <= fu_classify.परिणाम;
             fflags <= fu_classify.flags;
           when op_comp_c =>
-            res_o  <= fu_compare.result;
+            res_o  <= fu_compare.परिणाम;
             fflags <= fu_compare.flags;
           when op_f2i_c =>
-            res_o  <= fu_conv_f2i.result;
+            res_o  <= fu_conv_f2i.परिणाम;
             fflags <= fu_conv_f2i.flags;
           when op_sgnj_c =>
-            res_o  <= fu_sign_inject.result;
+            res_o  <= fu_sign_inject.परिणाम;
             fflags <= fu_sign_inject.flags;
           when op_minmax_c =>
-            res_o  <= fu_min_max.result;
+            res_o  <= fu_min_max.परिणाम;
             fflags <= fu_min_max.flags;
           when others => -- op_mul_c, op_addsub_c, op_i2f_c, ...
-            res_o  <= normalizer.result;
+            res_o  <= normalizer.परिणाम;
             fflags <= normalizer.flags_out;
         end case;
       end if;
@@ -1536,7 +1536,7 @@ entity neorv32_cpu_alu_fpu_normalizer is
     class_i    : in  std_ulogic_vector(9 downto 0);  -- input number class
     flags_i    : in  std_ulogic_vector(4 downto 0);  -- exception flags input
     -- output --
-    result_o   : out std_ulogic_vector(31 downto 0); -- float result
+    परिणाम_o   : out std_ulogic_vector(31 downto 0); -- float result
     flags_o    : out std_ulogic_vector(4 downto 0);  -- exception flags output
     done_o     : out std_ulogic                      -- operation done
   );
@@ -1731,15 +1731,15 @@ begin
           else
             if (sreg.dir = '0') then -- shift right
               ctrl.cnt   <= std_ulogic_vector(unsigned(ctrl.cnt) + 1);
-              sreg.upper <= '0' & sreg.upper(sreg.upper'left downto 1);
-              sreg.lower <= sreg.upper(0) & sreg.lower(sreg.lower'left downto 1);
+              sreg.upper <= '0' & sreg.upper(sreg.upper'बायाँ downto 1);
+              sreg.lower <= sreg.upper(0) & sreg.lower(sreg.lower'बायाँ downto 1);
               sreg.ext_g <= sreg.lower(0);
               sreg.ext_r <= sreg.ext_g;
               sreg.ext_s <= sreg.ext_r or sreg.ext_s; -- sticky bit
             else -- shift left
               ctrl.cnt   <= std_ulogic_vector(unsigned(ctrl.cnt) - 1);
-              sreg.upper <= sreg.upper(sreg.upper'left-1 downto 0) & sreg.lower(sreg.lower'left);
-              sreg.lower <= sreg.lower(sreg.lower'left-1 downto 0) & sreg.ext_g;
+              sreg.upper <= sreg.upper(sreg.upper'left-1 downto 0) & sreg.lower(sreg.lower'बायाँ);
+              sreg.lower <= sreg.lower(sreg.lower'बायाँ-1 downto 0) & sreg.ext_g;
               sreg.ext_g <= sreg.ext_r;
               sreg.ext_r <= sreg.ext_s;
               sreg.ext_s <= sreg.ext_s; -- sticky bit
@@ -1853,9 +1853,9 @@ begin
   sreg.zero <= '1' when (or_reduce_f(sreg.upper) = '0') else '0';
 
   -- result --
-  result_o(31)           <= ctrl.res_sgn;
-  result_o(30 downto 23) <= ctrl.res_exp;
-  result_o(22 downto 0)  <= ctrl.res_man;
+  परिणाम_o(31)           <= ctrl.res_sgn;
+  परिणाम_o(30 downto 23) <= ctrl.res_exp;
+  परिणाम_o(22 downto 0)  <= ctrl.res_man;
 
   -- exception flags --
   flags_o(fp_exc_nv_c) <= ctrl.flags(fp_exc_nv_c); -- invalid operation
@@ -1968,7 +1968,7 @@ entity neorv32_cpu_alu_fpu_f2i is
     mantissa_i : in  std_ulogic_vector(22 downto 0); -- mantissa
     class_i    : in  std_ulogic_vector(9 downto 0); -- operand class
     -- output --
-    result_o   : out std_ulogic_vector(31 downto 0); -- integer result
+    परिणाम_o   : out std_ulogic_vector(31 downto 0); -- integer result
     flags_o    : out std_ulogic_vector(4 downto 0); -- exception flags
     done_o     : out std_ulogic -- operation done
   );
@@ -1987,8 +1987,8 @@ architecture neorv32_cpu_alu_fpu_f2i_rtl of neorv32_cpu_alu_fpu_f2i is
     rounded    : std_ulogic; -- output is rounded
     over       : std_ulogic; -- output is overflowing
     under      : std_ulogic; -- output in underflowing
-    result_tmp : std_ulogic_vector(31 downto 0);
-    result     : std_ulogic_vector(31 downto 0);
+    परिणाम_tmp : std_ulogic_vector(31 downto 0);
+    परिणाम     : std_ulogic_vector(31 downto 0);
     flags      : std_ulogic_vector(4 downto 0); -- we need to generate flags during the normalizing processes
   end record;
   signal ctrl : ctrl_t;
@@ -2026,8 +2026,8 @@ begin
       ctrl.over       <= '0';
       ctrl.under      <= '0';
       ctrl.unsign     <= '0';
-      ctrl.result     <= (others => '0');
-      ctrl.result_tmp <= (others => '0');
+      ctrl.परिणाम     <= (others => '0');
+      ctrl.परिणाम_tmp <= (others => '0');
       -- clear the flags
       ctrl.flags      <= (others => '0');
       sreg.int        <= (others => '0');
@@ -2068,17 +2068,17 @@ begin
           -- if the exponent is small enough only S will be set, assuming the number is not 0
           if (unsigned(ctrl.cnt) < 125) then -- less than 0.5
             sreg.int    <= (others => '0');
-            sreg.mant   <= "001" & sreg.mant(sreg.mant'left downto 3);
+            sreg.mant   <= "001" & sreg.mant(sreg.mant'बायाँ downto 3);
             ctrl.under  <= '1'; -- this is an underflow!
             ctrl.cnt    <= (others => '0');
           elsif (unsigned(ctrl.cnt) = 125) then -- less than 0.5
             sreg.int    <= (others => '0');
-            sreg.mant   <= "01" & sreg.mant(sreg.mant'left downto 2);
+            sreg.mant   <= "01" & sreg.mant(sreg.mant'बायाँ downto 2);
             ctrl.under  <= '1'; -- this is an underflow!
             ctrl.cnt    <= (others => '0');
           elsif (unsigned(ctrl.cnt) = 126) then -- num < 1.0 but num >= 0.5
             sreg.int    <= (others => '0');
-            sreg.mant   <= '1' & sreg.mant(sreg.mant'left downto 1);
+            sreg.mant   <= '1' & sreg.mant(sreg.mant'बायाँ downto 1);
             ctrl.under  <= '1'; -- as the number cannot be represented correctly it will be an underflow
             ctrl.cnt    <= (others => '0');
           else
@@ -2113,20 +2113,20 @@ begin
         when S_NORMALIZE_BUSY => -- running normalization cycle
         -- ------------------------------------------------------------
           if (or_reduce_f(ctrl.cnt(ctrl.cnt'left-1 downto 0)) = '0') then -- if we are at the last step of a normal shift right update the G, R and S
-            sreg.ext_g <= sreg.mant(sreg.mant'left);
-            sreg.ext_r <= sreg.mant(sreg.mant'left-1);
+            sreg.ext_g <= sreg.mant(sreg.mant'बायाँ);
+            sreg.ext_r <= sreg.mant(sreg.mant'बायाँ-1);
             if (or_reduce_f(sreg.mant(sreg.mant'left-2 downto 0)) = '1') then
               sreg.ext_s <= '1'; -- sticky bit
             end if;
             if (ctrl.unsign = '0') then -- signed conversion
-              ctrl.over <= ctrl.over or sreg.int(sreg.int'left); -- update overrun flag again to check for numerical overflow into sign bit
+              ctrl.over <= ctrl.over or sreg.int(sreg.int'बायाँ); -- update overrun flag again to check for numerical overflow into sign bit
             end if;
             ctrl.state <= S_ROUND;
           else -- shift left
             ctrl.cnt  <= std_ulogic_vector(unsigned(ctrl.cnt) - 1);
-            sreg.int  <= sreg.int(sreg.int'left-1 downto 0) & sreg.mant(sreg.mant'left);
+            sreg.int  <= sreg.int(sreg.int'left-1 downto 0) & sreg.mant(sreg.mant'बायाँ);
             sreg.mant <= sreg.mant(sreg.mant'left-1 downto 0) & '0';
-            ctrl.over <= ctrl.over or sreg.int(sreg.int'left);
+            ctrl.over <= ctrl.over or sreg.int(sreg.int'बायाँ);
             sreg.ext_g <= '0'; -- as we are shifting left these will always be 0
             sreg.ext_r <= '0'; -- as we are shifting left these will always be 0
             sreg.ext_s <= '0'; -- sticky bit
@@ -2135,8 +2135,8 @@ begin
         when S_ROUND => -- rounding cycle
         -- ------------------------------------------------------------
           ctrl.rounded    <= ctrl.rounded or round.en;
-          ctrl.over       <= ctrl.over or round.output(round.output'left); -- overflow after rounding
-          ctrl.result_tmp <= round.output(round.output'left-1 downto 0);
+          ctrl.over       <= ctrl.over or round.output(round.output'बायाँ); -- overflow after rounding
+          ctrl.परिणाम_tmp <= round.output(round.output'बायाँ-1 downto 0);
           ctrl.state      <= S_FINALIZE;
           -- If after the round we get bits in the guard band
           -- the end result will be inexact as we are truncating away information
@@ -2155,81 +2155,81 @@ begin
           if (ctrl.unsign = '1') then -- unsigned conversion
             if (ctrl.class(fp_class_snan_c) = '1') or (ctrl.class(fp_class_qnan_c) = '1') or (ctrl.class(fp_class_pos_inf_c) = '1') or -- NaN or +inf
                ((ctrl.sign = '0') and (ctrl.over = '1')) then -- positive out-of-range
-              ctrl.result <= x"ffffffff";
+              ctrl.परिणाम <= x"ffffffff";
               -- As we are saturating the result is also NV but never NX
               ctrl.flags(fp_exc_nv_c) <= '1';
               ctrl.flags(fp_exc_nx_c) <= '0';
             -- split to better handle the subnormal case and infinity case
             elsif (ctrl.class(fp_class_neg_inf_c) = '1') then -- -inf
-              ctrl.result <= x"00000000";
+              ctrl.परिणाम <= x"00000000";
               -- As we are saturating the result is also NV but never NX
               ctrl.flags(fp_exc_nv_c) <= '1';
               ctrl.flags(fp_exc_nx_c) <= '0';
             elsif (ctrl.class(fp_class_neg_zero_c) = '1') or (ctrl.class(fp_class_pos_zero_c) = '1') then -- zero
-              ctrl.result <= x"00000000";
+              ctrl.परिणाम <= x"00000000";
             elsif (not FPU_SUBNORMAL_SUPPORT) and ((ctrl.class(fp_class_neg_denorm_c) = '1') or (ctrl.class(fp_class_pos_denorm_c) = '1')) then -- subnormal
-              ctrl.result <= x"00000000";
-            elsif (ctrl.under = '1') and (ctrl.result_tmp(0) = '0') then -- +/- underflow
-              ctrl.result <= x"00000000";
+              ctrl.परिणाम <= x"00000000";
+            elsif (ctrl.under = '1') and (ctrl.परिणाम_tmp(0) = '0') then -- +/- underflow
+              ctrl.परिणाम <= x"00000000";
               -- if we had an underflow we are inexact
               ctrl.flags(fp_exc_nx_c) <= '1';
             elsif (ctrl.sign = '1') then -- negative out-of-range
-              ctrl.result <= x"00000000";
+              ctrl.परिणाम <= x"00000000";
               -- As we are saturating the result is also NV but never NX
               ctrl.flags(fp_exc_nv_c) <= '1';
               ctrl.flags(fp_exc_nx_c) <= '0';
             -- if underflow is set the number is too small, but the rounding mode can cause the LSB to be
             -- set and thus we still have a valid result
             else
-              ctrl.result <= ctrl.result_tmp;
+              ctrl.परिणाम <= ctrl.परिणाम_tmp;
             end if;
 
           else -- signed conversion
             if (ctrl.class(fp_class_snan_c) = '1') or (ctrl.class(fp_class_qnan_c) = '1') then -- NaN
               -- Split up the potential causes for +MAX to better manage flags
-              ctrl.result <= x"7fffffff";
+              ctrl.परिणाम <= x"7fffffff";
               -- if NAN the number is not-valid but never inexact
               ctrl.flags(fp_exc_nv_c) <= '1';
               ctrl.flags(fp_exc_nx_c) <= '0';
             elsif (ctrl.class(fp_class_pos_inf_c) = '1') then -- +inf
-              ctrl.result <= x"7fffffff";
+              ctrl.परिणाम <= x"7fffffff";
               -- if INF the number is not-valid but never inexact
               ctrl.flags(fp_exc_nv_c) <= '1';
               ctrl.flags(fp_exc_nx_c) <= '0';
             elsif (ctrl.class(fp_class_neg_inf_c) = '1') then -- -inf
-              ctrl.result <= x"80000000";
+              ctrl.परिणाम <= x"80000000";
               -- Split up negative infinity to better generate flags
               ctrl.flags(fp_exc_nv_c) <= '1';
               ctrl.flags(fp_exc_nx_c) <= '0';
             elsif (ctrl.sign = '0') and (ctrl.over = '1') then -- positive out-of-range
-              ctrl.result <= x"7fffffff";
+              ctrl.परिणाम <= x"7fffffff";
               -- if we had are out of range we are not-valid but never inexact
               ctrl.flags(fp_exc_nv_c) <= '1';
               ctrl.flags(fp_exc_nx_c) <= '0';
             elsif (ctrl.sign = '1') and (ctrl.over = '1') then -- negative out-of-range
-              ctrl.result <= x"80000000";
+              ctrl.परिणाम <= x"80000000";
               -- if we had a negative out of range we are not valid but never inexact
               ctrl.flags(fp_exc_nv_c) <= '1';
               ctrl.flags(fp_exc_nx_c) <= '0';
             elsif (ctrl.class(fp_class_neg_zero_c) = '1') or (ctrl.class(fp_class_pos_zero_c) = '1') then -- zero
               -- Split up all the potential causes for 0 generation to better manage flags
-              ctrl.result <= x"00000000";
+              ctrl.परिणाम <= x"00000000";
             elsif (not FPU_SUBNORMAL_SUPPORT) and ((ctrl.class(fp_class_neg_denorm_c) = '1') or (ctrl.class(fp_class_pos_denorm_c) = '1')) then -- subnormal
               -- if we do no support subnormal treat them as +/- zero
-              ctrl.result <= x"00000000";
-            elsif (ctrl.under = '1') and (ctrl.result_tmp(0) = '0') then -- underflow
+              ctrl.परिणाम <= x"00000000";
+            elsif (ctrl.under = '1') and (ctrl.परिणाम_tmp(0) = '0') then -- underflow
               -- if underflow is set the number is too small, but the rounding mode can cause the LSB to be
               -- set and thus we still have a valid result
-              ctrl.result <= x"00000000";
+              ctrl.परिणाम <= x"00000000";
               -- if we had an underflow we are inexact as we are still within the legal range
               ctrl.flags(fp_exc_nx_c) <= '1';
             else -- result is OK, make sign adaption
               -- if we rounded we are inexact, but need to remember if we had remainders in the guard bits
               ctrl.flags(fp_exc_nx_c) <= ctrl.flags(fp_exc_nx_c) or ctrl.rounded;
               if (ctrl.sign = '1') then
-                ctrl.result <= std_ulogic_vector(0 - unsigned(ctrl.result_tmp)); -- abs()
+                ctrl.परिणाम <= std_ulogic_vector(0 - unsigned(ctrl.परिणाम_tmp)); -- abs()
               else
-                ctrl.result <= ctrl.result_tmp;
+                ctrl.परिणाम <= ctrl.परिणाम_tmp;
               end if;
             end if;
           end if;
@@ -2250,7 +2250,7 @@ begin
   end process;
 
   -- result --
-  result_o <= ctrl.result;
+  परिणाम_o <= ctrl.परिणाम;
 
   -- exception flags --
   -- add generated flags

@@ -81,7 +81,7 @@ begin
     end process;
 
     -- shift register --
-    serial_data: process(clk_i)
+    serial_तथ्य: process(clk_i)
     begin
       if rising_edge(clk_i) then
         if (valid_cmd = '1') then
@@ -99,7 +99,7 @@ begin
     end process;
 
     -- shift control --
-    done    <= not or_reduce_f(cnt(cnt'left downto 1));
+    done    <= not or_reduce_f(cnt(cnt'बायाँ downto 1));
     valid_o <= busy and done;
     res_o   <= sreg when (oe = '1') else (others => '0');
 

@@ -82,8 +82,8 @@ architecture neorv32_cpu_alu_rtl of neorv32_cpu_alu is
   signal cmp_eq, cmp_lt, slt : std_ulogic;
 
   -- co-processor interface --
-  type cp_data_t  is array (6 downto 0) of std_ulogic_vector(31 downto 0);
-  signal cp_result : cp_data_t;
+  type cp_तथ्य_t  is array (6 downto 0) of std_ulogic_vector(31 downto 0);
+  signal cp_परिणाम : cp_तथ्य_t;
   signal cp_valid : std_ulogic_vector(6 downto 0);
   signal cfu_inst : std_ulogic_vector(31 downto 0);
   signal fpu_csr_en, fpu_csr_we, cfu_done, cfu_busy : std_ulogic;
@@ -146,7 +146,7 @@ begin
 
   -- result and status --
   done_o <= cp_valid(0) or cp_valid(1) or cp_valid(2) or cp_valid(3) or cp_valid(4) or cp_valid(5) or cp_valid(6);
-  cp_res <= cp_result(0) or cp_result(1) or cp_result(2) or cp_result(3) or cp_result(4) or cp_result(5) or cp_result(6);
+  cp_res <= cp_परिणाम(0) or cp_परिणाम(1) or cp_परिणाम(2) or cp_परिणाम(3) or cp_परिणाम(4) or cp_परिणाम(5) or cp_परिणाम(6);
 
   -- ALU[I]-Opcode Co-Processor: Shifter Unit (Base ISA) ------------------------------------
   -- -------------------------------------------------------------------------------------------
@@ -163,7 +163,7 @@ begin
     rs1_i   => rs1_i,           -- register source 1
     shamt_i => opb(4 downto 0), -- shift amount
     -- result and status --
-    res_o   => cp_result(0),    -- operation result
+    res_o   => cp_परिणाम(0),    -- operation result
     valid_o => cp_valid(0)      -- data output valid
   );
 
@@ -186,14 +186,14 @@ begin
       rs1_i   => rs1_i,        -- register source 1
       rs2_i   => rs2_i,        -- register source 2
       -- result and status --
-      res_o   => cp_result(1), -- operation result
+      res_o   => cp_परिणाम(1), -- operation result
       valid_o => cp_valid(1)   -- data output valid
     );
   end generate;
 
   cpu_alu_muldiv_disabled:
   if (not RISCV_ISA_M) and (not RISCV_ISA_Zmmul) generate
-    cp_result(1) <= (others => '0');
+    cp_परिणाम(1) <= (others => '0');
     cp_valid(1)  <= '0';
   end generate;
 
@@ -223,14 +223,14 @@ begin
       rs2_i   => rs2_i,           -- register source 2
       shamt_i => opb(4 downto 0), -- shift amount
       -- result and status --
-      res_o   => cp_result(2),    -- operation result
+      res_o   => cp_परिणाम(2),    -- operation result
       valid_o => cp_valid(2)      -- data output valid
     );
   end generate;
 
   cpu_alu_bitmanip_disabled:
   if not (RISCV_ISA_Zba or RISCV_ISA_Zbb or RISCV_ISA_Zbc or RISCV_ISA_Zbkb or RISCV_ISA_Zbkc or RISCV_ISA_Zbkx or RISCV_ISA_Zbs) generate
-    cp_result(2) <= (others => '0');
+    cp_परिणाम(2) <= (others => '0');
     cp_valid(2)  <= '0';
   end generate;
 
@@ -255,7 +255,7 @@ begin
       rs1_i       => rs1_i,                       -- register source 1
       rs2_i       => rs2_i,                       -- register source 2
       -- result and status --
-      res_o       => cp_result(3),                -- operation result
+      res_o       => cp_परिणाम(3),                -- operation result
       valid_o     => cp_valid(3)                  -- data output valid
     );
 
@@ -271,7 +271,7 @@ begin
     fpu_csr_we   <= '0';
     fpu_csr_rd   <= (others => '0');
     csr_o        <= (others => '0');
-    cp_result(3) <= (others => '0');
+    cp_परिणाम(3) <= (others => '0');
     cp_valid(3)  <= '0';
   end generate;
 
@@ -291,7 +291,7 @@ begin
       rs1_i    => rs1_i,             -- register source 1
       rs2_i    => rs2_i,             -- register source 2
       -- response --
-      result_o => cfu_res,           -- operation result
+      परिणाम_o => cfu_res,           -- operation result
       valid_o  => cfu_done           -- result valid, operation done
     );
 
@@ -304,7 +304,7 @@ begin
     begin
       if (rstn_i = '0') then
         cfu_busy     <= '0';
-        cp_result(4) <= (others => '0');
+        cp_परिणाम(4) <= (others => '0');
       elsif rising_edge(clk_i) then
         if (cfu_done = '1') or (ctrl_i.cpu_trap = '1') then -- terminate also on trap
           cfu_busy <= '0';
@@ -312,9 +312,9 @@ begin
           cfu_busy <= '1';
         end if;
         if (cp_valid(4) = '1') then
-          cp_result(4) <= cfu_res;
+          cp_परिणाम(4) <= cfu_res;
         else -- output zero if there is no CFU operation
-          cp_result(4) <= (others => '0');
+          cp_परिणाम(4) <= (others => '0');
         end if;
       end if;
     end process;
@@ -327,7 +327,7 @@ begin
     cfu_res      <= (others => '0');
     cfu_done     <= '0';
     cfu_busy     <= '0';
-    cp_result(4) <= (others => '0');
+    cp_परिणाम(4) <= (others => '0');
     cp_valid(4)  <= '0';
   end generate;
 
@@ -344,14 +344,14 @@ begin
       rs1_i   => rs1_i,        -- register source 1
       rs2_i   => rs2_i,        -- register source 2
       -- result and status --
-      res_o   => cp_result(5), -- operation result
+      res_o   => cp_परिणाम(5), -- operation result
       valid_o => cp_valid(5)   -- data output valid
     );
   end generate;
 
   cpu_alu_cond_disabled:
   if not RISCV_ISA_Zicond generate
-    cp_result(5) <= (others => '0');
+    cp_परिणाम(5) <= (others => '0');
     cp_valid(5)  <= '0';
   end generate;
 
@@ -376,14 +376,14 @@ begin
       rs1_i   => rs1_i,        -- register source 1
       rs2_i   => rs2_i,        -- register source 2
       -- result and status --
-      res_o   => cp_result(6), -- operation result
+      res_o   => cp_परिणाम(6), -- operation result
       valid_o => cp_valid(6)   -- data output valid
     );
   end generate;
 
   cpu_alu_crypto_disabled:
   if not (RISCV_ISA_Zknd or RISCV_ISA_Zkne or RISCV_ISA_Zknh or RISCV_ISA_Zksed or RISCV_ISA_Zksh) generate
-    cp_result(6) <= (others => '0');
+    cp_परिणाम(6) <= (others => '0');
     cp_valid(6)  <= '0';
   end generate;
 
