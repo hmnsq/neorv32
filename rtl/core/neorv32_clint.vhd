@@ -20,7 +20,7 @@ use neorv32.neorv32_package.all;
 
 entity neorv32_clint is
   generic (
-    NUM_HARTS : natural range 1 to 4 -- number of physical CPU cores
+    অঙ্ক_HARTS : natural range 1 to 4 -- number of physical CPU cores
   );
   port (
     clk_i     : in  std_ulogic;                              -- global clock line
@@ -28,8 +28,8 @@ entity neorv32_clint is
     bus_req_i : in  bus_req_t;                               -- bus request
     bus_rsp_o : out bus_rsp_t;                               -- bus response
     time_o    : out std_ulogic_vector(63 downto 0);          -- current system time (HI/LO are not synchronized!)
-    mti_o     : out std_ulogic_vector(NUM_HARTS-1 downto 0); -- machine timer interrupt
-    msi_o     : out std_ulogic_vector(NUM_HARTS-1 downto 0)  -- machine software interrupt
+    mti_o     : out std_ulogic_vector(অঙ্ক_HARTS-1 downto 0); -- machine timer interrupt
+    msi_o     : out std_ulogic_vector(অঙ্ক_HARTS-1 downto 0)  -- machine software interrupt
   );
 end entity;
 
@@ -61,10 +61,10 @@ architecture neorv32_clint_rtl of neorv32_clint is
   -- device access --
   signal mtime_en : std_ulogic;
   signal mtime_we : std_ulogic_vector(1 downto 0);
-  signal mtimecmp_en, mtimecmp_re, mtimecmp_we, mswi_en, mswi : std_ulogic_vector(NUM_HARTS-1 downto 0);
+  signal mtimecmp_en, mtimecmp_re, mtimecmp_we, mswi_en, mswi : std_ulogic_vector(অঙ্ক_HARTS-1 downto 0);
 
   -- read-back --
-  type rb32_t is array (NUM_HARTS-1 downto 0) of std_ulogic_vector(31 downto 0);
+  type rb32_t is array (অঙ্ক_HARTS-1 downto 0) of std_ulogic_vector(31 downto 0);
   signal mtimecmp_rd : rb32_t;
   signal mswi_rd     : rb32_t;
   signal mtime       : std_ulogic_vector(63 downto 0);
@@ -84,7 +84,7 @@ begin
     rstn_i => rstn_i,
     inc_i  => '1', -- permanent increment
     we_i   => mtime_we,
-    data_i => bus_req_i.data,
+    তথ্য_i => bus_req_i.তথ্য,
     oe_i   => '1', -- permanent output (required for comparators)
     cnt_o  => mtime
   );
@@ -104,7 +104,7 @@ begin
   -- MTIMECMP - Per-Hart Time Comparator / Interrupt Generator ------------------------------
   -- -------------------------------------------------------------------------------------------
   neorv32_clint_mtimecmp_gen:
-  for i in 0 to NUM_HARTS-1 generate
+  for i in 0 to অঙ্ক_HARTS-1 generate
 
     neorv32_clint_mtimecmp_inst: neorv32_clint_mtimecmp
     port map (
@@ -114,7 +114,7 @@ begin
       we_i    => mtimecmp_we(i),
       re_i    => mtimecmp_re(i),
       addr_i  => bus_req_i.addr(2),
-      wdata_i => bus_req_i.data,
+      wdata_i => bus_req_i.তথ্য,
       rdata_o => mtimecmp_rd(i),
       mti_o   => mti_o(i)
     );
@@ -129,7 +129,7 @@ begin
   -- MSWI - Per-Hart Machine Software Interrupt Trigger -------------------------------------
   -- -------------------------------------------------------------------------------------------
   neorv32_clint_swi_gen:
-  for i in 0 to NUM_HARTS-1 generate
+  for i in 0 to অঙ্ক_HARTS-1 generate
 
     mswi_reg: process(rstn_i, clk_i)
     begin
@@ -137,7 +137,7 @@ begin
         mswi(i) <= '0';
       elsif rising_edge(clk_i) then
         if (bus_req_i.stb = '1') and (mswi_en(i) = '1') and (bus_req_i.rw = '1') then
-          mswi(i) <= bus_req_i.data(0);
+          mswi(i) <= bus_req_i.তথ্য(0);
         end if;
       end if;
     end process mswi_reg;
@@ -168,7 +168,7 @@ begin
     variable tmp_v : std_ulogic_vector(31 downto 0);
   begin
     tmp_v := (others => '0');
-    for i in 0 to NUM_HARTS-1 loop -- OR all
+    for i in 0 to অঙ্ক_HARTS-1 loop -- OR all
       tmp_v := tmp_v or mtimecmp_rd(i) or mswi_rd(i);
     end loop;
     rdata <= mtime_rd or tmp_v;
@@ -177,7 +177,7 @@ begin
   -- bus response --
   bus_rsp_o.ack  <= bus_ack;
   bus_rsp_o.err  <= '0'; -- no access errors supported
-  bus_rsp_o.data <= rdata when (bus_rden = '1') else (others => '0'); -- output gating
+  bus_rsp_o.তথ্য <= rdata when (bus_rden = '1') else (others => '0'); -- output gating
 
 end architecture;
 

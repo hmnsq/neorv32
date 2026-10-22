@@ -61,8 +61,8 @@ architecture neorv32_twd_rtl of neorv32_twd is
   constant ctrl_com_c          : natural := 31; -- r/-: active communication
 
   -- configuration constants --
-  constant rx_size_c : natural := index_size_f(TWD_RX_FIFO);
-  constant tx_size_c : natural := index_size_f(TWD_TX_FIFO);
+  constant rx_আকার_c : natural := সূচক_আকার_f(TWD_RX_FIFO);
+  constant tx_আকার_c : natural := সূচক_আকার_f(TWD_TX_FIFO);
 
   -- bus interface --
   signal bus_ack, bus_rden : std_ulogic;
@@ -156,17 +156,17 @@ begin
       ctrl.clr_rx <= '0'; -- auto clear
       ctrl.clr_tx <= '0'; -- auto clear
       if (bus_req_i.stb = '1') and (bus_req_i.rw = '1') and (bus_req_i.addr(2) = '0') then -- control register
-        ctrl.enable       <= bus_req_i.data(ctrl_en_c);
-        ctrl.clr_rx       <= bus_req_i.data(ctrl_clr_rx_c);
-        ctrl.clr_tx       <= bus_req_i.data(ctrl_clr_tx_c);
-        ctrl.fsel         <= bus_req_i.data(ctrl_fsel_c);
-        ctrl.device_addr  <= bus_req_i.data(ctrl_addr6_c downto ctrl_addr0_c);
-        ctrl.irq_rx_avail <= bus_req_i.data(ctrl_irq_rx_avail_c);
-        ctrl.irq_rx_full  <= bus_req_i.data(ctrl_irq_rx_full_c);
-        ctrl.irq_tx_empty <= bus_req_i.data(ctrl_irq_tx_empty_c);
-        ctrl.irq_tx_nfull <= bus_req_i.data(ctrl_irq_tx_nfull_c);
-        ctrl.irq_com_beg  <= bus_req_i.data(ctrl_irq_com_beg_c);
-        ctrl.irq_com_end  <= bus_req_i.data(ctrl_irq_com_end_c);
+        ctrl.enable       <= bus_req_i.তথ্য(ctrl_en_c);
+        ctrl.clr_rx       <= bus_req_i.তথ্য(ctrl_clr_rx_c);
+        ctrl.clr_tx       <= bus_req_i.তথ্য(ctrl_clr_tx_c);
+        ctrl.fsel         <= bus_req_i.তথ্য(ctrl_fsel_c);
+        ctrl.device_addr  <= bus_req_i.তথ্য(ctrl_addr6_c downto ctrl_addr0_c);
+        ctrl.irq_rx_avail <= bus_req_i.তথ্য(ctrl_irq_rx_avail_c);
+        ctrl.irq_rx_full  <= bus_req_i.তথ্য(ctrl_irq_rx_full_c);
+        ctrl.irq_tx_empty <= bus_req_i.তথ্য(ctrl_irq_tx_empty_c);
+        ctrl.irq_tx_nfull <= bus_req_i.তথ্য(ctrl_irq_tx_nfull_c);
+        ctrl.irq_com_beg  <= bus_req_i.তথ্য(ctrl_irq_com_beg_c);
+        ctrl.irq_com_end  <= bus_req_i.তথ্য(ctrl_irq_com_end_c);
       end if;
     end if;
   end process;
@@ -186,8 +186,8 @@ begin
         bus_rdata(ctrl_irq_tx_nfull_c)                    <= ctrl.irq_tx_nfull;
         bus_rdata(ctrl_irq_com_beg_c)                     <= ctrl.irq_com_beg;
         bus_rdata(ctrl_irq_com_end_c)                     <= ctrl.irq_com_end;
-        bus_rdata(ctrl_rx_size3_c downto ctrl_rx_size0_c) <= std_ulogic_vector(to_unsigned(rx_size_c, 4));
-        bus_rdata(ctrl_tx_size3_c downto ctrl_tx_size0_c) <= std_ulogic_vector(to_unsigned(tx_size_c, 4));
+        bus_rdata(ctrl_rx_size3_c downto ctrl_rx_size0_c) <= std_ulogic_vector(to_unsigned(rx_আকার_c, 4));
+        bus_rdata(ctrl_tx_size3_c downto ctrl_tx_size0_c) <= std_ulogic_vector(to_unsigned(tx_আকার_c, 4));
         bus_rdata(ctrl_rx_avail_c)                        <= rx_fifo.avail;
         bus_rdata(ctrl_rx_full_c)                         <= not rx_fifo.free;
         bus_rdata(ctrl_tx_empty_c)                        <= not tx_fifo.avail;
@@ -204,7 +204,7 @@ begin
   -- bus response --
   bus_rsp_o.ack  <= bus_ack;
   bus_rsp_o.err  <= '0'; -- no access errors supported
-  bus_rsp_o.data <= bus_rdata;
+  bus_rsp_o.তথ্য <= bus_rdata;
 
 
   -- Data FIFOs -----------------------------------------------------------------------------
@@ -213,7 +213,7 @@ begin
   -- TX --
   tx_fifo_inst: entity neorv32.neorv32_prim_fifo
   generic map (
-    AWIDTH  => tx_size_c,
+    AWIDTH  => tx_আকার_c,
     DWIDTH  => 8,
     OUTGATE => false,
     ASYNCRD => false
@@ -235,14 +235,14 @@ begin
   );
 
   tx_fifo.clr   <= (not ctrl.enable) or ctrl.clr_tx;
-  tx_fifo.wdata <= bus_req_i.data(7 downto 0);
+  tx_fifo.wdata <= bus_req_i.তথ্য(7 downto 0);
   tx_fifo.we    <= bus_req_i.stb and bus_req_i.rw and bus_req_i.addr(2);
   tx_fifo.re    <= engine.tx_re;
 
   -- RX --
   rx_fifo_inst: entity neorv32.neorv32_prim_fifo
   generic map (
-    AWIDTH  => rx_size_c,
+    AWIDTH  => rx_আকার_c,
     DWIDTH  => 8,
     OUTGATE => false,
     ASYNCRD => false
@@ -483,14 +483,14 @@ begin
         if (engine.state = S_RESP) and (smp_scl_fall = '1') then
           com_beg <= '1';
         elsif (bus_req_i.stb = '1') and (bus_req_i.rw = '1') and (bus_req_i.addr(2) = '0') and
-              (bus_req_i.data(ctrl_com_beg_c) = '1') then
+              (bus_req_i.তথ্য(ctrl_com_beg_c) = '1') then
           com_beg <= '0';
         end if;
         -- end of communication --
         if (engine.state = S_IDLE) and (engine.com = '1') then
           com_end <= '1';
         elsif (bus_req_i.stb = '1') and (bus_req_i.rw = '1') and (bus_req_i.addr(2) = '0') and
-              (bus_req_i.data(ctrl_com_end_c) = '1') then
+              (bus_req_i.তথ্য(ctrl_com_end_c) = '1') then
           com_end <= '0';
         end if;
       end if;

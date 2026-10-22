@@ -54,7 +54,7 @@ architecture neorv32_sdi_rtl of neorv32_sdi is
   constant ctrl_cs_active_c     : natural := 31; -- r/-: chip-select is active when set
 
   -- helpers --
-  constant log2_fifo_size_c : natural := index_size_f(RTX_FIFO);
+  constant log2_fifo_আকার_c : natural := সূচক_আকার_f(RTX_FIFO);
 
   -- bus interface --
   signal bus_ack, bus_rden : std_ulogic;
@@ -117,12 +117,12 @@ begin
       ctrl.clr_tx <= '0';
       if (bus_req_i.stb = '1') and (bus_req_i.rw = '1') then
         if (bus_req_i.addr(2) = '0') then -- control register
-          ctrl.enable        <= bus_req_i.data(ctrl_en_c);
-          ctrl.clr_rx        <= bus_req_i.data(ctrl_clr_rx_c);
-          ctrl.clr_tx        <= bus_req_i.data(ctrl_clr_tx_c);
-          ctrl.irq_rx_nempty <= bus_req_i.data(ctrl_irq_rx_nempty_c);
-          ctrl.irq_rx_full   <= bus_req_i.data(ctrl_irq_rx_full_c);
-          ctrl.irq_tx_empty  <= bus_req_i.data(ctrl_irq_tx_empty_c);
+          ctrl.enable        <= bus_req_i.তথ্য(ctrl_en_c);
+          ctrl.clr_rx        <= bus_req_i.তথ্য(ctrl_clr_rx_c);
+          ctrl.clr_tx        <= bus_req_i.তথ্য(ctrl_clr_tx_c);
+          ctrl.irq_rx_nempty <= bus_req_i.তথ্য(ctrl_irq_rx_nempty_c);
+          ctrl.irq_rx_full   <= bus_req_i.তথ্য(ctrl_irq_rx_full_c);
+          ctrl.irq_tx_empty  <= bus_req_i.তথ্য(ctrl_irq_tx_empty_c);
         end if;
       end if;
     end if;
@@ -135,7 +135,7 @@ begin
     if (bus_rden = '1') then -- output gating
       if (bus_req_i.addr(2) = '0') then -- control register
         bus_rdata(ctrl_en_c)                        <= ctrl.enable;
-        bus_rdata(ctrl_fifo3_c downto ctrl_fifo0_c) <= std_ulogic_vector(to_unsigned(log2_fifo_size_c, 4));
+        bus_rdata(ctrl_fifo3_c downto ctrl_fifo0_c) <= std_ulogic_vector(to_unsigned(log2_fifo_আকার_c, 4));
         bus_rdata(ctrl_irq_rx_nempty_c)             <= ctrl.irq_rx_nempty;
         bus_rdata(ctrl_irq_rx_full_c)               <= ctrl.irq_rx_full;
         bus_rdata(ctrl_irq_tx_empty_c)              <= ctrl.irq_tx_empty;
@@ -153,7 +153,7 @@ begin
   -- bus response --
   bus_rsp_o.ack  <= bus_ack;
   bus_rsp_o.err  <= '0'; -- no access errors supported
-  bus_rsp_o.data <= bus_rdata;
+  bus_rsp_o.তথ্য <= bus_rdata;
 
 
   -- Data FIFO ("Ring Buffer") --------------------------------------------------------------
@@ -162,7 +162,7 @@ begin
   -- TX --
   tx_fifo_inst: entity neorv32.neorv32_prim_fifo
   generic map (
-    AWIDTH  => log2_fifo_size_c,
+    AWIDTH  => log2_fifo_আকার_c,
     DWIDTH  => 8,
     OUTGATE => true, -- send zero if no TX data available
     ASYNCRD => false
@@ -184,7 +184,7 @@ begin
   );
 
   tx_fifo.clr   <= (not ctrl.enable) or ctrl.clr_tx;
-  tx_fifo.wdata <= bus_req_i.data(7 downto 0);
+  tx_fifo.wdata <= bus_req_i.তথ্য(7 downto 0);
   tx_fifo.we    <= bus_req_i.stb and bus_req_i.rw and bus_req_i.addr(2);
   tx_fifo.re    <= serial.done;
 
@@ -192,7 +192,7 @@ begin
   -- RX --
   rx_fifo_inst: entity neorv32.neorv32_prim_fifo
   generic map (
-    AWIDTH  => log2_fifo_size_c,
+    AWIDTH  => log2_fifo_আকার_c,
     DWIDTH  => 8,
     OUTGATE => false,
     ASYNCRD => false
@@ -290,7 +290,7 @@ begin
           if (sync_csn = '1') then -- transmission aborted?
             serial.state(1 downto 0) <= "00";
           elsif (sync_sck = '1') then
-            serial.sreg <= serial.sreg(serial.sreg'left-1 downto 0) & serial.sdi_ff;
+            serial.sreg <= serial.sreg(serial.sreg'বাম-1 downto 0) & serial.sdi_ff;
             if (serial.cnt(3) = '1') then -- done?
               serial.done              <= '1'; -- push RX byte to FIFO and get next TX byte
               serial.state(1 downto 0) <= "00";
@@ -308,6 +308,6 @@ begin
   end process;
 
   -- serial data output --
-  sdi_dat_o <= serial.sreg(serial.sreg'left);
+  sdi_dat_o <= serial.sreg(serial.sreg'বাম);
 
 end architecture;

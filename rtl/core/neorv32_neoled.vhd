@@ -50,7 +50,7 @@ architecture neorv32_neoled_rtl of neorv32_neoled is
   constant ctrl_tx_busy_c  : natural := 31; -- r/-: serial PHY busy or TX FIFO not empty yet
 
   -- helpers --
-  constant log2_fifo_size_c : natural := index_size_f(FIFO_DEPTH);
+  constant log2_fifo_আকার_c : natural := সূচক_আকার_f(FIFO_DEPTH);
 
   -- bus interface --
   signal bus_ack, bus_rden : std_ulogic;
@@ -60,9 +60,9 @@ architecture neorv32_neoled_rtl of neorv32_neoled is
   type ctrl_t is record
     enable   : std_ulogic;
     clk_prsc : std_ulogic_vector(2 downto 0);
-    t_total  : std_ulogic_vector(4 downto 0);
-    t0_high  : std_ulogic_vector(4 downto 0);
-    t1_high  : std_ulogic_vector(4 downto 0);
+    t_যোগ  : std_ulogic_vector(4 downto 0);
+    t0_উপরের  : std_ulogic_vector(4 downto 0);
+    t1_উপরের  : std_ulogic_vector(4 downto 0);
   end record;
   signal ctrl : ctrl_t;
 
@@ -107,17 +107,17 @@ begin
     if (rstn_i = '0') then
       ctrl.enable   <= '0';
       ctrl.clk_prsc <= (others => '0');
-      ctrl.t_total  <= (others => '0');
-      ctrl.t0_high  <= (others => '0');
-      ctrl.t1_high  <= (others => '0');
+      ctrl.t_যোগ  <= (others => '0');
+      ctrl.t0_উপরের  <= (others => '0');
+      ctrl.t1_উপরের  <= (others => '0');
     elsif rising_edge(clk_i) then
       if (bus_req_i.stb = '1') and (bus_req_i.rw = '1') then
         if (bus_req_i.addr(2) = '0') then
-          ctrl.enable   <= bus_req_i.data(ctrl_en_c);
-          ctrl.clk_prsc <= bus_req_i.data(ctrl_clksel2_c downto ctrl_clksel0_c);
-          ctrl.t_total  <= bus_req_i.data(ctrl_t_tot4_c downto ctrl_t_tot0_c);
-          ctrl.t0_high  <= bus_req_i.data(ctrl_t_0h4_c downto ctrl_t_0h0_c);
-          ctrl.t1_high  <= bus_req_i.data(ctrl_t_1h4_c downto ctrl_t_1h0_c);
+          ctrl.enable   <= bus_req_i.তথ্য(ctrl_en_c);
+          ctrl.clk_prsc <= bus_req_i.তথ্য(ctrl_clksel2_c downto ctrl_clksel0_c);
+          ctrl.t_যোগ  <= bus_req_i.তথ্য(ctrl_t_tot4_c downto ctrl_t_tot0_c);
+          ctrl.t0_উপরের  <= bus_req_i.তথ্য(ctrl_t_0h4_c downto ctrl_t_0h0_c);
+          ctrl.t1_উপরের  <= bus_req_i.তথ্য(ctrl_t_1h4_c downto ctrl_t_1h0_c);
         end if;
       end if;
     end if;
@@ -130,10 +130,10 @@ begin
     if (bus_rden = '1') then -- output gating
       bus_rdata(ctrl_en_c)                            <= ctrl.enable;
       bus_rdata(ctrl_clksel2_c downto ctrl_clksel0_c) <= ctrl.clk_prsc;
-      bus_rdata(ctrl_t_tot4_c downto ctrl_t_tot0_c)   <= ctrl.t_total;
-      bus_rdata(ctrl_t_0h4_c downto ctrl_t_0h0_c)     <= ctrl.t0_high;
-      bus_rdata(ctrl_t_1h4_c downto ctrl_t_1h0_c)     <= ctrl.t1_high;
-      bus_rdata(ctrl_fifo3_c downto ctrl_fifo0_c)     <= std_ulogic_vector(to_unsigned(log2_fifo_size_c, 4));
+      bus_rdata(ctrl_t_tot4_c downto ctrl_t_tot0_c)   <= ctrl.t_যোগ;
+      bus_rdata(ctrl_t_0h4_c downto ctrl_t_0h0_c)     <= ctrl.t0_উপরের;
+      bus_rdata(ctrl_t_1h4_c downto ctrl_t_1h0_c)     <= ctrl.t1_উপরের;
+      bus_rdata(ctrl_fifo3_c downto ctrl_fifo0_c)     <= std_ulogic_vector(to_unsigned(log2_fifo_আকার_c, 4));
       bus_rdata(ctrl_tx_empty_c)                      <= not tx_fifo.avail;
       bus_rdata(ctrl_tx_full_c)                       <= not tx_fifo.free;
       bus_rdata(ctrl_tx_busy_c)                       <= busy or tx_fifo.avail;
@@ -143,14 +143,14 @@ begin
   -- bus response --
   bus_rsp_o.ack  <= bus_ack;
   bus_rsp_o.err  <= '0'; -- no access errors supported
-  bus_rsp_o.data <= bus_rdata;
+  bus_rsp_o.তথ্য <= bus_rdata;
 
 
   -- TX Buffer (FIFO) -----------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  data_buffer: entity neorv32.neorv32_prim_fifo
+  তথ্য_বাফার: entity neorv32.neorv32_prim_fifo
   generic map (
-    AWIDTH  => log2_fifo_size_c,
+    AWIDTH  => log2_fifo_আকার_c,
     DWIDTH  => 34,
     OUTGATE => false,
     ASYNCRD => false
@@ -173,7 +173,7 @@ begin
 
   tx_fifo.re    <= '1' when (serial.state = "100") else '0';
   tx_fifo.we    <= bus_req_i.stb and bus_req_i.rw and or_reduce_f(bus_req_i.addr(3 downto 2));
-  tx_fifo.wdata <= (bus_req_i.addr(3) and bus_req_i.addr(2)) & bus_req_i.addr(3) & bus_req_i.data;
+  tx_fifo.wdata <= (bus_req_i.addr(3) and bus_req_i.addr(2)) & bus_req_i.addr(3) & bus_req_i.তথ্য;
   tx_fifo.clr   <= not ctrl.enable;
 
   -- IRQ generator --
@@ -234,9 +234,9 @@ begin
           serial.bcnt <= std_ulogic_vector(unsigned(serial.bcnt) - 1);
           serial.pcnt <= (others => '0');
           if (sbit = '0') then -- send zero-bit
-            serial.thigh <= ctrl.t0_high;
+            serial.thigh <= ctrl.t0_উপরের;
           else -- send one-bit
-            serial.thigh <= ctrl.t1_high;
+            serial.thigh <= ctrl.t1_উপরের;
           end if;
           if (serial.bcnt = "000000") then -- all done?
             serial.state(1 downto 0) <= "00";
@@ -254,7 +254,7 @@ begin
             if (serial.pcnt = serial.thigh) then -- thigh reached?
               neoled_o <= '0';
             end if;
-            if (serial.pcnt = ctrl.t_total) then -- T_total reached?
+            if (serial.pcnt = ctrl.t_যোগ) then -- T_total reached?
               serial.state(1 downto 0) <= "01"; -- get next bit to send
             end if;
           end if;
@@ -263,7 +263,7 @@ begin
         -- ------------------------------------------------------------
           -- wait for 127 * ctrl.t_total to ensure RESET
           if (serial.clken = '1') then
-            if (serial.pcnt = ctrl.t_total) then -- T_total reached?
+            if (serial.pcnt = ctrl.t_যোগ) then -- T_total reached?
               serial.pcnt <= (others => '0');
               serial.scnt <= std_ulogic_vector(unsigned(serial.scnt) + 1);
             else

@@ -41,11 +41,11 @@ architecture neorv32_tracebuf_rtl of neorv32_tracebuf is
   constant ctrl_run_c     : natural :=  4; -- r/-: tracing is running when set
   constant ctrl_avail_c   : natural :=  5; -- r/-: trace data available
   constant ctrl_irq_clr_c : natural :=  6; -- r/w: clear pending interrupt by writing one
-  constant data_tbm_lsb_c : natural :=  7; -- r/-: log2(RX FIFO size) LSB
-  constant data_tbm_msb_c : natural := 10; -- r/-: log2(RX FIFO size) MSB
+  constant তথ্য_tbm_lsb_c : natural :=  7; -- r/-: log2(RX FIFO size) LSB
+  constant তথ্য_tbm_msb_c : natural := 10; -- r/-: log2(RX FIFO size) MSB
 
   -- helpers --
-  constant log2_fifo_size_c : natural := index_size_f(TRACE_DEPTH);
+  constant log2_fifo_আকার_c : natural := সূচক_আকার_f(TRACE_DEPTH);
 
   -- bus interface --
   signal bus_ack, bus_rden : std_ulogic;
@@ -65,7 +65,7 @@ architecture neorv32_tracebuf_rtl of neorv32_tracebuf is
     dst   : std_ulogic_vector(31 downto 0); -- destination address
   end record;
   signal arbiter : arbiter_t; -- FSM
-  signal push : std_ulogic; -- push to trace buffer
+  signal ঠেলো : std_ulogic; -- push to trace buffer
   signal stop : std_ulogic; -- auto-stop tracing
 
   -- trace buffer interface --
@@ -109,14 +109,14 @@ begin
       ctrl_iclr  <= '0';
       if (bus_req_i.stb = '1') and (bus_req_i.rw = '1') then
         if (bus_req_i.addr(3 downto 2) = "00") then -- control register
-          ctrl_en    <= bus_req_i.data(ctrl_enable_c);
-          ctrl_hsel  <= bus_req_i.data(ctrl_hsel_c) and bool_to_ulogic_f(DUAL_CORE_EN);
-          ctrl_start <= bus_req_i.data(ctrl_start_c);
-          ctrl_stop  <= bus_req_i.data(ctrl_stop_c);
-          ctrl_iclr  <= bus_req_i.data(ctrl_irq_clr_c);
+          ctrl_en    <= bus_req_i.তথ্য(ctrl_enable_c);
+          ctrl_hsel  <= bus_req_i.তথ্য(ctrl_hsel_c) and bool_to_ulogic_f(DUAL_CORE_EN);
+          ctrl_start <= bus_req_i.তথ্য(ctrl_start_c);
+          ctrl_stop  <= bus_req_i.তথ্য(ctrl_stop_c);
+          ctrl_iclr  <= bus_req_i.তথ্য(ctrl_irq_clr_c);
         end if;
         if (bus_req_i.addr(3 downto 2) = "01") then -- stop-address register
-          stop_addr <= bus_req_i.data(31 downto 1);
+          stop_addr <= bus_req_i.তথ্য(31 downto 1);
         end if;
       end if;
     end if;
@@ -133,7 +133,7 @@ begin
           bus_rdata(ctrl_hsel_c)   <= ctrl_hsel and bool_to_ulogic_f(DUAL_CORE_EN);
           bus_rdata(ctrl_run_c)    <= arbiter.run;
           bus_rdata(ctrl_avail_c)  <= fifo.avail;
-          bus_rdata(data_tbm_msb_c downto data_tbm_lsb_c) <= std_ulogic_vector(to_unsigned(log2_fifo_size_c, 4));
+          bus_rdata(তথ্য_tbm_msb_c downto তথ্য_tbm_lsb_c) <= std_ulogic_vector(to_unsigned(log2_fifo_আকার_c, 4));
         when "01" => -- stop-address register
           bus_rdata <= stop_addr & '0';
         when "10" => -- trace data: source
@@ -147,7 +147,7 @@ begin
   -- bus response --
   bus_rsp_o.ack  <= bus_ack;
   bus_rsp_o.err  <= '0'; -- no access errors supported
-  bus_rsp_o.data <= bus_rdata;
+  bus_rsp_o.তথ্য <= bus_rdata;
 
   -- trace source select (CPU0 or CPU1) --
   trace_src <= trace0_i when (ctrl_hsel = '0') or (DUAL_CORE_EN = false) else trace1_i;
@@ -187,7 +187,7 @@ begin
         end if;
         arbiter.delta <= trace_src.delta;
         -- clear first-packet flag on first push
-        if (push = '1') then
+        if (ঠেলো = '1') then
           arbiter.first <= '0';
         end if;
       end if;
@@ -195,7 +195,7 @@ begin
   end process;
 
   -- push to trace buffer --
-  push <= '1' when (arbiter.valid = "11") and (arbiter.delta = '1') else '0';
+  ঠেলো <= '1' when (arbiter.valid = "11") and (arbiter.delta = '1') else '0';
 
   -- automatic stop if reaching stop address --
   stop <= '1' when (arbiter.dst(31 downto 1) = stop_addr) and (arbiter.valid(0) = '1') else '0';
@@ -219,9 +219,9 @@ begin
 
   -- Trace Buffer (implemented as FIFO) -----------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  trace_buffer_inst: entity neorv32.neorv32_prim_fifo
+  trace_বাফার_inst: entity neorv32.neorv32_prim_fifo
   generic map (
-    AWIDTH  => log2_fifo_size_c,
+    AWIDTH  => log2_fifo_আকার_c,
     DWIDTH  => 2*32,
     OUTGATE => false,
     ASYNCRD => false
@@ -244,7 +244,7 @@ begin
 
   -- FIFO access --
   fifo.clear <= not ctrl_en;
-  fifo.we    <= push;
+  fifo.we    <= ঠেলো;
   fifo.wdata <= arbiter.dst & arbiter.src;
   fifo.re    <= '1' when (discard = '1') or ((bus_rden = '1') and (bus_req_i.addr(3 downto 2) = "11")) else '0';
 

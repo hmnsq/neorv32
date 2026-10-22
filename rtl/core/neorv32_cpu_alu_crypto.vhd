@@ -116,34 +116,34 @@ architecture neorv32_cpu_alu_crypto_rtl of neorv32_cpu_alu_crypto is
   -- ----------------------------------------------------------------------------------------
 
   -- logical shift left --
-  function lsl_f(data : std_ulogic_vector(31 downto 0); shamt : natural range 0 to 31) return std_ulogic_vector is
+  function lsl_f(তথ্য : std_ulogic_vector(31 downto 0); shamt : natural range 0 to 31) return std_ulogic_vector is
     variable res_v : std_ulogic_vector(31 downto 0);
   begin
-    res_v := std_ulogic_vector(shift_left(unsigned(data), shamt));
+    res_v := std_ulogic_vector(shift_বাম(unsigned(তথ্য), shamt));
     return res_v;
   end function;
 
   -- logical shift right --
-  function lsr_f(data : std_ulogic_vector(31 downto 0); shamt : natural range 0 to 31) return std_ulogic_vector is
+  function lsr_f(তথ্য : std_ulogic_vector(31 downto 0); shamt : natural range 0 to 31) return std_ulogic_vector is
     variable res_v : std_ulogic_vector(31 downto 0);
   begin
-    res_v := std_ulogic_vector(shift_right(unsigned(data), shamt));
+    res_v := std_ulogic_vector(shift_ডান(unsigned(তথ্য), shamt));
     return res_v;
   end function;
 
   -- rotate right --
-  function ror_f(data : std_ulogic_vector(31 downto 0); shamt : natural range 0 to 31) return std_ulogic_vector is
+  function ror_f(তথ্য : std_ulogic_vector(31 downto 0); shamt : natural range 0 to 31) return std_ulogic_vector is
     variable res_v : std_ulogic_vector(31 downto 0);
   begin
-    res_v := std_ulogic_vector(rotate_right(unsigned(data), shamt));
+    res_v := std_ulogic_vector(rotate_ডান(unsigned(তথ্য), shamt));
     return res_v;
   end function;
 
   -- rotate left --
-  function rol_f(data : std_ulogic_vector(31 downto 0); shamt : natural range 0 to 31) return std_ulogic_vector is
+  function rol_f(তথ্য : std_ulogic_vector(31 downto 0); shamt : natural range 0 to 31) return std_ulogic_vector is
     variable res_v : std_ulogic_vector(31 downto 0);
   begin
-    res_v := std_ulogic_vector(rotate_left(unsigned(data), shamt));
+    res_v := std_ulogic_vector(rotate_বাম(unsigned(তথ্য), shamt));
     return res_v;
   end function;
 
@@ -289,7 +289,7 @@ begin
 
   -- Output Select --------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  result: process(clk_i)
+  ফলাফল: process(clk_i)
   begin
     if rising_edge(clk_i) then
       res_o <= (others => '0'); -- default

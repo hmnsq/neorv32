@@ -33,11 +33,11 @@ end entity;
 architecture neorv32_dma_rtl of neorv32_dma is
 
   -- FIFO size helper --
-  constant log2_fifo_size_c : natural := index_size_f(DSC_FIFO); -- extend to next power of two
+  constant log2_fifo_আকার_c : natural := সূচক_আকার_f(DSC_FIFO); -- extend to next power of two
 
   -- transfer configuration (part of the descriptor) --
-  constant conf_num_lo_c : natural :=  0; -- r/w: number of elements to transfer, LSB
-  constant conf_num_hi_c : natural := 23; -- r/w: number of elements to transfer, MSB
+  constant conf_অঙ্ক_lo_c : natural :=  0; -- r/w: number of elements to transfer, LSB
+  constant conf_অঙ্ক_hi_c : natural := 23; -- r/w: number of elements to transfer, MSB
   constant conf_bswap_c  : natural := 27; -- r/w: swap byte order
   constant conf_src_lo_c : natural := 28; -- r/w: source addressing (0=byte, 1=word)
   constant conf_src_hi_c : natural := 29; -- r/w: source addressing (0=const, 1=inc)
@@ -99,8 +99,8 @@ architecture neorv32_dma_rtl of neorv32_dma is
     err      : std_ulogic;
     src_addr : std_ulogic_vector(31 downto 0);
     dst_addr : std_ulogic_vector(31 downto 0);
-    num      : std_ulogic_vector(23 downto 0);
-    num_or   : std_ulogic;
+    অঙ্ক      : std_ulogic_vector(23 downto 0);
+    অঙ্ক_or   : std_ulogic;
     bswap    : std_ulogic; -- swap byte order
     src_type : std_ulogic_vector(1 downto 0);
     dst_type : std_ulogic_vector(1 downto 0);
@@ -111,7 +111,7 @@ architecture neorv32_dma_rtl of neorv32_dma is
   signal src_add, dst_add : unsigned(31 downto 0);
 
   -- data buffer --
-  signal data_buf : std_ulogic_vector(31 downto 0);
+  signal তথ্য_buf : std_ulogic_vector(31 downto 0);
 
 begin
 
@@ -140,9 +140,9 @@ begin
       ctrl.done  <= ctrl.enable and (ctrl.done or engine.done);
       -- write access --
       if (bus_req_i.stb = '1') and (bus_req_i.rw = '1') and (bus_req_i.addr(2) = '0') then
-        ctrl.enable <= bus_req_i.data(ctrl_en_c);
-        ctrl.start  <= bus_req_i.data(ctrl_start_c);
-        if (bus_req_i.data(ctrl_start_c) = '1') or (bus_req_i.data(ctrl_ack_c) = '1') then -- write 1 to clear
+        ctrl.enable <= bus_req_i.তথ্য(ctrl_en_c);
+        ctrl.start  <= bus_req_i.তথ্য(ctrl_start_c);
+        if (bus_req_i.তথ্য(ctrl_start_c) = '1') or (bus_req_i.তথ্য(ctrl_ack_c) = '1') then -- write 1 to clear
           ctrl.err  <= '0';
           ctrl.done <= '0';
         end if;
@@ -156,7 +156,7 @@ begin
     bus_rdata <= (others => '0');
     if (bus_rden = '1') and (bus_req_i.addr(2) = '0') then -- output gating
       bus_rdata(ctrl_en_c)                        <= ctrl.enable;
-      bus_rdata(ctrl_fifo3_c downto ctrl_fifo0_c) <= std_ulogic_vector(to_unsigned(log2_fifo_size_c, 4));
+      bus_rdata(ctrl_fifo3_c downto ctrl_fifo0_c) <= std_ulogic_vector(to_unsigned(log2_fifo_আকার_c, 4));
       bus_rdata(ctrl_dempty_c)                    <= not fifo.avail;
       bus_rdata(ctrl_dfull_c)                     <= not fifo.free;
       bus_rdata(ctrl_error_c)                     <= ctrl.err;
@@ -168,7 +168,7 @@ begin
   -- bus response --
   bus_rsp_o.ack  <= bus_ack;
   bus_rsp_o.err  <= '0'; -- no access errors supported
-  bus_rsp_o.data <= bus_rdata;
+  bus_rsp_o.তথ্য <= bus_rdata;
 
   -- transfer-done interrupt --
   irq_o <= ctrl.done;
@@ -176,9 +176,9 @@ begin
 
   -- Descriptor Buffer (FIFO) ---------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  descriptor_buffer: entity neorv32.neorv32_prim_fifo
+  descriptor_বাফার: entity neorv32.neorv32_prim_fifo
   generic map (
-    AWIDTH  => log2_fifo_size_c,
+    AWIDTH  => log2_fifo_আকার_c,
     DWIDTH  => 32,
     OUTGATE => false,
     ASYNCRD => false
@@ -190,7 +190,7 @@ begin
     clear_i => fifo.clr,
     level_o => open,
     -- write port --
-    wdata_i => bus_req_i.data,
+    wdata_i => bus_req_i.তথ্য,
     we_i    => fifo.we,
     free_o  => fifo.free,
     -- read port --
@@ -216,8 +216,8 @@ begin
       engine.err      <= '0';
       engine.src_addr <= (others => '0');
       engine.dst_addr <= (others => '0');
-      engine.num      <= (others => '0');
-      engine.num_or   <= '0';
+      engine.অঙ্ক      <= (others => '0');
+      engine.অঙ্ক_or   <= '0';
       engine.bswap    <= '0';
       engine.src_type <= (others => '0');
       engine.dst_type <= (others => '0');
@@ -228,7 +228,7 @@ begin
         -- ------------------------------------------------------------
           engine.done   <= '0';
           engine.err    <= '0';
-          engine.num_or <= '0';
+          engine.অঙ্ক_or <= '0';
           if (engine.run = '0') then -- start new transfer if descriptor available and no pending error
             if (fifo.avail = '1') and (ctrl.start = '1') and (ctrl.err = '0') then
               engine.run   <= '1';
@@ -264,7 +264,7 @@ begin
 
         when S_GET_3 => -- get descriptor: transfer configuration
         -- ------------------------------------------------------------
-          engine.num      <= fifo.rdata(conf_num_hi_c downto conf_num_lo_c);
+          engine.অঙ্ক      <= fifo.rdata(conf_অঙ্ক_hi_c downto conf_অঙ্ক_lo_c);
           engine.bswap    <= fifo.rdata(conf_bswap_c);
           engine.src_type <= fifo.rdata(conf_src_hi_c downto conf_src_lo_c);
           engine.dst_type <= fifo.rdata(conf_dst_hi_c downto conf_dst_lo_c);
@@ -272,10 +272,10 @@ begin
 
         when S_READ_REQ => -- read request
         -- ------------------------------------------------------------
-          if (engine.num_or = '1') then -- hacky! do not increment in first iteration
+          if (engine.অঙ্ক_or = '1') then -- hacky! do not increment in first iteration
             engine.dst_addr <= std_ulogic_vector(unsigned(engine.dst_addr) + dst_add);
           end if;
-          engine.num   <= std_ulogic_vector(unsigned(engine.num) - 1);
+          engine.অঙ্ক   <= std_ulogic_vector(unsigned(engine.অঙ্ক) - 1);
           engine.state <= S_READ_RSP;
 
         when S_READ_RSP => -- read response
@@ -292,14 +292,14 @@ begin
         when S_WRITE_REQ => -- write request
         -- ------------------------------------------------------------
           engine.src_addr <= std_ulogic_vector(unsigned(engine.src_addr) + src_add);
-          engine.num_or   <= or_reduce_f(engine.num);
+          engine.অঙ্ক_or   <= or_reduce_f(engine.অঙ্ক);
           engine.state    <= S_WRITE_RSP;
 
         when S_WRITE_RSP => -- write response
         -- ------------------------------------------------------------
           if (dma_rsp_i.ack = '1') then
             engine.err <= dma_rsp_i.err;
-            if (engine.num_or = '0') or (ctrl.enable = '0') or (dma_rsp_i.err = '1') then -- done/abort/error?
+            if (engine.অঙ্ক_or = '0') or (ctrl.enable = '0') or (dma_rsp_i.err = '1') then -- done/abort/error?
               engine.state <= S_CHECK;
             else
               engine.state <= S_READ_REQ;
@@ -340,23 +340,23 @@ begin
     variable byte_v : std_ulogic_vector(7 downto 0);
   begin
     if (rstn_i = '0') then
-      data_buf <= (others => '0');
+      তথ্য_buf <= (others => '0');
     elsif rising_edge(clk_i) then
       if (engine.state = S_READ_RSP) then
         if (engine.src_type(0) = '0') then -- byte
           case engine.src_addr(1 downto 0) is
-            when "00"   => byte_v := dma_rsp_i.data( 7 downto  0);
-            when "01"   => byte_v := dma_rsp_i.data(15 downto  8);
-            when "10"   => byte_v := dma_rsp_i.data(23 downto 16);
-            when others => byte_v := dma_rsp_i.data(31 downto 24);
+            when "00"   => byte_v := dma_rsp_i.তথ্য( 7 downto  0);
+            when "01"   => byte_v := dma_rsp_i.তথ্য(15 downto  8);
+            when "10"   => byte_v := dma_rsp_i.তথ্য(23 downto 16);
+            when others => byte_v := dma_rsp_i.তথ্য(31 downto 24);
           end case;
           if (engine.dst_type(0) = '1') then -- to word
-            data_buf <= x"000000" & byte_v;
+            তথ্য_buf <= x"000000" & byte_v;
           else -- to byte
-            data_buf <= byte_v & byte_v & byte_v & byte_v;
+            তথ্য_buf <= byte_v & byte_v & byte_v & byte_v;
           end if;
         else -- word
-          data_buf <= dma_rsp_i.data;
+          তথ্য_buf <= dma_rsp_i.তথ্য;
         end if;
       end if;
     end if;
@@ -365,7 +365,7 @@ begin
 
   -- Bus Output Control ---------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  bus_control: process(engine, data_buf)
+  bus_control: process(engine, তথ্য_buf)
   begin
     dma_req_o <= req_terminate_c; -- all-zero by default
     -- access type --
@@ -397,12 +397,12 @@ begin
     end if;
     -- output data alignment --
     if (engine.bswap = '0') then
-      dma_req_o.data <= data_buf;
+      dma_req_o.তথ্য <= তথ্য_buf;
     else -- swap Endianness
-      dma_req_o.data( 7 downto  0) <= data_buf(31 downto 24);
-      dma_req_o.data(15 downto  8) <= data_buf(23 downto 16);
-      dma_req_o.data(23 downto 16) <= data_buf(15 downto  8);
-      dma_req_o.data(31 downto 24) <= data_buf( 7 downto  0);
+      dma_req_o.তথ্য( 7 downto  0) <= তথ্য_buf(31 downto 24);
+      dma_req_o.তথ্য(15 downto  8) <= তথ্য_buf(23 downto 16);
+      dma_req_o.তথ্য(23 downto 16) <= তথ্য_buf(15 downto  8);
+      dma_req_o.তথ্য(31 downto 24) <= তথ্য_buf( 7 downto  0);
     end if;
     -- request strobe --
     if (engine.state = S_READ_REQ) or (engine.state = S_WRITE_REQ) then

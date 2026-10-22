@@ -64,21 +64,21 @@ entity neorv32_core_complex is
     CPU_FAST_SHIFT_EN   : boolean                        := false;       -- use barrel shifter for shift operations
     CPU_RF_ARCH_SEL     : natural range 0 to 3           := 0;           -- register file implementation style select
     -- Physical Memory Protection (PMP) --
-    PMP_NUM_REGIONS     : natural range 0 to 16          := 0;           -- number of regions
+    PMP_অঙ্ক_REGIONS     : natural range 0 to 16          := 0;           -- number of regions
     PMP_MIN_GRANULARITY : natural                        := 4;           -- minimal region granularity in bytes, has to be a power of 2, min 4 bytes
     PMP_TOR_MODE_EN     : boolean                        := false;       -- enable TOR mode
     PMP_NAP_MODE_EN     : boolean                        := false;       -- enable NAPOT/NA4 modes
     -- Hardware Performance Monitors (HPM) --
-    HPM_NUM_CNTS        : natural range 0 to 29          := 0;           -- number of implemented HPM counters
+    HPM_অঙ্ক_CNTS        : natural range 0 to 29          := 0;           -- number of implemented HPM counters
     HPM_CNT_WIDTH       : natural range 0 to 64          := 0;           -- total size of HPM counters
     -- Trigger Module (TM) --
-    NUM_HW_TRIGGERS     : natural range 0 to 16          := 0;           -- number of hardware triggers
+    অঙ্ক_HW_TRIGGERS     : natural range 0 to 16          := 0;           -- number of hardware triggers
     -- CPU Caches --
     ICACHE_EN           : boolean                        := false;       -- implement instruction cache (i-cache)
-    ICACHE_NUM_BLOCKS   : natural range 1 to 4096        := 4;           -- i-cache: number of blocks, has to be a power of 2
+    ICACHE_অঙ্ক_BLOCKS   : natural range 1 to 4096        := 4;           -- i-cache: number of blocks, has to be a power of 2
     DCACHE_EN           : boolean                        := false;       -- implement data cache (d-cache)
-    DCACHE_NUM_BLOCKS   : natural range 1 to 4096        := 4;           -- d-cache: number of blocks, has to be a power of 2
-    CACHE_BLOCK_SIZE    : natural range 4 to 1024        := 64;          -- i-cache/d-cache: block size in bytes, has to be a power of 2
+    DCACHE_অঙ্ক_BLOCKS   : natural range 1 to 4096        := 4;           -- d-cache: number of blocks, has to be a power of 2
+    CACHE_BLOCK_আকার    : natural range 4 to 1024        := 64;          -- i-cache/d-cache: block size in bytes, has to be a power of 2
     CACHE_BURSTS_EN     : boolean                        := true;        -- i-cache/d-cache: enable issuing of burst transfer for cache update
     CACHE_UC_BASE       : std_ulogic_vector(3 downto 0)  := x"F";        -- base address of uncached address space (256MB page)
     -- Misc --
@@ -160,13 +160,13 @@ begin
     CPU_FAST_MUL_REGS   => CPU_FAST_MUL_REGS,
     CPU_FAST_SHIFT_EN   => CPU_FAST_SHIFT_EN,
     CPU_RF_ARCH_SEL     => CPU_RF_ARCH_SEL,
-    PMP_NUM_REGIONS     => PMP_NUM_REGIONS,
+    PMP_অঙ্ক_REGIONS     => PMP_অঙ্ক_REGIONS,
     PMP_MIN_GRANULARITY => PMP_MIN_GRANULARITY,
     PMP_TOR_MODE_EN     => PMP_TOR_MODE_EN,
     PMP_NAP_MODE_EN     => PMP_NAP_MODE_EN,
-    HPM_NUM_CNTS        => HPM_NUM_CNTS,
+    HPM_অঙ্ক_CNTS        => HPM_অঙ্ক_CNTS,
     HPM_CNT_WIDTH       => HPM_CNT_WIDTH,
-    NUM_HW_TRIGGERS     => NUM_HW_TRIGGERS
+    অঙ্ক_HW_TRIGGERS     => অঙ্ক_HW_TRIGGERS
   )
   port map (
     clk_i      => clk_i,
@@ -193,8 +193,8 @@ begin
   if ICACHE_EN generate
     icache_inst: entity neorv32.neorv32_cache
     generic map (
-      NUM_BLOCKS => ICACHE_NUM_BLOCKS,
-      BLOCK_SIZE => CACHE_BLOCK_SIZE,
+      অঙ্ক_BLOCKS => ICACHE_অঙ্ক_BLOCKS,
+      BLOCK_আকার => CACHE_BLOCK_আকার,
       UC_BEGIN   => CACHE_UC_BASE,
       READ_ONLY  => true,
       BURSTS_EN  => CACHE_BURSTS_EN
@@ -225,8 +225,8 @@ begin
   if DCACHE_EN generate
     dcache_inst: entity neorv32.neorv32_cache
     generic map (
-      NUM_BLOCKS => DCACHE_NUM_BLOCKS,
-      BLOCK_SIZE => CACHE_BLOCK_SIZE,
+      অঙ্ক_BLOCKS => DCACHE_অঙ্ক_BLOCKS,
+      BLOCK_আকার => CACHE_BLOCK_আকার,
       UC_BEGIN   => CACHE_UC_BASE,
       READ_ONLY  => false,
       BURSTS_EN  => CACHE_BURSTS_EN

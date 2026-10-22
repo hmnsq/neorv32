@@ -38,9 +38,9 @@ package neorv32_package is
 -- SoC Peripheral/IO Address Space Layout
 -- **********************************************************************************************************
 
-  constant mem_io_dev_size_c : natural := 64*1024; -- size of a single IO device (bytes)
+  constant mem_io_dev_আকার_c : natural := 64*1024; -- size of a single IO device (bytes)
   constant mem_io_base_c     : std_ulogic_vector(31 downto 0) := x"ffe00000";
-  constant mem_io_size_c     : natural := 32 * mem_io_dev_size_c;
+  constant mem_io_আকার_c     : natural := 32 * mem_io_dev_আকার_c;
 
   -- IO Address Map (base address must be aligned to the region's size) --
   constant base_io_bootrom_c  : std_ulogic_vector(31 downto 0) := x"ffe00000";
@@ -101,7 +101,7 @@ package neorv32_package is
   type bus_req_t is record
     meta  : std_ulogic_vector(4 downto 0);  -- access meta data: core_ID[2], debug[1], priv[1], instr/data[1]
     addr  : std_ulogic_vector(31 downto 0); -- access address
-    data  : std_ulogic_vector(31 downto 0); -- write data
+    তথ্য  : std_ulogic_vector(31 downto 0); -- write data
     ben   : std_ulogic_vector(3 downto 0);  -- byte enable
     stb   : std_ulogic;                     -- request strobe, single-shot
     rw    : std_ulogic;                     -- 0 = read, 1 = write
@@ -115,7 +115,7 @@ package neorv32_package is
   constant req_terminate_c : bus_req_t := (
     meta  => (others => '0'),
     addr  => (others => '0'),
-    data  => (others => '0'),
+    তথ্য  => (others => '0'),
     ben   => (others => '0'),
     stb   => '0',
     rw    => '0',
@@ -129,14 +129,14 @@ package neorv32_package is
   type bus_rsp_t is record
     ack  : std_ulogic;                     -- set if access acknowledge, single-shot
     err  : std_ulogic;                     -- set if access error, valid if ack = 1
-    data : std_ulogic_vector(31 downto 0); -- read data, valid if ack = 1
+    তথ্য : std_ulogic_vector(31 downto 0); -- read data, valid if ack = 1
   end record;
 
   -- bus response termination --
   constant rsp_terminate_c : bus_rsp_t := (
     ack  => '0',
     err  => '0',
-    data => (others => '0')
+    তথ্য => (others => '0')
   );
 
   -- Debug Module Interface -----------------------------------------------------------------
@@ -145,14 +145,14 @@ package neorv32_package is
   type dmi_req_t is record
     op   : std_ulogic_vector(1 downto 0); -- single-shot
     addr : std_ulogic_vector(6 downto 0);
-    data : std_ulogic_vector(31 downto 0);
+    তথ্য : std_ulogic_vector(31 downto 0);
   end record;
 
   -- request termination --
   constant dmi_req_terminate_c : dmi_req_t := (
     op   => (others => '0'),
     addr => (others => '0'),
-    data => (others => '0')
+    তথ্য => (others => '0')
   );
 
   -- request operation --
@@ -162,13 +162,13 @@ package neorv32_package is
 
   -- response --
   type dmi_rsp_t is record
-    data : std_ulogic_vector(31 downto 0);
+    তথ্য : std_ulogic_vector(31 downto 0);
     ack  : std_ulogic; -- single-shot
   end record;
 
   -- response termination --
   constant dmi_rsp_terminate_c : dmi_rsp_t := (
-    data => (others => '0'),
+    তথ্য => (others => '0'),
     ack  => '0'
   );
 
@@ -177,7 +177,7 @@ package neorv32_package is
   -- request --
   type xbus_req_t is record
     addr : std_ulogic_vector(31 downto 0); -- access address
-    data : std_ulogic_vector(31 downto 0); -- write data
+    তথ্য : std_ulogic_vector(31 downto 0); -- write data
     cti  : std_ulogic_vector(2 downto 0);  -- cycle type
     tag  : std_ulogic_vector(2 downto 0);  -- access tag
     we   : std_ulogic;                     -- read/write
@@ -189,7 +189,7 @@ package neorv32_package is
   -- request termination --
   constant xbus_req_terminate_c : xbus_req_t := (
     addr => (others => '0'),
-    data => (others => '0'),
+    তথ্য => (others => '0'),
     cti  => (others => '0'),
     tag  => (others => '0'),
     we   => '0',
@@ -200,14 +200,14 @@ package neorv32_package is
 
   -- response --
   type xbus_rsp_t is record
-    data : std_ulogic_vector(31 downto 0); -- read data, valid if ack=1
+    তথ্য : std_ulogic_vector(31 downto 0); -- read data, valid if ack=1
     ack  : std_ulogic;                     -- access acknowledge
     err  : std_ulogic;                     -- access error
   end record;
 
   -- response termination --
   constant xbus_rsp_terminate_c : xbus_rsp_t := (
-    data => (others => '0'),
+    তথ্য => (others => '0'),
     ack  => '0',
     err  => '0'
   );
@@ -872,7 +872,7 @@ package neorv32_package is
 -- Helper Functions
 -- **********************************************************************************************************
 
-  function index_size_f     (n : natural                          ) return natural;
+  function সূচক_আকার_f     (n : natural                          ) return natural;
   function sel_natural_f    (c : boolean; t, f : natural          ) return natural;
   function sel_suv_f        (c : boolean; t, f : std_ulogic_vector) return std_ulogic_vector;
   function sel_string_f     (c : boolean; t, f : string           ) return string;
@@ -889,7 +889,7 @@ package neorv32_package is
 -- NEORV32 Processor Top Entity (component prototype)
 -- **********************************************************************************************************
 
-  component neorv32_top
+  component neorv32_শীর্ষ
   generic (
     -- General --
     CLOCK_FREQUENCY     : natural                        := 0;
@@ -901,7 +901,7 @@ package neorv32_package is
     BOOT_ADDR_CUSTOM    : std_ulogic_vector(31 downto 0) := x"00000000";
     -- On-Chip Debugger (OCD) --
     OCD_EN              : boolean                        := false;
-    OCD_NUM_HW_TRIGGERS : natural range 0 to 16          := 0;
+    OCD_অঙ্ক_HW_TRIGGERS : natural range 0 to 16          := 0;
     OCD_AUTHENTICATION  : boolean                        := false;
     OCD_JEDEC_ID        : std_ulogic_vector(10 downto 0) := "00000000000";
     -- RISC-V CPU Extensions --
@@ -941,29 +941,29 @@ package neorv32_package is
     CPU_FAST_SHIFT_EN   : boolean                        := false;
     CPU_RF_ARCH_SEL     : natural range 0 to 3           := 0;
     -- Physical Memory Protection (PMP) --
-    PMP_NUM_REGIONS     : natural range 0 to 16          := 0;
+    PMP_অঙ্ক_REGIONS     : natural range 0 to 16          := 0;
     PMP_MIN_GRANULARITY : natural                        := 4;
     PMP_TOR_MODE_EN     : boolean                        := false;
     PMP_NAP_MODE_EN     : boolean                        := false;
     -- Hardware Performance Monitors (HPM) --
-    HPM_NUM_CNTS        : natural range 0 to 29          := 0;
+    HPM_অঙ্ক_CNTS        : natural range 0 to 29          := 0;
     HPM_CNT_WIDTH       : natural range 0 to 64          := 64;
     -- Internal Instruction memory (IMEM) --
     IMEM_EN             : boolean                        := false;
     IMEM_BASE           : std_ulogic_vector(31 downto 0) := x"00000000";
-    IMEM_SIZE           : natural                        := 16*1024;
+    IMEM_আকার           : natural                        := 16*1024;
     IMEM_OUTREG_EN      : boolean                        := false;
     -- Internal Data memory (DMEM) --
     DMEM_EN             : boolean                        := false;
     DMEM_BASE           : std_ulogic_vector(31 downto 0) := x"80000000";
-    DMEM_SIZE           : natural                        := 8*1024;
+    DMEM_আকার           : natural                        := 8*1024;
     DMEM_OUTREG_EN      : boolean                        := false;
     -- CPU Caches --
     ICACHE_EN           : boolean                        := false;
-    ICACHE_NUM_BLOCKS   : natural range 1 to 4096        := 4;
+    ICACHE_অঙ্ক_BLOCKS   : natural range 1 to 4096        := 4;
     DCACHE_EN           : boolean                        := false;
-    DCACHE_NUM_BLOCKS   : natural range 1 to 4096        := 4;
-    CACHE_BLOCK_SIZE    : natural range 4 to 1024        := 64;
+    DCACHE_অঙ্ক_BLOCKS   : natural range 1 to 4096        := 4;
+    CACHE_BLOCK_আকার    : natural range 4 to 1024        := 64;
     CACHE_BURSTS_EN     : boolean                        := true;
     CACHE_UC_BASE       : std_ulogic_vector(31 downto 0) := x"F0000000";
     -- Serial Memory Controller (SMC) --
@@ -974,7 +974,7 @@ package neorv32_package is
     XBUS_TIMEOUT        : natural                        := 2048;
     XBUS_REGSTAGE_EN    : boolean                        := false;
     -- General-Purpose Input/Output Controller (GPIO) --
-    IO_GPIO_NUM         : natural range 0 to 32          := 0;
+    IO_GPIO_অঙ্ক         : natural range 0 to 32          := 0;
     IO_GPIO_DIR_EN      : boolean                        := false;
     -- RISC-V Core-Local Interruptor (CLINT) --
     IO_CLINT_EN         : boolean                        := false;
@@ -997,22 +997,22 @@ package neorv32_package is
     IO_TWD_RX_FIFO      : natural range 1 to 32768       := 1;
     IO_TWD_TX_FIFO      : natural range 1 to 32768       := 1;
     -- Pulse-Width Modulation Controller (PWM) --
-    IO_PWM_NUM          : natural range 0 to 32          := 0;
+    IO_PWM_অঙ্ক          : natural range 0 to 32          := 0;
     -- Watchdog Timer (WDT) --
     IO_WDT_EN           : boolean                        := false;
     -- True-Random Number Generator (TRNG) --
     IO_TRNG_EN          : boolean                        := false;
     IO_TRNG_FIFO        : natural range 1 to 32768       := 1;
-    IO_TRNG_NUM_RO      : natural range 1 to 255         := 3;
-    IO_TRNG_NUM_INV     : natural range 3 to 4095        := 5;
-    IO_TRNG_NUM_RBIT    : natural range 8 to 4096        := 64;
+    IO_TRNG_অঙ্ক_RO      : natural range 1 to 255         := 3;
+    IO_TRNG_অঙ্ক_INV     : natural range 3 to 4095        := 5;
+    IO_TRNG_অঙ্ক_RBIT    : natural range 8 to 4096        := 64;
     -- Custom Functions Subsystem (CFS) --
     IO_CFS_EN           : boolean                        := false;
     -- Smart LED interface (NEOLED) --
     IO_NEOLED_EN        : boolean                        := false;
     IO_NEOLED_TX_FIFO   : natural range 1 to 32768       := 1;
     -- General-Purpose Timer (GPTMR) --
-    IO_GPTMR_NUM        : natural range 0 to 16          := 0;
+    IO_GPTMR_অঙ্ক        : natural range 0 to 16          := 0;
     -- 1-Wire Interface (ONEWIRE) --
     IO_ONEWIRE_EN       : boolean                        := false;
     IO_ONEWIRE_FIFO     : natural range 1 to 32768       := 1;
@@ -1136,11 +1136,11 @@ package neorv32_package is
   port (
     clk_i      : in  std_ulogic;
     req_addr_i : in  std_ulogic_vector(31 downto 0);
-    req_data_i : in  std_ulogic_vector(31 downto 0);
+    req_তথ্য_i : in  std_ulogic_vector(31 downto 0);
     req_ben_i  : in  std_ulogic_vector(3 downto 0);
     req_stb_i  : in  std_ulogic;
     req_rw_i   : in  std_ulogic;
-    rsp_data_o : out std_ulogic_vector(31 downto 0);
+    rsp_তথ্য_o : out std_ulogic_vector(31 downto 0);
     rsp_ack_o  : out std_ulogic;
     rsp_err_o  : out std_ulogic
   );
@@ -1155,11 +1155,11 @@ package neorv32_package is
   port (
     clk_i      : in  std_ulogic;
     req_addr_i : in  std_ulogic_vector(31 downto 0);
-    req_data_i : in  std_ulogic_vector(31 downto 0);
+    req_তথ্য_i : in  std_ulogic_vector(31 downto 0);
     req_ben_i  : in  std_ulogic_vector(3 downto 0);
     req_stb_i  : in  std_ulogic;
     req_rw_i   : in  std_ulogic;
-    rsp_data_o : out std_ulogic_vector(31 downto 0);
+    rsp_তথ্য_o : out std_ulogic_vector(31 downto 0);
     rsp_ack_o  : out std_ulogic;
     rsp_err_o  : out std_ulogic
   );
@@ -1173,7 +1173,7 @@ package neorv32_package is
     req_ben_i  : in  std_ulogic_vector(3 downto 0);
     req_stb_i  : in  std_ulogic;
     req_rw_i   : in  std_ulogic;
-    rsp_data_o : out std_ulogic_vector(31 downto 0);
+    rsp_তথ্য_o : out std_ulogic_vector(31 downto 0);
     rsp_ack_o  : out std_ulogic;
     rsp_err_o  : out std_ulogic
   );
@@ -1191,9 +1191,9 @@ package neorv32_package is
     addr_i    : in  std_ulogic_vector(31 downto 0);
     tag_we_i  : in  std_ulogic;
     tag_o     : out std_ulogic_vector(31 downto 0);
-    data_we_i : in  std_ulogic_vector(3 downto 0);
-    data_i    : in  std_ulogic_vector(31 downto 0);
-    data_o    : out std_ulogic_vector(31 downto 0)
+    তথ্য_we_i : in  std_ulogic_vector(3 downto 0);
+    তথ্য_i    : in  std_ulogic_vector(31 downto 0);
+    তথ্য_o    : out std_ulogic_vector(31 downto 0)
   );
   end component;
 
@@ -1203,11 +1203,11 @@ package neorv32_package is
     clk_i      : in  std_ulogic;
     rstn_i     : in  std_ulogic;
     req_addr_i : in  std_ulogic_vector(15 downto 0);
-    req_data_i : in  std_ulogic_vector(31 downto 0);
+    req_তথ্য_i : in  std_ulogic_vector(31 downto 0);
     req_ben_i  : in  std_ulogic_vector(3 downto 0);
     req_stb_i  : in  std_ulogic;
     req_rw_i   : in  std_ulogic;
-    rsp_data_o : out std_ulogic_vector(31 downto 0);
+    rsp_তথ্য_o : out std_ulogic_vector(31 downto 0);
     rsp_ack_o  : out std_ulogic;
     irq_o      : out std_ulogic;
     cfs_in_i   : in  std_ulogic_vector(255 downto 0);
@@ -1227,11 +1227,11 @@ package neorv32_package is
     zero_i     : in  std_ulogic;
     rd_we_i    : in  std_ulogic;
     rd_addr_i  : in  std_ulogic_vector(4 downto 0);
-    rd_data_i  : in  std_ulogic_vector(31 downto 0);
+    rd_তথ্য_i  : in  std_ulogic_vector(31 downto 0);
     rs1_addr_i : in  std_ulogic_vector(4 downto 0);
-    rs1_data_o : out std_ulogic_vector(31 downto 0);
+    rs1_তথ্য_o : out std_ulogic_vector(31 downto 0);
     rs2_addr_i : in  std_ulogic_vector(4 downto 0);
-    rs2_data_o : out std_ulogic_vector(31 downto 0)
+    rs2_তথ্য_o : out std_ulogic_vector(31 downto 0)
   );
   end component;
 
@@ -1244,7 +1244,7 @@ package neorv32_package is
     inst_i   : in  std_ulogic_vector(31 downto 0);
     rs1_i    : in  std_ulogic_vector(31 downto 0);
     rs2_i    : in  std_ulogic_vector(31 downto 0);
-    result_o : out std_ulogic_vector(31 downto 0);
+    ফলাফল_o : out std_ulogic_vector(31 downto 0);
     valid_o  : out std_ulogic
   );
   end component;
@@ -1259,7 +1259,7 @@ package body neorv32_package is
 
   -- Minimal required number of bits to represent <input> numbers ---------------------------
   -- -------------------------------------------------------------------------------------------
-  function index_size_f(n : natural) return natural is
+  function সূচক_আকার_f(n : natural) return natural is
   begin
     for i in 0 to 31 loop
       if (2**i >= n) then
@@ -1368,10 +1368,10 @@ package body neorv32_package is
   -- Bit reversal ---------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   function bit_rev_f(d : std_ulogic_vector) return std_ulogic_vector is
-    variable r : std_ulogic_vector(d'length-1 downto 0);
+    variable r : std_ulogic_vector(d'দৈর্ঘ্য-1 downto 0);
   begin
-    for i in 0 to d'length-1 loop
-      r((d'length-1)-i) := d(d'low + i);
+    for i in 0 to d'দৈর্ঘ্য-1 loop
+      r((d'length-1)-i) := d(d'নিচের + i);
     end loop;
     return r;
   end function;
@@ -1388,10 +1388,10 @@ package body neorv32_package is
   -- Convert to hex string ------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   function to_hexstring_f(d : std_ulogic_vector) return string is
-    variable v : string(1 to d'length/4);
+    variable v : string(1 to d'দৈর্ঘ্য/4);
   begin
-    for i in 0 to (d'length/4)-1 loop
-      v(i+1) := to_hexchar_f(d(d'high-i*4 downto (d'high-i*4)-3));
+    for i in 0 to (d'দৈর্ঘ্য/4)-1 loop
+      v(i+1) := to_hexchar_f(d(d'high-i*4 downto (d'উপরের-i*4)-3));
     end loop;
     return v;
   end function;
